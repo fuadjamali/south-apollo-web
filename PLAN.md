@@ -69,6 +69,57 @@
   CDN, not the Next.js app's token system) — they'd need their own `<style>` block with matching CSS
   variables to stay in sync, not attempted here since they're just design references, not shipped code.
 
+## Planned next (demo/pitch build-out)
+
+Goal: not a market product — an internal tool used to demo the template to prospective clients
+and scope what they'd actually want built. Priority is "looks finished and real in a walkthrough,"
+not full production completeness.
+
+1. **Blog section/page**
+   - `/blog` (list) + `/blog/[slug]` (post) — new routes.
+   - Content source: start with static entries in `config/site.js` (or a small `content/blog/*`
+     folder of plain objects/MDX) rather than a database table — matches the existing
+     config-driven pattern, avoids scoping a full CMS just for the demo.
+   - List page: card grid (title, excerpt, date, image) reusing the existing card/token styling.
+   - Post page: heading, date, body content, back-to-blog link.
+   - Add a "Blog" link to `SiteHeader` nav and `config/site.js` nav array — mark optional
+     (`blog: null` to disable) like the other sections.
+
+2. ✅ **Realistic generic imagery** — done for Products and Portfolio.
+   - Downloaded 6 royalty-free stock photos (Picsum/Unsplash-sourced, fixed seeds so they're
+     stable across rebuilds, not random-per-request) into `public/images/`:
+     `product-1/2/3.jpg` (800×500) and `portfolio-1/2/3.jpg` (700×700).
+   - `config/site.js`: each `products.items[]` entry now has an `image` field; `portfolio.items[]`
+     changed shape from a bare array of numbers (`[1, 2, 3]`) to objects (`{ id, image }`).
+   - `app/page.js`: both sections now render `next/image` with `fill` + `object-cover` inside a
+     `relative aspect-[...]` wrapper, instead of empty gray `div`s. Verified visually in-browser —
+     distinct real photos per card, correct aspect-ratio cropping, both light/dark mode fine.
+   - **Deliberately NOT done**: trusted-by logos and certifications badges were left as neutral
+     gray placeholders. Those slots represent company logos / certification badge graphics, not
+     photography — dropping a random landscape photo into a "Google" or "ISO certified" logo slot
+     would look wrong, not better. If these need real content for a demo, source actual
+     logo-style/badge graphics separately, not more stock photography.
+   - Filenames are intentionally generic (`product-1.jpg`, not e.g. `hot-air-balloon.jpg`) so
+     swapping in a real client's photos later is a drop-in file replacement — same spirit as the
+     `UPPER_SNAKE_CASE` text placeholders.
+   - Not done: blog cards (blog page doesn't exist yet — item 1 below).
+   - Follow-up: added real Trustpilot and Google badges to the reviews section
+     (`public/logos/trustpilot.svg`, `public/logos/google.svg`, fetched from simple-icons — an
+     appropriate source for this exact "nominative brand reference" use case). Unlike the
+     trusted-by/certifications call above, this made sense because Trustpilot/Google are real,
+     already-named platforms, not fictional placeholder clients — using their actual marks is
+     standard practice for review badges. Clutch intentionally left as a placeholder (not
+     requested; can add if wanted).
+
+3. **Demo color palette**
+   - Right now `app/globals.css` ships the neutral gray/black default — fine as a template
+     baseline, but flat for a pitch demo.
+   - Pick one attractive, finished-looking palette (not client-specific branding) and apply it via
+     the existing `docs/theme-prompt-template.md` workflow, so the demo actually looks designed
+     rather than like unstyled scaffolding.
+   - Keep the neutral default recoverable — e.g. note the original hex values here or in a comment,
+     since the neutral palette is still the right *starting* point for a real client project.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

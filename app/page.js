@@ -1,3 +1,4 @@
+import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import SocialLinks from "@/components/SocialLinks";
@@ -135,7 +136,15 @@ export default function Home() {
               key={product.id}
               className="overflow-hidden rounded-xl border border-border shadow-sm transition hover:shadow-md"
             >
-              <div className="aspect-video bg-gray-100 dark:bg-gray-800" />
+              <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
               <div className="p-5">
                 <h3 className="text-lg font-semibold">{product.name}</h3>
                 <p className="mt-1 text-sm text-muted">{product.description}</p>
@@ -155,7 +164,15 @@ export default function Home() {
 
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {portfolio.items.map((item) => (
-                <div key={item} className="aspect-square rounded-xl bg-gray-200 dark:bg-gray-800" />
+                <div key={item.id} className="relative aspect-square overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800">
+                  <Image
+                    src={item.image}
+                    alt={`Portfolio project ${item.id}`}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -175,7 +192,11 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="flex flex-col items-center rounded-xl border border-border p-6 text-center transition hover:shadow-md"
               >
-                <div className="h-8 w-24 rounded bg-gray-200 dark:bg-gray-800" title={platform.name} />
+                {platform.logo ? (
+                  <Image src={platform.logo} alt={platform.name} width={96} height={32} className="h-8 w-auto" />
+                ) : (
+                  <div className="h-8 w-24 rounded bg-gray-200 dark:bg-gray-800" title={platform.name} />
+                )}
                 <p className="mt-4 text-2xl font-bold">{platform.rating} / 5</p>
                 <p className="mt-1 text-sm text-muted">
                   {platform.name} &middot; {platform.count}

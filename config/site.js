@@ -68,9 +68,9 @@ const siteConfig = {
     heading: "Our Products",
     subheading: "A few things we're proud of.",
     items: [
-      { id: 1, name: "PRODUCT_1_NAME", description: "PRODUCT_1_DESCRIPTION", price: "PRODUCT_1_PRICE" },
-      { id: 2, name: "PRODUCT_2_NAME", description: "PRODUCT_2_DESCRIPTION", price: "PRODUCT_2_PRICE" },
-      { id: 3, name: "PRODUCT_3_NAME", description: "PRODUCT_3_DESCRIPTION", price: "PRODUCT_3_PRICE" },
+      { id: 1, name: "PRODUCT_1_NAME", description: "PRODUCT_1_DESCRIPTION", price: "PRODUCT_1_PRICE", image: "/images/product-1.jpg" },
+      { id: 2, name: "PRODUCT_2_NAME", description: "PRODUCT_2_DESCRIPTION", price: "PRODUCT_2_PRICE", image: "/images/product-2.jpg" },
+      { id: 3, name: "PRODUCT_3_NAME", description: "PRODUCT_3_DESCRIPTION", price: "PRODUCT_3_PRICE", image: "/images/product-3.jpg" },
     ],
   },
 
@@ -78,15 +78,19 @@ const siteConfig = {
   portfolio: {
     heading: "Our Work",
     subheading: "A selection of past projects.",
-    items: [1, 2, 3],
+    items: [
+      { id: 1, image: "/images/portfolio-1.jpg" },
+      { id: 2, image: "/images/portfolio-2.jpg" },
+      { id: 3, image: "/images/portfolio-3.jpg" },
+    ],
   },
 
   // Optional — set to null to remove the section from the home page.
   reviews: {
     heading: "What people say about us",
     platforms: [
-      { id: "trustpilot", name: "Trustpilot", rating: "4.8", count: "0 reviews", url: "https://www.trustpilot.com/review/YOUR_DOMAIN" },
-      { id: "google", name: "Google", rating: "4.9", count: "0 reviews", url: "https://g.page/r/YOUR_GOOGLE_PLACE_ID/review" },
+      { id: "trustpilot", name: "Trustpilot", rating: "4.8", count: "0 reviews", url: "https://www.trustpilot.com/review/YOUR_DOMAIN", logo: "/logos/trustpilot.svg" },
+      { id: "google", name: "Google", rating: "4.9", count: "0 reviews", url: "https://g.page/r/YOUR_GOOGLE_PLACE_ID/review", logo: "/logos/google.svg" },
       { id: "clutch", name: "Clutch", rating: "5.0", count: "0 reviews", url: "https://clutch.co/profile/YOUR_PROFILE" },
     ],
   },
