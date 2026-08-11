@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Falcon App — Developer Tutorial</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23111827' fill-rule='evenodd'%3E%3Cpath d='M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z'/%3E%3C/svg%3E" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: "class" };</script>
+<script>
+(function () {
+  var stored = localStorage.getItem("falcon-theme");
+  var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var theme = stored || (prefersDark ? "dark" : "light");
+  if (theme === "dark") document.documentElement.classList.add("dark");
+  window.toggleFalconTheme = function () {
+    var isDark = document.documentElement.classList.toggle("dark");
+    localStorage.setItem("falcon-theme", isDark ? "dark" : "light");
+  };
+})();
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .prose-body p, .prose-body li { line-height: 1.7; }
+</style>
+</head>
+<body class="bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+
+  <!-- Top bar -->
+  <header class="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+      <span class="flex items-center gap-2 text-lg font-bold">
+        <svg viewBox="0 0 100 100" class="h-6 w-6" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+          <path d="M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z"/>
+        </svg>
+        Falcon App — Developer Tutorial
+      </span>
+      <button onclick="toggleFalconTheme()"
+              class="rounded-full border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800">
+        Toggle theme
+      </button>
+    </div>
+  </header>
+
+  <div class="mx-auto flex max-w-7xl gap-10 px-6 py-10">
+
+    <!-- Sidebar TOC -->
+    <nav class="sticky top-20 hidden h-[calc(100vh-6rem)] w-64 shrink-0 overflow-y-auto text-sm lg:block">
+      <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Contents</p>
+      <ol class="space-y-1">
+        <li><a href="#intro" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">1. Who this is for</a></li>
+        <li><a href="#prereqs" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">2. Prerequisites</a></li>
+        <li><a href="#stack" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">3. The stack &amp; why</a></li>
+        <li><a href="#structure" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">4. Project structure</a></li>
+        <li><a href="#concepts" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">5. Core concepts</a></li>
+        <li><a href="#crashcourse" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">6. React, Next.js &amp; SQL crash course</a></li>
+        <li><a href="#steps" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">7. Build steps, in order</a></li>
+        <li><a href="#pitfalls" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">8. Real pitfalls we hit</a></li>
+        <li><a href="#theme" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">9. Theming system</a></li>
+        <li><a href="#testing" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">10. Testing &amp; verification</a></li>
+        <li><a href="#security" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">11. Security notes</a></li>
+        <li><a href="#new-project" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">12. Starting a real project</a></li>
+        <li><a href="#glossary" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">13. Glossary</a></li>
+        <li><a href="#next" class="block rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-900">14. What to learn next</a></li>
+      </ol>
+    </nav>
+
+    <!-- Main content -->
+    <main class="prose-body min-w-0 flex-1 max-w-3xl">
+
+      <section id="intro" class="scroll-mt-24 pb-14">
+        <h1 class="text-3xl font-extrabold tracking-tight">Falcon App — Developer Tutorial</h1>
+        <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
+          A full walkthrough of this project: what it is, why each tool was chosen, how it was
+          built step by step, and the real mistakes made (and fixed) along the way.
+        </p>
+
+        <h2 class="mt-10 text-xl font-bold" id="intro-who">Who this is for</h2>
+        <p class="mt-3">
+          This guide is written for a junior developer who is comfortable with basic JavaScript
+          and HTML/CSS, but new to Next.js, authentication, Docker, and the App Router. It doesn't
+          just say <em>what</em> to do — it explains <em>why</em>, so the reasoning transfers to
+          other projects, not just this one. Read it alongside the actual code in this repo; every
+          section names the real file it's talking about.
+        </p>
+
+        <h2 class="mt-8 text-xl font-bold">What this project is</h2>
+        <p class="mt-3">
+          Falcon App is an MVP (minimum viable product) template for small-business websites: a
+          public marketing home page, an admin login, and a protected admin dashboard. It's meant
+          to be copied and customized for real client projects rather than used as-is — see
+          <a href="#new-project" class="text-blue-600 underline dark:text-blue-400">Section 12</a>
+          for how that works.
+        </p>
+      </section>
+
+      <section id="prereqs" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">2. Prerequisites</h2>
+        <p class="mt-3">Install these before touching the code. Each one is explained, not just listed.</p>
+
+        <div class="mt-6 space-y-5">
+          <div>
+            <h3 class="font-semibold">Node.js (v20+)</h3>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">
+              The JavaScript runtime that runs Next.js, npm, and all build tooling. Next.js 16
+              specifically requires a recent Node version — older versions will fail to install
+              dependencies or build.
+            </p>
+          </div>
+          <div>
+            <h3 class="font-semibold">npm (comes with Node.js)</h3>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">
+              The package manager used to install and manage this project's dependencies
+              (<code>package.json</code>). Alternatives exist (yarn, pnpm) but this project
+              standardizes on npm — <code>package-lock.json</code> is committed, so stick with npm
+              to keep dependency versions consistent across machines.
+            </p>
+          </div>
+          <div>
+            <h3 class="font-semibold">Docker Desktop</h3>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">
+              Runs PostgreSQL locally in an isolated container, so your dev database doesn't
+              depend on installing Postgres directly on your machine (which can conflict with
+              other projects — see <a href="#pitfalls" class="text-blue-600 underline dark:text-blue-400">Section 8</a>).
+              Docker also means "it works on my machine" is more likely to mean "it works on
+              everyone's machine," since the database version and config are defined in code
+              (<code>docker-compose.yml</code>), not installed by hand.
+            </p>
+          </div>
+          <div>
+            <h3 class="font-semibold">Git</h3>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">
+              Version control. If you don't already have a solid mental model of commits,
+              branches, and <code>.gitignore</code>, learn that before this project — it's assumed
+              knowledge here.
+            </p>
+          </div>
+          <div>
+            <h3 class="font-semibold">A code editor (VS Code recommended)</h3>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">
+              Any editor works, but VS Code has the best Next.js/Tailwind/ESLint integration
+              out of the box (autocomplete for Tailwind class names, inline ESLint errors).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="stack" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">3. The stack, and why each piece was chosen</h2>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">
+          Nothing here was picked at random. Each choice trades something for something — knowing
+          the trade-off is more valuable than memorizing the choice.
+        </p>
+
+        <div class="mt-8 space-y-8">
+          <div>
+            <h3 class="text-lg font-semibold">Next.js (App Router)</h3>
+            <p class="mt-2">
+              <strong>What it is:</strong> a React framework that adds file-based routing, server
+              rendering, API routes, and build optimization on top of React.
+            </p>
+            <p class="mt-2">
+              <strong>Why chosen:</strong> a plain React app (e.g. via Vite) gives you a
+              client-only single-page app — every page ships as JavaScript that runs in the
+              browser, which is slower for first load and bad for SEO (search engines have to
+              execute JS to see content). Next.js renders pages on the server by default, sending
+              real HTML on first load, then "hydrates" into an interactive React app. For a
+              marketing site where a client cares about Google ranking and fast load times, that
+              matters directly.
+            </p>
+            <p class="mt-2">
+              <strong>Why App Router specifically</strong> (not the older Pages Router): App
+              Router uses React Server Components by default, has built-in support for layouts,
+              loading states, and colocated API routes, and is what Vercel (the deployment target)
+              actively develops for. The Pages Router still works but is in maintenance mode.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">React</h3>
+            <p class="mt-2">
+              The UI library Next.js is built on. Components, props, hooks (<code>useState</code>,
+              <code>useEffect</code>) — if you don't know these yet, learn plain React before
+              trying to understand Next.js specifics, since Next.js assumes you already have this
+              foundation.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">PostgreSQL</h3>
+            <p class="mt-2">
+              <strong>What it is:</strong> a relational (SQL) database.
+            </p>
+            <p class="mt-2">
+              <strong>Why chosen over, say, MongoDB or SQLite:</strong> the data here (an
+              <code>admins</code> table, eventually products/content tables) is structured and
+              relational — rows with fixed columns, unique constraints (one email per admin). SQL
+              databases enforce that structure at the database level, not just in application
+              code, which catches bugs earlier. Postgres specifically was chosen because
+              <strong>Vercel Postgres</strong> — the production database — is Postgres, so local
+              dev and production use the same database engine, avoiding "works locally, breaks in
+              prod" bugs caused by subtle differences between database systems.
+            </p>
+            <p class="mt-2">
+              <strong>Why raw SQL instead of an ORM (like Prisma):</strong> this project talks to
+              Postgres directly via the <code>pg</code> npm package (see <code>lib/db.js</code>)
+              rather than through an ORM. For a small schema (one table so far), raw SQL is more
+              transparent — you see exactly what query runs — and avoids the learning curve and
+              build-step overhead of an ORM. As the schema grows, introducing an ORM later is a
+              reasonable evolution, not a mistake to avoid now.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">Auth.js (NextAuth), Credentials provider, JWT sessions</h3>
+            <p class="mt-2">
+              <strong>What it is:</strong> a battle-tested authentication library for Next.js.
+              "Credentials provider" means email + password login (as opposed to "OAuth provider"
+              which would mean "Sign in with Google," etc.).
+            </p>
+            <p class="mt-2">
+              <strong>Why not roll your own auth:</strong> authentication is deceptively easy to
+              get wrong — session fixation, CSRF, insecure cookie flags, timing attacks on
+              password comparison. Auth.js handles all of that correctly by default. Writing your
+              own login system from scratch is a common junior-developer mistake; don't.
+            </p>
+            <p class="mt-2">
+              <strong>Why JWT sessions instead of database sessions:</strong> Auth.js supports two
+              session strategies. Database sessions store a session record in Postgres and look it
+              up on every request. JWT sessions encode the session data into a signed, encrypted
+              token stored in a cookie — no database lookup needed to verify a session. For a
+              single-admin app with no need to remotely revoke sessions instantly, JWT is simpler
+              and faster. The trade-off: you can't force-invalidate a JWT session early (e.g. "log
+              this user out right now, everywhere") without extra work — acceptable here, but
+              worth knowing.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">bcrypt</h3>
+            <p class="mt-2">
+              <strong>What it is:</strong> a password-hashing library.
+            </p>
+            <p class="mt-2">
+              <strong>Why it matters:</strong> passwords are never stored in plain text — ever, in
+              any app. bcrypt takes a password and a random "salt," and produces a one-way hash:
+              easy to verify a password is correct, effectively impossible to reverse back to the
+              original password. If the database ever leaks, attackers get hashes, not passwords.
+              bcrypt is deliberately slow (tunable via its "cost factor," set to 10 here in
+              <code>scripts/seed.js</code>) — that slowness is a feature, since it makes
+              brute-forcing every possible password far more expensive for an attacker.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">Tailwind CSS v4</h3>
+            <p class="mt-2">
+              <strong>What it is:</strong> a utility-first CSS framework — instead of writing
+              custom CSS classes like <code>.hero-button</code>, you compose small utility classes
+              directly in JSX: <code>className="rounded-full bg-primary px-6 py-3"</code>.
+            </p>
+            <p class="mt-2">
+              <strong>Why chosen:</strong> it avoids the classic CSS problem of naming things and
+              managing a growing, hard-to-track stylesheet. Styles live next to the markup they
+              affect, so there's no hunting through a separate CSS file to find what's applied
+              where. It also has excellent dark-mode support and, combined with a small config,
+              makes theming (see <a href="#theme" class="text-blue-600 underline dark:text-blue-400">Section 9</a>)
+              straightforward.
+            </p>
+            <p class="mt-2">
+              <strong>Why v4 specifically:</strong> Tailwind v4 moved configuration into CSS itself
+              (<code>@theme</code> blocks in <code>app/globals.css</code>) instead of a separate
+              <code>tailwind.config.js</code> file. This project has no
+              <code>tailwind.config.js</code> at all — that's not missing, it's the new normal for
+              v4. It's also noticeably faster to build.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">Docker &amp; docker-compose</h3>
+            <p class="mt-2">
+              Already covered under Prerequisites — the short version: reproducible local
+              Postgres, defined in code (<code>docker-compose.yml</code>), matching the production
+              database engine.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">Vercel (deployment target)</h3>
+            <p class="mt-2">
+              Next.js's own creators run Vercel, so deployment there is close to zero-config —
+              push to GitHub, connect the repo, done. It also offers Vercel Postgres, which is why
+              Postgres was chosen for local dev too (see above). Other hosts work with Next.js, but
+              Vercel has the least friction for this exact stack.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="structure" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">4. Project structure</h2>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">What each top-level folder/file is for, and why it's organized this way.</p>
+
+        <div class="mt-6 overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-50 dark:bg-gray-900">
+              <tr>
+                <th class="px-4 py-2 font-semibold">Path</th>
+                <th class="px-4 py-2 font-semibold">Purpose</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+              <tr><td class="px-4 py-2 font-mono">app/</td><td class="px-4 py-2">Every route in the app. A file named <code>page.js</code> inside a folder becomes a page at that folder's URL path — this is "file-based routing."</td></tr>
+              <tr><td class="px-4 py-2 font-mono">app/page.js</td><td class="px-4 py-2">The home page (<code>/</code>).</td></tr>
+              <tr><td class="px-4 py-2 font-mono">app/admin/login/page.js</td><td class="px-4 py-2">The <code>/admin/login</code> page.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">app/admin/(protected)/</td><td class="px-4 py-2">A <em>route group</em> — the parentheses mean this folder name is NOT part of the URL. Used to apply admin nav/sign-out chrome to <code>/admin</code> without leaking it onto <code>/admin/login</code>. See Section 5.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">app/api/auth/[...nextauth]/route.js</td><td class="px-4 py-2">Auth.js's own API endpoints (login, session, CSRF token, etc.) — a "catch-all" dynamic route.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">app/site-unavailable/page.js</td><td class="px-4 py-2">The 401 page shown for unrecognized routes.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">app/layout.js</td><td class="px-4 py-2">The root layout — wraps every page. Fonts, the session provider, the theme flash-prevention script, and site-wide metadata all live here.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">app/globals.css</td><td class="px-4 py-2">Tailwind import + the master color theme tokens (Section 9).</td></tr>
+              <tr><td class="px-4 py-2 font-mono">components/</td><td class="px-4 py-2">Reusable UI pieces shared across pages (header, theme toggle, sign-out button, etc.) — not routes themselves.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">config/site.js</td><td class="px-4 py-2">All page <em>content</em> (business name, hero text, products, etc.) as one plain JS object. See "config-driven content" in Section 5.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">lib/db.js</td><td class="px-4 py-2">The shared Postgres connection pool, reused across the app instead of opening a new connection per request.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">db/schema.sql</td><td class="px-4 py-2">The database table definitions, as plain SQL you can read without running any code.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">scripts/seed.js</td><td class="px-4 py-2">A one-off Node script (run manually via <code>npm run seed</code>) that creates the first admin user.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">proxy.js</td><td class="px-4 py-2">Runs before every request — the central place access control is enforced. See Section 5.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">docker-compose.yml</td><td class="px-4 py-2">Defines the local Postgres container.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">.env.local / .env.example</td><td class="px-4 py-2">Secrets and environment-specific config. <code>.env.local</code> is gitignored (never committed); <code>.env.example</code> documents what variables exist without real values.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">mockup/</td><td class="px-4 py-2">Standalone static HTML previews (no build step) used to design page content before writing real React components.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">docs/</td><td class="px-4 py-2">This tutorial, the theming prompt template, and the client intake form.</td></tr>
+              <tr><td class="px-4 py-2 font-mono">PLAN.md</td><td class="px-4 py-2">A running build log — what was done, in what order, and what broke along the way.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="concepts" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">5. Core concepts to actually understand</h2>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">
+          Don't just copy patterns from this repo — understand why they exist, so you can apply
+          the same reasoning elsewhere.
+        </p>
+
+        <div class="mt-8 space-y-8">
+          <div>
+            <h3 class="text-lg font-semibold">Server Components vs. Client Components</h3>
+            <p class="mt-2">
+              In the App Router, every component is a <strong>Server Component</strong> by
+              default — it runs on the server, never ships its JavaScript to the browser, and
+              can't use hooks like <code>useState</code> or browser-only APIs. A component becomes
+              a <strong>Client Component</strong> only when it starts with
+              <code>"use client"</code> at the top of the file — that's how the app opts into
+              interactivity for things like the mobile nav menu (<code>components/SiteHeader.js</code>)
+              or the login form (<code>app/admin/login/page.js</code>), which need state and event
+              handlers.
+            </p>
+            <p class="mt-2">
+              <strong>Why it matters:</strong> Server Components mean less JavaScript shipped to
+              the browser (faster pages) and let you query the database directly inside a
+              component (see <code>app/admin/(protected)/page.js</code>, which calls
+              <code>getServerSession</code> directly — no API call needed). Default to Server
+              Components; only add <code>"use client"</code> when you actually need interactivity
+              or browser APIs.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">Route groups: <code>(protected)</code></h3>
+            <p class="mt-2">
+              A folder wrapped in parentheses, like <code>app/admin/(protected)/</code>, is
+              invisible in the URL — <code>app/admin/(protected)/page.js</code> is still just
+              <code>/admin</code>. The reason to use one here: a <code>layout.js</code> file
+              applies to every page nested inside its folder. We want the admin nav bar and
+              sign-out button to show on the dashboard but <em>not</em> on the login page, even
+              though both live under <code>/admin</code>. Route groups let you scope a layout to
+              only part of a route tree.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">Access control via <code>proxy.js</code></h3>
+            <p class="mt-2">
+              <code>proxy.js</code> (the file was called <code>middleware.js</code> before
+              Next.js 16 renamed the convention — same idea) runs on the server before any page
+              renders, for every matching request. This project uses it to enforce three rules in
+              one central place instead of scattering auth checks across every page:
+            </p>
+            <ol class="mt-2 list-decimal space-y-1 pl-6">
+              <li><code>/</code> and <code>/admin/login</code> are always allowed through.</li>
+              <li>
+                <code>/admin</code> requires a valid session — checked via
+                <code>getToken()</code> from <code>next-auth/jwt</code>, which reads and verifies
+                the signed JWT cookie without needing a database round-trip. No valid token →
+                redirect to <code>/admin/login</code>.
+              </li>
+              <li>Anything else → rewritten to the 401 "Site Unavailable" page.</li>
+            </ol>
+            <p class="mt-2">
+              <strong>A real bug we hit here:</strong> the first version of this logic didn't
+              explicitly allow <code>/api/auth/*</code> through, so Auth.js's own login/CSRF
+              endpoints got caught by the "anything else → 401" rule and login broke entirely.
+              Fixed by adding an explicit allowlist. See Section 8 for the full story — it's a
+              good example of why testing the actual auth flow end-to-end (not just "the page
+              loads") matters.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">Config-driven content (<code>config/site.js</code>)</h3>
+            <p class="mt-2">
+              Every piece of page copy — headings, product names, social links, the admin login
+              text — lives in one plain JS object in <code>config/site.js</code>, and components
+              read from it rather than hardcoding text inline. Optional sections (like the "Trusted
+              By" logo strip) render only if their key isn't <code>null</code>:
+              <code>{trustedBy &amp;&amp; (&lt;section&gt;...&lt;/section&gt;)}</code>.
+            </p>
+            <p class="mt-2">
+              <strong>Why:</strong> this is what makes the template reusable. Customizing a copied
+              project for a new client is "edit one file," not "hunt through ten component files
+              for hardcoded strings." It also means deleting a section is "set a key to
+              <code>null</code>," not "carefully delete JSX without breaking the layout."
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold">Environment variables</h3>
+            <p class="mt-2">
+              <code>DATABASE_URL</code>, <code>NEXTAUTH_SECRET</code>, and <code>NEXTAUTH_URL</code>
+              live in <code>.env.local</code>, which is gitignored — never committed, because it
+              holds real secrets. <code>.env.example</code> and <code>.env.local.example</code>
+              are committed and document <em>which</em> variables exist and their shape, without
+              real values, so a new developer knows what to create. Next.js loads
+              <code>.env.local</code> automatically for the dev server and build, but a
+              standalone script like <code>scripts/seed.js</code> doesn't get that for free —
+              that's why its npm script explicitly passes <code>--env-file=.env.local</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="crashcourse" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">6. React, Next.js &amp; SQL — the 20% that gets you 80% there</h2>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">
+          This is the fast-track version of each technology — not the full docs, just the core
+          mental model you need to read and modify this codebase confidently. Everything past this
+          section assumes you understand what's here. Explore the official docs for the rest,
+          later, once you actually need it — don't front-load advanced material you have no
+          concrete use for yet.
+        </p>
+
+        <h3 class="mt-8 text-xl font-bold">React, in six ideas</h3>
+
+        <div class="mt-5 space-y-6">
+          <div>
+            <h4 class="font-semibold">1. JSX is just JavaScript wearing an HTML costume</h4>
+            <p class="mt-2">
+              <code>&lt;h1&gt;{hero.heading}&lt;/h1&gt;</code> looks like HTML but compiles to
+              plain JavaScript function calls. Anything inside curly braces
+              <code>{...}</code> is a real JavaScript expression — a variable, a function
+              call, a ternary. That's why you'll see things like
+              <code>{new Date().getFullYear()}</code> in the footer
+              (<code>app/page.js</code>) — it's just JS running inline.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">2. A component is a function that returns JSX</h4>
+            <p class="mt-2">
+              That's it. <code>export default function Home() { return (&lt;div&gt;...&lt;/div&gt;); }</code>
+              in <code>app/page.js</code> is a component. It can accept <strong>props</strong> —
+              arguments passed in from whoever renders it — like
+              <code>AdminLayout({ children })</code> in
+              <code>app/admin/(protected)/layout.js</code>, where <code>children</code> is
+              whatever page got nested inside that layout.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">3. State is memory that triggers a re-render when it changes</h4>
+            <p class="mt-2">
+              <code>useState</code> is how a component remembers something between renders — like
+              whether the mobile menu is open. From <code>components/SiteHeader.js</code>:
+            </p>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>const [menuOpen, setMenuOpen] = useState(false);
+
+// later, in the JSX:
+&lt;button onClick={() => setMenuOpen((open) => !open)}&gt;
+
+// and:
+{menuOpen && (&lt;div&gt;...mobile menu...&lt;/div&gt;)}</code></pre>
+            <p class="mt-2">
+              Calling <code>setMenuOpen(...)</code> doesn't just change a variable — it tells React
+              "re-run this component's render," so the new value shows up on screen. This is the
+              single most important idea in React: you never manually update the DOM; you update
+              state, and React figures out what needs to change.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">4. Conditional rendering is just JavaScript <code>&amp;&amp;</code> and ternaries</h4>
+            <p class="mt-2">
+              There's no special "if" syntax in JSX — you use normal JS operators. This whole
+              template's "optional sections" feature (Section 5) is built entirely on this one
+              pattern, used throughout <code>app/page.js</code>:
+            </p>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>{stats && (
+  &lt;section&gt;...stats content...&lt;/section&gt;
+)}</code></pre>
+            <p class="mt-2">
+              If <code>stats</code> is <code>null</code>, the whole expression short-circuits to
+              <code>null</code>, and React renders nothing. If it's an object, React renders the
+              JSX after the <code>&amp;&amp;</code>.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">5. Lists need <code>.map()</code> and a <code>key</code></h4>
+            <p class="mt-2">
+              To render a list of things, you <code>.map()</code> over an array and return JSX for
+              each item — same as <code>products.items.map((product) =&gt; ...)</code> in
+              <code>app/page.js</code>. Every item needs a unique <code>key</code> prop (usually an
+              id) so React can track which item is which across re-renders, instead of accidentally
+              mixing them up.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">6. Controlled form inputs</h4>
+            <p class="mt-2">
+              An input whose value comes from state, and updates state on every keystroke, is
+              called "controlled." From <code>app/admin/login/page.js</code>:
+            </p>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>const [email, setEmail] = useState("");
+
+&lt;input
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/&gt;</code></pre>
+            <p class="mt-2">
+              This is why the value shown in the box always matches what's in state — React is the
+              single source of truth for the input, not the browser's own DOM.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="mt-10 text-xl font-bold">Next.js App Router, in five ideas</h3>
+
+        <div class="mt-5 space-y-6">
+          <div>
+            <h4 class="font-semibold">1. Folders are URLs, <code>page.js</code> is the page</h4>
+            <p class="mt-2">
+              <code>app/admin/login/page.js</code> renders at <code>/admin/login</code>. There's no
+              separate router config file to maintain — the file tree <em>is</em> the route table.
+              A folder with no <code>page.js</code> inside it (like
+              <code>app/admin/(protected)/</code>) contributes no URL segment of its own.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">2. <code>layout.js</code> wraps everything nested inside it</h4>
+            <p class="mt-2">
+              <code>app/layout.js</code> wraps the entire site (fonts, the session provider, the
+              theme script). <code>app/admin/(protected)/layout.js</code> wraps only the dashboard,
+              adding the admin nav bar and sign-out button — without affecting
+              <code>/admin/login</code>, which sits outside that route group. Layouts nest: a page
+              is rendered inside every layout above it in the folder tree.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">3. Server Components can be <code>async</code> and query data directly</h4>
+            <p class="mt-2">
+              Because a Server Component runs on the server, it can <code>await</code> a database
+              call right inside the component — no separate API endpoint, no client-side fetch, no
+              loading spinner needed. From <code>app/admin/(protected)/page.js</code>:
+            </p>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>export default async function AdminPage() {
+  const session = await getServerSession(authOptions);
+  return &lt;div&gt;{session?.user?.email}&lt;/div&gt;;
+}</code></pre>
+            <p class="mt-2">
+              This only works in Server Components. A Client Component (anything marked
+              <code>"use client"</code>) can't be <code>async</code> like this — it has to fetch
+              data through <code>useEffect</code> or a library, because it runs in the browser,
+              where you can't just "await the database."
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">4. <code>"use client"</code> is an opt-in, not the default</h4>
+            <p class="mt-2">
+              Add it to the very top of a file the moment you need <code>useState</code>,
+              <code>useEffect</code>, event handlers like <code>onClick</code>, or any browser-only
+              API. Everything else stays a Server Component by default — which is what you want,
+              since it ships less JavaScript to the browser. If you forget it and try to use
+              <code>useState</code> in a Server Component, Next.js will throw a build error telling
+              you exactly that.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">5. A route handler is an API endpoint, not a page</h4>
+            <p class="mt-2">
+              A file named <code>route.js</code> instead of <code>page.js</code> — like
+              <code>app/api/auth/[...nextauth]/route.js</code> — doesn't render a page. It exports
+              functions named after HTTP methods (<code>GET</code>, <code>POST</code>) that return
+              a <code>Response</code>. That's how this project's login/session endpoints work.
+              <code>[...nextauth]</code> is a "catch-all" dynamic segment — it matches
+              <code>/api/auth/anything/here</code>, letting Auth.js handle multiple sub-routes
+              (signin, callback, session, csrf) from one file.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="mt-10 text-xl font-bold">SQL &amp; Postgres, in five ideas</h3>
+
+        <div class="mt-5 space-y-6">
+          <div>
+            <h4 class="font-semibold">1. A table is rows of the same shape</h4>
+            <p class="mt-2">
+              From <code>db/schema.sql</code>:
+            </p>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>CREATE TABLE IF NOT EXISTS admins (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);</code></pre>
+            <p class="mt-2">
+              Every row in <code>admins</code> has exactly these four columns.
+              <code>SERIAL PRIMARY KEY</code> auto-generates a unique, ever-increasing id per row.
+              <code>UNIQUE</code> on <code>email</code> means the database itself refuses a second
+              row with the same email — you get that guarantee for free, without writing
+              application code to check for duplicates. <code>NOT NULL</code> means the database
+              will reject an attempt to insert a row missing that value.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">2. The four verbs: SELECT, INSERT, UPDATE, DELETE</h4>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>SELECT id, email FROM admins WHERE email = 'a@b.com';
+INSERT INTO admins (email, password_hash) VALUES ('a@b.com', '$2b$10$...');
+UPDATE admins SET password_hash = '$2b$10$...' WHERE email = 'a@b.com';
+DELETE FROM admins WHERE id = 4;</code></pre>
+            <p class="mt-2">
+              <code>WHERE</code> filters which rows a statement applies to — leave it off an
+              <code>UPDATE</code> or <code>DELETE</code> by accident and you'll modify every row in
+              the table. Always double-check your <code>WHERE</code> clause before running a
+              destructive query, especially by hand against a real database.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">3. Parameterized queries — the single most important habit</h4>
+            <p class="mt-2">
+              Never build a query by concatenating a string together with user input. From
+              <code>app/api/auth/[...nextauth]/route.js</code>:
+            </p>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>// Correct — the value is passed separately, never inserted into the SQL text:
+await db.query(
+  "SELECT id, email, password_hash FROM admins WHERE email = $1",
+  [credentials.email]
+);
+
+// NEVER do this:
+await db.query(
+  `SELECT * FROM admins WHERE email = '${credentials.email}'`
+);</code></pre>
+            <p class="mt-2">
+              The second version is a <strong>SQL injection</strong> vulnerability — a malicious
+              value for <code>email</code> like <code>' OR '1'='1</code> could rewrite the meaning
+              of the query entirely, potentially returning every row in the table or worse. The
+              <code>$1</code> placeholder tells Postgres "this is a value, never treat it as SQL
+              syntax," no matter what it contains. This one habit prevents an entire, very common
+              class of security bugs — use it for every single query that includes any value that
+              didn't come from your own code.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">4. Connections are expensive — reuse a pool</h4>
+            <p class="mt-2">
+              Opening a database connection has real overhead (a TCP handshake, authentication).
+              <code>lib/db.js</code> creates one shared <code>Pool</code> from the <code>pg</code>
+              package instead of opening a new connection per request, and every query borrows a
+              connection from that pool and returns it when done. In development, it's also cached
+              on <code>globalThis</code> so Next.js's hot-reload doesn't accidentally spin up a new
+              pool (and leak connections) on every file save.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold">5. You'll need JOINs once you have more than one table</h4>
+            <p class="mt-2">
+              This project only has one table so far, so there's no join to show yet — but the
+              moment you add a second related table (say, a <code>products</code> table with an
+              admin's <code>id</code> as a foreign key), you'll need
+              <code>JOIN ... ON</code> to combine rows from both tables in one query. Worth
+              learning when you actually hit that need, not before.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="steps" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">7. Build steps, in the order they actually happened</h2>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">
+          This mirrors <code>PLAN.md</code>. Follow this order if you're building something similar
+          from scratch — each step depends on the previous one being in place.
+        </p>
+
+        <ol class="mt-6 space-y-6">
+          <li>
+            <h3 class="font-semibold">1. Scaffold Next.js</h3>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>npx create-next-app@latest . --app --js --tailwind --eslint --no-src-dir --import-alias "@/*" --use-npm</code></pre>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <code>--app</code> selects the App Router. <code>--no-src-dir</code> keeps
+              <code>app/</code> at the repo root instead of inside <code>src/</code> — a style
+              choice, both work. <code>--import-alias "@/*"</code> lets every file import with
+              <code>@/lib/db</code> instead of relative paths like <code>../../lib/db</code>.
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">2. Install extra dependencies</h3>
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>npm install next-auth pg bcrypt @tabler/icons-react</code></pre>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">3. Docker Postgres for local dev</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Write <code>docker-compose.yml</code>, then <code>docker-compose up -d</code> to
+              start it in the background.
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">4. Env files</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Create <code>.env.example</code>, <code>.env.local.example</code>, and your real
+              <code>.env.local</code> (generate <code>NEXTAUTH_SECRET</code> with
+              <code>openssl rand -base64 32</code> — never reuse a secret across environments).
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">5. Database schema + seed script</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Write <code>db/schema.sql</code> and <code>scripts/seed.js</code>, then
+              <code>npm run seed</code> to create the <code>admins</code> table and insert the
+              first bcrypt-hashed admin.
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">6. Auth.js setup</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <code>app/api/auth/[...nextauth]/route.js</code> — a Credentials provider whose
+              <code>authorize()</code> function looks up the email in Postgres and compares the
+              password with <code>bcrypt.compare()</code>. JWT session strategy. Wrap the app in
+              <code>&lt;SessionProvider&gt;</code> (via a small client-component wrapper, since
+              <code>SessionProvider</code> itself needs <code>"use client"</code> and
+              <code>app/layout.js</code> is a Server Component).
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">7. Build the pages</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Home, admin login, admin dashboard (behind the <code>(protected)</code> route
+              group), Site Unavailable — all reading from <code>config/site.js</code>.
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">8. Central access control</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <code>proxy.js</code>, as described in Section 5.
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">9. Styling &amp; theming</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Tailwind v4, dark mode via a <code>.dark</code> class toggle, and the master color
+              token system — see Section 9.
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">10. README</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Document the setup steps for the next developer (or your future self).
+            </p>
+          </li>
+
+          <li>
+            <h3 class="font-semibold">11. Sanity check</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              Actually test every route and the full login flow before calling it done — see
+              Section 10.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="pitfalls" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">8. Real pitfalls we hit (and how they were diagnosed)</h2>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">
+          These aren't hypothetical "watch out for" warnings — every one of these actually happened
+          while building this exact project. Reading how they were diagnosed is often more useful
+          than the fix itself.
+        </p>
+
+        <div class="mt-6 space-y-6">
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+            <h3 class="font-semibold">"create-next-app" refused to scaffold into the project folder</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Symptom:</strong> it listed <code>CLAUDE.md</code>, <code>PLAN.md</code>,
+              <code>mockup/</code> as "conflicting files" and exited.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Cause:</strong> the tool only tolerates a specific allowlist of pre-existing
+              files (like <code>.git</code>, <code>README.md</code>) in a non-empty target
+              directory.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Fix:</strong> scaffold into a temporary sibling folder, then move everything
+              except its own <code>.git</code> into the real project folder, preserving the
+              original git history.
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+            <h3 class="font-semibold">npm install ran in the wrong directory</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Symptom:</strong> dependencies "installed successfully" but never showed up
+              in <code>package.json</code>.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Cause:</strong> the terminal's working directory was one level up (the
+              parent folder containing multiple unrelated projects), not inside
+              <code>falcon-app</code> — easy to miss if you're not checking the prompt path.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Lesson:</strong> always check <em>where</em> a command actually ran before
+              debugging <em>why</em> it "didn't work" — a stray <code>package.json</code> and
+              <code>node_modules</code> appeared in the parent directory and had to be cleaned up.
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+            <h3 class="font-semibold">Postgres port conflict (5432 already in use)</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Symptom:</strong> the seed script failed with
+              <code>password authentication failed for user "falcon"</code>, even though the
+              Docker container's credentials were verifiably correct when tested from inside the
+              container.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Diagnosis:</strong> <code>netstat</code> showed <em>two</em> processes bound
+              to port 5432 — Docker's backend, and a pre-existing native Windows Postgres service.
+              Connections from the host were landing on the wrong one.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Fix:</strong> remap the Docker container to a different host port
+              (5433) rather than touching a Postgres service that might belong to another project.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Lesson:</strong> "wrong password" errors aren't always about the password —
+              always verify you're actually talking to the service you think you are, e.g. by
+              testing the connection from inside the container first to rule out a routing
+              problem.
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+            <h3 class="font-semibold">The proxy blocked NextAuth's own API routes</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Symptom:</strong> login silently failed — CSRF token requests and login
+              POSTs both returned 401.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Cause:</strong> the "anything not public or protected → 401" catch-all rule
+              in <code>proxy.js</code> didn't know about <code>/api/auth/*</code>, so Auth.js's
+              own internal endpoints got treated as unrecognized routes.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Fix:</strong> add an explicit always-allowed prefix for
+              <code>/api/auth</code>.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Lesson:</strong> when you write a catch-all "deny by default" rule, you must
+              explicitly enumerate every legitimate exception — it's easy to forget a framework's
+              own internal routes.
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+            <h3 class="font-semibold">Protected-prefix matching hid a routing bug</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Symptom:</strong> visiting <code>/admin/some-page-that-does-not-exist</code>
+              returned Next.js's generic 404 instead of the custom "Site Unavailable" page.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Cause:</strong> the proxy treated <em>any</em> path starting with
+              <code>/admin</code> as "protected," so it passed through to Next's router — which
+              then correctly reported 404 for a page that doesn't exist, but that's not the
+              behavior the brief called for.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Fix:</strong> changed to an explicit allowlist of real admin routes instead
+              of a prefix match, so an unbuilt <code>/admin/*</code> path correctly falls through
+              to the "unrecognized route" branch.
+            </p>
+          </div>
+
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+            <h3 class="font-semibold">Tailwind v4 CSS variable self-reference</h3>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Symptom:</strong> caught before shipping — the master theme's
+              <code>@theme inline</code> block used the exact same variable name
+              (<code>--color-primary</code>) as the <code>:root</code>/<code>.dark</code> token it
+              was supposed to point to.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Why that's broken:</strong> a CSS custom property can't validly resolve by
+              referencing itself — the browser has no way to know which value you meant.
+            </p>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <strong>Fix:</strong> give the raw tokens plain names (<code>--primary</code>) and
+              only prefix with <code>--color-</code> inside the <code>@theme inline</code> mapping
+              that exposes them as Tailwind utilities — the same pattern the scaffold already used
+              for <code>--background</code> → <code>--color-background</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="theme" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">9. The theming system</h2>
+        <p class="mt-3">
+          <code>app/globals.css</code> defines a small set of named color tokens —
+          <code>primary</code>, <code>primary-hover</code>, <code>primary-foreground</code>,
+          <code>accent</code>, <code>surface</code>, <code>surface-alt</code>,
+          <code>border-color</code>, <code>text-muted</code> — each with a light-mode and
+          dark-mode value. Tailwind's <code>@theme inline</code> block exposes these as real
+          utility classes: <code>bg-primary</code>, <code>text-primary-foreground</code>,
+          <code>border-border</code>, and so on. Every component uses these tokens instead of
+          hardcoded colors like <code>bg-gray-900</code>.
+        </p>
+        <p class="mt-3">
+          <strong>Why this matters:</strong> recoloring the entire site for a new client is a
+          one-file edit (change the hex values in <code>globals.css</code>) instead of hunting
+          through every component for hardcoded colors. <code>docs/theme-prompt-template.md</code>
+          is a ready-made prompt for exactly that task.
+        </p>
+        <p class="mt-3">
+          <strong>Dark mode specifically:</strong> Tailwind v4 needs an explicit
+          <code>@custom-variant dark (&amp;:where(.dark, .dark *));</code> to make
+          <code>dark:</code> classes respond to a <code>.dark</code> class on
+          <code>&lt;html&gt;</code>, rather than only the OS-level
+          <code>prefers-color-scheme</code>. A small inline script in
+          <code>app/layout.js</code> (<code>components/ThemeScript.js</code>) sets that class
+          before the page paints, based on <code>localStorage</code> or system preference —
+          without it, you'd see a flash of the wrong theme on every page load.
+        </p>
+      </section>
+
+      <section id="testing" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">10. Testing &amp; verification</h2>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">
+          "The page loads" is not the same as "it works." Every feature in this project was
+          verified against its actual specified behavior, not just checked for the absence of an
+          error.
+        </p>
+        <ul class="mt-4 list-disc space-y-2 pl-6">
+          <li><code>npm run build</code> — catches type errors, broken imports, and misconfigured metadata before they reach production.</li>
+          <li>
+            <code>curl</code>-based route checks — for every route, assert the actual HTTP status
+            code matches the spec:
+            <pre class="mt-2 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100"><code>curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/random-page   # expect 401</code></pre>
+          </li>
+          <li>
+            Full login flow tested end-to-end with a real CSRF token and cookie jar, not just "the
+            login page renders" — fetch a CSRF token, POST credentials, confirm a session cookie
+            is issued, then confirm the protected page returns 200 <em>with</em> that cookie and
+            307 <em>without</em> it.
+          </li>
+          <li>A manual browser click-through (dark mode toggle, mobile nav, full login → dashboard → sign-out) to catch anything a curl script can't — actual rendering, layout, interaction.</li>
+        </ul>
+      </section>
+
+      <section id="security" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">11. Security notes</h2>
+        <ul class="mt-4 list-disc space-y-2 pl-6">
+          <li><strong>Passwords are bcrypt-hashed</strong>, never stored or logged in plain text.</li>
+          <li><strong>Secrets never committed</strong> — <code>.env.local</code> is gitignored; only <code>.env.example</code> (no real values) is tracked.</li>
+          <li><strong>Sessions are signed JWTs</strong> verified server-side on every protected request via <code>NEXTAUTH_SECRET</code> — a different secret must be generated for every environment (never reuse the local one in production).</li>
+          <li>
+            <strong>Known gap, intentionally left for later:</strong> there's no rate limiting or
+            lockout on <code>/admin/login</code> — right now it's an unlimited brute-force
+            target. Acceptable for an internal MVP demo, not for a real production login with a
+            single admin account guarding real business data.
+          </li>
+          <li><strong>Known gap:</strong> no password-reset flow — the only way to change the admin password today is re-running the seed script.</li>
+        </ul>
+      </section>
+
+      <section id="new-project" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">12. Starting a real project from this template</h2>
+        <ol class="mt-4 list-decimal space-y-2 pl-6">
+          <li>Copy this repo to a new folder (avoid dots in the name — Vercel project names can't contain them).</li>
+          <li>Send <code>docs/project-profile-intake-form.docx</code> to the client and get it filled in.</li>
+          <li>Feed the completed form to Claude Code to populate <code>config/site.js</code>.</li>
+          <li>Use <code>docs/theme-prompt-template.md</code>, filled in with the client's brand color, to recolor <code>app/globals.css</code>.</li>
+          <li>Set up a fresh <code>.env.local</code>, a new <code>NEXTAUTH_SECRET</code>, and re-run <code>npm run seed</code> with the client's real admin credentials.</li>
+          <li>Follow the Vercel deployment steps in <code>README.md</code>.</li>
+        </ol>
+      </section>
+
+      <section id="glossary" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pb-14 pt-10">
+        <h2 class="text-2xl font-bold">13. Glossary</h2>
+        <dl class="mt-4 space-y-3">
+          <div><dt class="font-semibold">SSR (Server-Side Rendering)</dt><dd class="text-gray-600 dark:text-gray-400">Generating a page's HTML on the server for each request, rather than in the browser.</dd></div>
+          <div><dt class="font-semibold">JWT (JSON Web Token)</dt><dd class="text-gray-600 dark:text-gray-400">A signed (and here, also encrypted) piece of data that proves who a user is, without the server needing to store session state.</dd></div>
+          <div><dt class="font-semibold">CSRF (Cross-Site Request Forgery)</dt><dd class="text-gray-600 dark:text-gray-400">An attack where a malicious site tricks a logged-in user's browser into submitting a request to your app. Auth.js defends against this with a CSRF token that must be included in login requests — which is why the raw <code>curl</code> tests in this project had to fetch a token first.</dd></div>
+          <div><dt class="font-semibold">Middleware / Proxy</dt><dd class="text-gray-600 dark:text-gray-400">Code that runs before a request reaches its actual page/route handler — used here for centralized access control.</dd></div>
+          <div><dt class="font-semibold">Route group</dt><dd class="text-gray-600 dark:text-gray-400">A folder in parentheses, e.g. <code>(protected)</code>, that organizes routes/layouts without adding a URL segment.</dd></div>
+          <div><dt class="font-semibold">Hydration</dt><dd class="text-gray-600 dark:text-gray-400">The process of React "waking up" server-rendered HTML in the browser and attaching interactivity to it.</dd></div>
+          <div><dt class="font-semibold">Connection pool</dt><dd class="text-gray-600 dark:text-gray-400">A reused set of open database connections, instead of opening/closing a new one per request — much more efficient. See <code>lib/db.js</code>.</dd></div>
+        </dl>
+      </section>
+
+      <section id="next" class="scroll-mt-24 border-t border-gray-200 dark:border-gray-800 pt-10">
+        <h2 class="text-2xl font-bold">14. What to learn next</h2>
+        <p class="mt-3 text-gray-600 dark:text-gray-400">In roughly the order it'll pay off:</p>
+        <ol class="mt-4 list-decimal space-y-2 pl-6">
+          <li>Plain React fundamentals, if not already solid — components, props, hooks, controlled forms.</li>
+          <li>The Next.js App Router docs directly, especially Server vs. Client Components and data fetching.</li>
+          <li>Basic SQL — <code>SELECT</code>/<code>INSERT</code>/<code>UPDATE</code>, primary keys, unique constraints — enough to read <code>db/schema.sql</code> and <code>scripts/seed.js</code> comfortably.</li>
+          <li>How JWTs actually work under the hood (header/payload/signature) — worth understanding once, since it explains a lot of "why can't I just edit the session" questions later.</li>
+          <li>Git branching workflows, once working with a team — this project so far has been single-branch, which won't scale to multiple developers.</li>
+        </ol>
+
+        <p class="mt-10 text-sm text-gray-500 dark:text-gray-400">
+          Read this alongside the actual code, not instead of it. Every section here points at a
+          real file — open it, and check that what you're reading matches what's actually there.
+        </p>
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>

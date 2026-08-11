@@ -1,0 +1,77 @@
+@startuml falcon-app-c4-level3-component-diagram
+' C4 model — Level 3: Component diagram
+' Zooms into the "Next.js Web Application" container from the Level 2
+' Container diagram and shows the internal components that make it up.
+'
+' Render with the PlantUML VS Code extension, https://www.plantuml.com/plantuml,
+' or `docker run -v "$PWD:/data" plantuml/plantuml -tsvg /data/docs/c4-level3-component-diagram.puml`
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+title Component diagram (C4 Level 3) — Falcon App / Next.js Web Application
+
+Person(visitor, "Visitor", "A member of the public browsing the marketing site.")
+Person(admin, "Admin", "The business owner/staff managing the site.")
+
+System_Boundary(webapp, "Next.js Web Application") {
+
+  Component(proxy, "Access Control Proxy", "proxy.js (Next.js Proxy/Middleware)", "Runs before every request. Allows public routes, requires a valid session for /admin, rewrites anything else to a 401 Site Unavailable response.")
+
+  Component(homePage, "Home Page", "app/page.js (React Server Component)", "Public marketing page: hero, products, portfolio, reviews, enquiry form, contact footer.")
+
+  Component(loginPage, "Admin Login Page", "app/admin/login/page.js (React Client Component)", "Email/password login form. Calls signIn('credentials', ...) from next-auth/react.")
+
+  Component(dashboardPage, "Admin Dashboard Page", "app/admin/(protected)/page.js (React Server Component)", "Protected page shown after login. Reads the current session directly on the server.")
+
+  Component(unavailablePage, "Site Unavailable Page", "app/site-unavailable/page.js", "401 fallback rendered for any unrecognized route.")
+
+  Component(authRoute, "Auth.js API Route", "app/api/auth/[...nextauth]/route.js", "Credentials provider + JWT session strategy. Verifies email/password against the admins table via bcrypt.")
+
+  Component(sessionProvider, "Session Provider", "components/SessionProviderWrapper.js", "Client-side React context that exposes the current session to client components (useSession, signIn, signOut).")
+
+  Component(uiComponents, "Shared UI Components", "components/*.js", "SiteHeader, ThemeToggle, SignOutButton, FloatingWhatsApp, SocialLinks, Logo.")
+
+  Component(siteConfig, "Site Content Config", "config/site.js", "Single source of truth for all page copy: business info, hero text, products, social links, admin nav labels, etc.")
+
+  Component(dbPool, "Database Connection Pool", "lib/db.js (pg.Pool)", "One shared, reused Postgres connection pool for the whole app.")
+}
+
+ContainerDb_Ext(postgres, "PostgreSQL Database", "Docker locally / Vercel Postgres in production", "Stores the admins table (id, email, password_hash, created_at).")
+System_Ext(googleMaps, "Google Maps", "Embedded iframe showing the business location.")
+System_Ext(whatsApp, "WhatsApp", "wa.me deep link used by the chat CTA and floating button.")
+
+Rel(visitor, proxy, "Requests any page over HTTPS")
+Rel(admin, proxy, "Requests /admin/login or /admin over HTTPS")
+
+Rel(proxy, homePage, "Allows through", "/ is always public")
+Rel(proxy, loginPage, "Allows through", "/admin/login is always public")
+Rel(proxy, dashboardPage, "Allows through if a valid JWT session exists")
+Rel(proxy, unavailablePage, "Rewrites here (HTTP 401) for any unrecognized route")
+Rel(proxy, authRoute, "Verifies the session token via getToken()")
+
+Rel(loginPage, authRoute, "POSTs credentials via signIn()")
+Rel(authRoute, dbPool, "Looks up admin by email (parameterized query)")
+Rel(dbPool, postgres, "SQL over TCP", "postgresql://")
+
+Rel(dashboardPage, authRoute, "Reads the session via getServerSession()")
+
+Rel(homePage, siteConfig, "Reads page content")
+Rel(loginPage, siteConfig, "Reads labels")
+Rel(dashboardPage, siteConfig, "Reads labels")
+
+Rel(homePage, uiComponents, "Renders header, footer, theme toggle, WhatsApp button")
+Rel(loginPage, uiComponents, "Renders logo, theme toggle")
+Rel(dashboardPage, uiComponents, "Renders admin nav, sign-out button, theme toggle")
+
+Rel(loginPage, sessionProvider, "Uses session context")
+Rel(uiComponents, sessionProvider, "Sign-out button uses session context")
+
+Rel(homePage, googleMaps, "Embeds via iframe", "if the map section is enabled")
+Rel(homePage, whatsApp, "Deep links to", "wa.me/&lt;number&gt;")
+
+SHOW_LEGEND()
+
+@enduml
