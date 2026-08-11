@@ -1,0 +1,319 @@
+import SiteHeader from "@/components/SiteHeader";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import SocialLinks from "@/components/SocialLinks";
+import Logo from "@/components/Logo";
+import siteConfig from "@/config/site";
+
+export const metadata = {
+  title: `${siteConfig.business.name} — ${siteConfig.business.tagline}`,
+  description: siteConfig.business.description,
+  openGraph: {
+    type: "website",
+    title: `${siteConfig.business.name} — ${siteConfig.business.tagline}`,
+    description: siteConfig.business.description,
+    images: ["/og-image.svg"],
+    url: `https://${siteConfig.business.domain}`,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.business.name} — ${siteConfig.business.tagline}`,
+    description: siteConfig.business.description,
+    images: ["/og-image.svg"],
+  },
+};
+
+export default function Home() {
+  const {
+    hero,
+    stats,
+    trustedBy,
+    howItWorks,
+    products,
+    portfolio,
+    reviews,
+    about,
+    certifications,
+    map,
+    enquiryForm,
+    footer,
+    business,
+    contact,
+  } = siteConfig;
+
+  const whatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(contact.whatsappMessage)}`;
+
+  return (
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+      {/* COMPONENT: header-nav (required) */}
+      <SiteHeader />
+
+      <main>
+      {/* COMPONENT: hero (required) */}
+      <section className="mx-auto max-w-6xl px-6 py-24 text-center">
+        <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
+          {hero.heading}
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+          {hero.subheading}
+        </p>
+        <div className="mt-8 flex justify-center gap-4">
+          <a
+            href={hero.primaryCta.href}
+            className="rounded-full bg-gray-900 dark:bg-white px-6 py-3 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200"
+          >
+            {hero.primaryCta.label}
+          </a>
+          <a
+            href={hero.secondaryCta.href}
+            className="rounded-full border border-gray-300 dark:border-gray-700 px-6 py-3 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800"
+          >
+            {hero.secondaryCta.label}
+          </a>
+        </div>
+      </section>
+
+      {/* COMPONENT: stats (optional) */}
+      {stats && (
+        <section className="border-y border-gray-100 dark:border-gray-800 py-10">
+          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center sm:grid-cols-4">
+            {stats.items.map((stat) => (
+              <div key={stat.label}>
+                <p className="text-3xl font-extrabold">{stat.value}</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: trusted-by (optional) */}
+      {trustedBy && (
+        <section className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 py-12">
+          <div className="mx-auto max-w-6xl px-6 text-center">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{trustedBy.heading}</p>
+            <div className="mt-8 grid grid-cols-2 items-center gap-8 sm:grid-cols-3 md:grid-cols-5">
+              {trustedBy.logos.map((logo) => (
+                <div
+                  key={logo.id}
+                  className="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70"
+                  title={logo.name}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: how-it-works (optional) */}
+      {howItWorks && (
+        <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20">
+          <h2 className="text-center text-3xl font-bold">{howItWorks.heading}</h2>
+          <p className="mt-2 text-center text-gray-600 dark:text-gray-400">{howItWorks.subheading}</p>
+
+          <div className="mt-10 grid gap-8 sm:grid-cols-3">
+            {howItWorks.steps.map((step, index) => (
+              <div key={step.title} className="text-center">
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-sm font-bold text-white dark:text-gray-900">
+                  {index + 1}
+                </div>
+                <h3 className="mt-4 font-semibold">{step.title}</h3>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: products (core — static now, swap for DB fetch later) */}
+      <section id="products" className="mx-auto max-w-6xl px-6 py-20">
+        <h2 className="text-3xl font-bold">{products.heading}</h2>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">{products.subheading}</p>
+
+        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {products.items.map((product) => (
+            <div
+              key={product.id}
+              className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition hover:shadow-md"
+            >
+              <div className="aspect-video bg-gray-100 dark:bg-gray-800" />
+              <div className="p-5">
+                <h3 className="text-lg font-semibold">{product.name}</h3>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{product.description}</p>
+                <p className="mt-3 font-bold">{product.price}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* COMPONENT: portfolio (optional) */}
+      {portfolio && (
+        <section id="portfolio" className="bg-gray-50 dark:bg-gray-900 py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2 className="text-3xl font-bold">{portfolio.heading}</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">{portfolio.subheading}</p>
+
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {portfolio.items.map((item) => (
+                <div key={item} className="aspect-square rounded-xl bg-gray-200 dark:bg-gray-800" />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: reviews (optional) */}
+      {reviews && (
+        <section id="reviews" className="mx-auto max-w-6xl px-6 py-20">
+          <h2 className="text-center text-3xl font-bold">{reviews.heading}</h2>
+          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+            {reviews.platforms.map((platform) => (
+              <a
+                key={platform.id}
+                href={platform.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center transition hover:shadow-md"
+              >
+                <div className="h-8 w-24 rounded bg-gray-200 dark:bg-gray-800" title={platform.name} />
+                <p className="mt-4 text-2xl font-bold">{platform.rating} / 5</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {platform.name} &middot; {platform.count}
+                </p>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: about (core) */}
+      <section id="about" className="mx-auto max-w-4xl px-6 py-20 text-center">
+        <h2 className="text-3xl font-bold">{about.heading}</h2>
+        <p className="mt-4 text-gray-600 dark:text-gray-400">{about.body}</p>
+      </section>
+
+      {/* COMPONENT: certifications (optional) */}
+      {certifications && (
+        <section className="bg-gray-50 dark:bg-gray-900 py-16">
+          <div className="mx-auto max-w-6xl px-6 text-center">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{certifications.heading}</p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-10">
+              {certifications.items.map((cert) => (
+                <div
+                  key={cert.id}
+                  className="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-800"
+                  title={cert.name}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: map (optional — live-queries Google Maps with business.address) */}
+      {map && (
+        <section className="mx-auto max-w-6xl px-6 py-20">
+          <h2 className="text-center text-3xl font-bold">{map.heading}</h2>
+          <p className="mt-2 text-center text-gray-600 dark:text-gray-400">{business.address}</p>
+          <div className="mt-10 aspect-16/6 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
+            <iframe
+              title="Business location map"
+              className="h-full w-full grayscale"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(business.address)}&output=embed`}
+            />
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: enquiry-form (optional — wire the <form> up to an API route or mailto later) */}
+      {enquiryForm && (
+        <section id="enquiry" className="bg-gray-50 dark:bg-gray-900 py-20">
+          <div className="mx-auto max-w-xl px-6">
+            <h2 className="text-center text-3xl font-bold">{enquiryForm.heading}</h2>
+            <p className="mt-2 text-center text-gray-600 dark:text-gray-400">{enquiryForm.subheading}</p>
+
+            <form className="mt-10 space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="Your name"
+                    className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Optional"
+                    className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="you@example.com"
+                  className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+                <textarea
+                  name="message"
+                  rows={4}
+                  required
+                  placeholder="Tell us what you're looking for"
+                  className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-gray-900 dark:bg-white py-2.5 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200"
+              >
+                Send enquiry
+              </button>
+            </form>
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: contact-footer (required) */}
+      <footer id="contact" className="bg-gray-900 dark:bg-black py-16 text-center text-white">
+        <h2 className="text-2xl font-bold">{footer.heading}</h2>
+        <p className="mt-2 text-gray-300">{footer.subheading}</p>
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-200"
+        >
+          Chat on WhatsApp
+        </a>
+
+        {/* COMPONENT: social-links (optional) */}
+        <SocialLinks />
+
+        <p className="mt-10 flex items-center justify-center gap-2 text-xs text-gray-400">
+          <Logo className="h-4 w-4" />© {new Date().getFullYear()} {business.name}. All rights reserved.
+        </p>
+      </footer>
+      </main>
+
+      {/* COMPONENT: floating-whatsapp-button (optional) */}
+      <FloatingWhatsApp />
+    </div>
+  );
+}

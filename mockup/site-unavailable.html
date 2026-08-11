@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Falcon App — Site unavailable mockup</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23111827' fill-rule='evenodd'%3E%3Cpath d='M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z'/%3E%3C/svg%3E" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: "class" };</script>
+<script src="theme-toggle.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950">
+
+  <button onclick="toggleFalconTheme()"
+          class="fixed right-6 top-6 rounded-full border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+    Toggle theme
+  </button>
+
+  <!-- COMPONENT: unavailable-card (required) -->
+  <main class="flex min-h-screen items-center justify-center px-6">
+    <div class="w-full max-w-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 text-center shadow-sm">
+      <svg viewBox="0 0 100 100" class="mx-auto h-10 w-10 text-gray-400 dark:text-gray-600" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+        <path d="M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z"/>
+      </svg>
+
+      <p class="mt-4 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">ERROR_CODE_LABEL</p>
+      <h1 class="mt-1 text-xl font-bold text-gray-900 dark:text-white">UNAVAILABLE_HEADING</h1>
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        UNAVAILABLE_MESSAGE
+      </p>
+
+      <a href="/" class="mt-6 inline-block rounded-lg bg-gray-900 dark:bg-white px-4 py-2 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200">
+        Back to home
+      </a>
+    </div>
+  </main>
+  <!-- /COMPONENT: unavailable-card -->
+
+</body>
+</html>

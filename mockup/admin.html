@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Falcon App — Admin dashboard mockup</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23111827' fill-rule='evenodd'%3E%3Cpath d='M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z'/%3E%3C/svg%3E" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: "class" };</script>
+<script src="theme-toggle.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950">
+
+  <!-- COMPONENT: admin-header-nav (required — shared across all /admin/* pages) -->
+  <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <span class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+        <svg viewBox="0 0 100 100" class="h-6 w-6" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+          <path d="M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z"/>
+        </svg>
+        YOUR_BUSINESS_NAME <span class="text-gray-400 dark:text-gray-500 font-normal">ADMIN_BRAND_SUFFIX</span>
+      </span>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleFalconTheme()"
+                class="rounded-full border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
+          Theme
+        </button>
+        <button type="button"
+                class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800">
+          Sign out
+        </button>
+      </div>
+    </div>
+    <!-- COMPONENT: admin-section-nav (optional — one link per content section, delete individual <a> tags for sections you remove from the home page) -->
+    <nav class="mx-auto flex max-w-6xl flex-wrap gap-x-6 gap-y-2 px-6 pb-4 text-sm font-medium">
+      <a href="#" class="text-gray-900 dark:text-white border-b-2 border-gray-900 dark:border-white pb-1">Home</a>
+      <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Trusted By</a>
+      <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Products</a>
+      <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Portfolio</a>
+      <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Reviews</a>
+      <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">About</a>
+      <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Certifications</a>
+      <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Contact Us</a>
+    </nav>
+    <!-- /COMPONENT: admin-section-nav -->
+  </header>
+  <!-- /COMPONENT: admin-header-nav -->
+
+  <!-- COMPONENT: dashboard-card (required) -->
+  <main class="flex min-h-[calc(100vh-113px)] items-center justify-center px-6">
+    <div class="w-full max-w-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 text-center shadow-sm">
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white">DASHBOARD_HEADING</h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">DASHBOARD_SUBHEADING</p>
+      <p class="mt-4 text-sm text-gray-700 dark:text-gray-300">ADMIN_EMAIL</p>
+    </div>
+  </main>
+  <!-- /COMPONENT: dashboard-card -->
+
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YOUR_BUSINESS_NAME — YOUR_TAGLINE_HERE</title>
+<meta name="description" content="One or two sentences describing what the business does and who it's for." />
+<meta name="theme-color" content="#111827" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="YOUR_BUSINESS_NAME — YOUR_TAGLINE_HERE" />
+<meta property="og:description" content="One or two sentences describing what the business does and who it's for." />
+<meta property="og:image" content="/og-image.svg" />
+<meta property="og:url" content="https://YOUR_DOMAIN" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="YOUR_BUSINESS_NAME — YOUR_TAGLINE_HERE" />
+<meta name="twitter:description" content="One or two sentences describing what the business does and who it's for." />
+<meta name="twitter:image" content="/og-image.svg" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23111827' fill-rule='evenodd'%3E%3Cpath d='M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z'/%3E%3C/svg%3E" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: "class" };</script>
+<script src="theme-toggle.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+</head>
+<body class="bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+
+  <!-- COMPONENT: header-nav (required) -->
+  <header class="sticky top-0 z-10 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <span class="flex items-center gap-2 text-xl font-bold">
+        <svg viewBox="0 0 100 100" class="h-7 w-7 text-gray-900 dark:text-white" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+          <path d="M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z"/>
+        </svg>
+        YOUR_BUSINESS_NAME
+      </span>
+      <div class="hidden gap-8 text-sm font-medium md:flex">
+        <a href="#products" class="hover:text-gray-600 dark:hover:text-gray-300">Products</a>
+        <a href="#portfolio" class="hover:text-gray-600 dark:hover:text-gray-300">Portfolio</a>
+        <a href="#reviews" class="hover:text-gray-600 dark:hover:text-gray-300">Reviews</a>
+        <a href="#about" class="hover:text-gray-600 dark:hover:text-gray-300">About</a>
+        <a href="#enquiry" class="hover:text-gray-600 dark:hover:text-gray-300">Enquiry</a>
+        <a href="#contact" class="hover:text-gray-600 dark:hover:text-gray-300">Contact</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleFalconTheme()"
+                class="hidden rounded-full border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 sm:inline-block">
+          Theme
+        </button>
+        <a href="#contact" class="hidden rounded-full bg-gray-900 dark:bg-white px-4 py-2 text-sm font-medium text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200 md:inline-block">
+          Get in touch
+        </a>
+        <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                aria-label="Toggle menu"
+                class="rounded-lg border border-gray-300 dark:border-gray-700 p-2 md:hidden">
+          <i class="ti ti-menu-2" style="font-size: 18px;"></i>
+        </button>
+      </div>
+    </nav>
+    <div id="mobile-menu" class="hidden border-t border-gray-200 dark:border-gray-800 md:hidden">
+      <div class="flex flex-col gap-1 px-6 py-4 text-sm font-medium">
+        <a href="#products" class="rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">Products</a>
+        <a href="#portfolio" class="rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">Portfolio</a>
+        <a href="#reviews" class="rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">Reviews</a>
+        <a href="#about" class="rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">About</a>
+        <a href="#enquiry" class="rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">Enquiry</a>
+        <a href="#contact" class="rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">Contact</a>
+        <button onclick="toggleFalconTheme()" class="mt-2 rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-left sm:hidden">
+          Toggle theme
+        </button>
+      </div>
+    </div>
+  </header>
+  <!-- /COMPONENT: header-nav -->
+
+  <!-- COMPONENT: hero (required) -->
+  <section class="mx-auto max-w-6xl px-6 py-24 text-center">
+    <h1 class="text-4xl font-extrabold tracking-tight sm:text-6xl">YOUR_HERO_HEADLINE</h1>
+    <p class="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+      HERO_SUBHEADING
+    </p>
+    <div class="mt-8 flex justify-center gap-4">
+      <a href="#products" class="rounded-full bg-gray-900 dark:bg-white px-6 py-3 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200">
+        View Products
+      </a>
+      <a href="#contact" class="rounded-full border border-gray-300 dark:border-gray-700 px-6 py-3 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800">
+        Contact Us
+      </a>
+    </div>
+  </section>
+  <!-- /COMPONENT: hero -->
+
+  <!-- COMPONENT: stats (optional — delete this section to remove) -->
+  <section class="border-y border-gray-100 dark:border-gray-800 py-10">
+    <div class="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center sm:grid-cols-4">
+      <div>
+        <p class="text-3xl font-extrabold">STAT_1_VALUE</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">STAT_1_LABEL</p>
+      </div>
+      <div>
+        <p class="text-3xl font-extrabold">STAT_2_VALUE</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">STAT_2_LABEL</p>
+      </div>
+      <div>
+        <p class="text-3xl font-extrabold">STAT_3_VALUE</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">STAT_3_LABEL</p>
+      </div>
+      <div>
+        <p class="text-3xl font-extrabold">STAT_4_VALUE</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">STAT_4_LABEL</p>
+      </div>
+    </div>
+  </section>
+  <!-- /COMPONENT: stats -->
+
+  <!-- COMPONENT: trusted-by (optional — delete this section to remove) -->
+  <section class="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 py-12">
+    <div class="mx-auto max-w-6xl px-6 text-center">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">TRUSTED_BY_HEADING</p>
+      <div class="mt-8 grid grid-cols-2 items-center gap-8 sm:grid-cols-3 md:grid-cols-5">
+        <div class="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70" title="CUSTOMER_1_NAME"></div>
+        <div class="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70" title="CUSTOMER_2_NAME"></div>
+        <div class="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70" title="CUSTOMER_3_NAME"></div>
+        <div class="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70" title="CUSTOMER_4_NAME"></div>
+        <div class="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70" title="CUSTOMER_5_NAME"></div>
+      </div>
+    </div>
+  </section>
+  <!-- /COMPONENT: trusted-by -->
+
+  <!-- COMPONENT: how-it-works (optional — delete this section to remove) -->
+  <section id="how-it-works" class="mx-auto max-w-6xl px-6 py-20">
+    <h2 class="text-center text-3xl font-bold">HOW_IT_WORKS_HEADING</h2>
+    <p class="mt-2 text-center text-gray-600 dark:text-gray-400">HOW_IT_WORKS_SUBHEADING</p>
+
+    <div class="mt-10 grid gap-8 sm:grid-cols-3">
+      <div class="text-center">
+        <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-sm font-bold text-white dark:text-gray-900">1</div>
+        <h3 class="mt-4 font-semibold">STEP_1_TITLE</h3>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">STEP_1_DESCRIPTION</p>
+      </div>
+      <div class="text-center">
+        <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-sm font-bold text-white dark:text-gray-900">2</div>
+        <h3 class="mt-4 font-semibold">STEP_2_TITLE</h3>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">STEP_2_DESCRIPTION</p>
+      </div>
+      <div class="text-center">
+        <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-sm font-bold text-white dark:text-gray-900">3</div>
+        <h3 class="mt-4 font-semibold">STEP_3_TITLE</h3>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">STEP_3_DESCRIPTION</p>
+      </div>
+    </div>
+  </section>
+  <!-- /COMPONENT: how-it-works -->
+
+  <!-- COMPONENT: products (core — static now, swap for DB fetch later) -->
+  <section id="products" class="mx-auto max-w-6xl px-6 py-20">
+    <h2 class="text-3xl font-bold">PRODUCTS_HEADING</h2>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">PRODUCTS_SUBHEADING</p>
+
+    <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition hover:shadow-md">
+        <div class="aspect-video bg-gray-100 dark:bg-gray-800"></div>
+        <div class="p-5">
+          <h3 class="text-lg font-semibold">PRODUCT_1_NAME</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">PRODUCT_1_DESCRIPTION</p>
+          <p class="mt-3 font-bold">PRODUCT_1_PRICE</p>
+        </div>
+      </div>
+      <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition hover:shadow-md">
+        <div class="aspect-video bg-gray-100 dark:bg-gray-800"></div>
+        <div class="p-5">
+          <h3 class="text-lg font-semibold">PRODUCT_2_NAME</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">PRODUCT_2_DESCRIPTION</p>
+          <p class="mt-3 font-bold">PRODUCT_2_PRICE</p>
+        </div>
+      </div>
+      <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition hover:shadow-md">
+        <div class="aspect-video bg-gray-100 dark:bg-gray-800"></div>
+        <div class="p-5">
+          <h3 class="text-lg font-semibold">PRODUCT_3_NAME</h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">PRODUCT_3_DESCRIPTION</p>
+          <p class="mt-3 font-bold">PRODUCT_3_PRICE</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- /COMPONENT: products -->
+
+  <!-- COMPONENT: portfolio (optional — delete this section to remove) -->
+  <section id="portfolio" class="bg-gray-50 dark:bg-gray-900 py-20">
+    <div class="mx-auto max-w-6xl px-6">
+      <h2 class="text-3xl font-bold">PORTFOLIO_HEADING</h2>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">PORTFOLIO_SUBHEADING</p>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="aspect-square rounded-xl bg-gray-200 dark:bg-gray-800"></div>
+        <div class="aspect-square rounded-xl bg-gray-200 dark:bg-gray-800"></div>
+        <div class="aspect-square rounded-xl bg-gray-200 dark:bg-gray-800"></div>
+      </div>
+    </div>
+  </section>
+  <!-- /COMPONENT: portfolio -->
+
+  <!-- COMPONENT: reviews (optional — delete this section to remove) -->
+  <section id="reviews" class="mx-auto max-w-6xl px-6 py-20">
+    <h2 class="text-center text-3xl font-bold">REVIEWS_HEADING</h2>
+    <div class="mt-10 grid gap-6 sm:grid-cols-3">
+      <a href="#" class="flex flex-col items-center rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center transition hover:shadow-md">
+        <div class="h-8 w-24 rounded bg-gray-200 dark:bg-gray-800"></div>
+        <p class="mt-4 text-2xl font-bold">REVIEW_1_RATING / 5</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Trustpilot &middot; REVIEW_1_COUNT</p>
+      </a>
+      <a href="#" class="flex flex-col items-center rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center transition hover:shadow-md">
+        <div class="h-8 w-24 rounded bg-gray-200 dark:bg-gray-800"></div>
+        <p class="mt-4 text-2xl font-bold">REVIEW_2_RATING / 5</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Google &middot; REVIEW_2_COUNT</p>
+      </a>
+      <a href="#" class="flex flex-col items-center rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center transition hover:shadow-md">
+        <div class="h-8 w-24 rounded bg-gray-200 dark:bg-gray-800"></div>
+        <p class="mt-4 text-2xl font-bold">REVIEW_3_RATING / 5</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Clutch &middot; REVIEW_3_COUNT</p>
+      </a>
+    </div>
+  </section>
+  <!-- /COMPONENT: reviews -->
+
+  <!-- COMPONENT: about (core) -->
+  <section id="about" class="mx-auto max-w-4xl px-6 py-20 text-center">
+    <h2 class="text-3xl font-bold">ABOUT_HEADING</h2>
+    <p class="mt-4 text-gray-600 dark:text-gray-400">
+      ABOUT_BODY
+    </p>
+  </section>
+  <!-- /COMPONENT: about -->
+
+  <!-- COMPONENT: certifications (optional — delete this section to remove) -->
+  <section class="bg-gray-50 dark:bg-gray-900 py-16">
+    <div class="mx-auto max-w-6xl px-6 text-center">
+      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">CERTIFICATIONS_HEADING</p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-10">
+        <div class="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-800" title="CERTIFICATION_1_NAME"></div>
+        <div class="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-800" title="CERTIFICATION_2_NAME"></div>
+        <div class="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-800" title="CERTIFICATION_3_NAME"></div>
+      </div>
+    </div>
+  </section>
+  <!-- /COMPONENT: certifications -->
+
+  <!-- COMPONENT: map (optional — delete this section to remove; live-queries Google Maps with the address text below) -->
+  <section class="mx-auto max-w-6xl px-6 py-20">
+    <h2 class="text-center text-3xl font-bold">MAP_HEADING</h2>
+    <p class="mt-2 text-center text-gray-600 dark:text-gray-400">YOUR_BUSINESS_ADDRESS</p>
+    <div class="mt-10 aspect-[16/6] w-full overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
+      <iframe
+        title="Business location map"
+        class="h-full w-full grayscale"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q=YOUR_BUSINESS_ADDRESS&output=embed">
+      </iframe>
+    </div>
+  </section>
+  <!-- /COMPONENT: map -->
+
+  <!-- COMPONENT: enquiry-form (optional — delete this section to remove; wire the <form> up to an API route or mailto later) -->
+  <section id="enquiry" class="bg-gray-50 dark:bg-gray-900 py-20">
+    <div class="mx-auto max-w-xl px-6">
+      <h2 class="text-center text-3xl font-bold">ENQUIRY_HEADING</h2>
+      <p class="mt-2 text-center text-gray-600 dark:text-gray-400">ENQUIRY_SUBHEADING</p>
+
+      <form class="mt-10 space-y-4">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+            <input type="text" name="name" required placeholder="Your name"
+                   class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
+            <input type="tel" name="phone" placeholder="Optional"
+                   class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+          <input type="email" name="email" required placeholder="you@example.com"
+                 class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+          <textarea name="message" rows="4" required placeholder="Tell us what you're looking for"
+                    class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"></textarea>
+        </div>
+
+        <button type="submit"
+                class="w-full rounded-lg bg-gray-900 dark:bg-white py-2.5 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200">
+          Send enquiry
+        </button>
+      </form>
+    </div>
+  </section>
+  <!-- /COMPONENT: enquiry-form -->
+
+  <!-- COMPONENT: contact-footer (required) -->
+  <footer id="contact" class="bg-gray-900 dark:bg-black py-16 text-center text-white">
+    <h2 class="text-2xl font-bold">FOOTER_HEADING</h2>
+    <p class="mt-2 text-gray-300">FOOTER_SUBHEADING</p>
+    <a href="https://wa.me/10000000000" target="_blank" rel="noopener noreferrer"
+       class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-200">
+      Chat on WhatsApp
+    </a>
+
+    <!-- COMPONENT: social-links (optional — delete unused platform <a> tags individually) -->
+    <div class="mt-8 flex justify-center gap-5 text-gray-300">
+      <a href="#" aria-label="X" class="hover:text-white"><i class="ti ti-brand-x" style="font-size: 20px;"></i></a>
+      <a href="#" aria-label="Facebook" class="hover:text-white"><i class="ti ti-brand-facebook" style="font-size: 20px;"></i></a>
+      <a href="#" aria-label="Instagram" class="hover:text-white"><i class="ti ti-brand-instagram" style="font-size: 20px;"></i></a>
+      <a href="#" aria-label="TikTok" class="hover:text-white"><i class="ti ti-brand-tiktok" style="font-size: 20px;"></i></a>
+      <a href="#" aria-label="LinkedIn" class="hover:text-white"><i class="ti ti-brand-linkedin" style="font-size: 20px;"></i></a>
+      <a href="#" aria-label="YouTube" class="hover:text-white"><i class="ti ti-brand-youtube" style="font-size: 20px;"></i></a>
+    </div>
+    <!-- /COMPONENT: social-links -->
+
+    <p class="mt-10 flex items-center justify-center gap-2 text-xs text-gray-400">
+      <svg viewBox="0 0 100 100" class="h-4 w-4" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
+        <path d="M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z"/>
+      </svg>
+      © 2026 YOUR_BUSINESS_NAME. All rights reserved.
+    </p>
+  </footer>
+  <!-- /COMPONENT: contact-footer -->
+
+  <!-- COMPONENT: floating-whatsapp-button (optional — delete to remove) -->
+  <a href="https://wa.me/10000000000" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"
+     class="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg hover:bg-green-600">
+    <i class="ti ti-brand-whatsapp" style="font-size: 26px;"></i>
+  </a>
+  <!-- /COMPONENT: floating-whatsapp-button -->
+
+</body>
+</html>
