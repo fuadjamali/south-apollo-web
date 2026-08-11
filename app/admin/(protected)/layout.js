@@ -7,13 +7,13 @@ export default function AdminLayout({ children }) {
   const { business, admin } = siteConfig;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-surface-alt">
+      <header className="border-b border-border bg-surface">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+          <span className="flex items-center gap-2 text-lg font-bold text-foreground">
             <Logo className="h-6 w-6" />
             {business.name}{" "}
-            <span className="font-normal text-gray-400 dark:text-gray-500">Admin</span>
+            <span className="font-normal text-muted">Admin</span>
           </span>
           <div className="flex items-center gap-3">
             <ThemeToggle />
@@ -27,8 +27,8 @@ export default function AdminLayout({ children }) {
               href={item.href}
               className={
                 index === 0
-                  ? "border-b-2 border-gray-900 pb-1 text-gray-900 dark:border-white dark:text-white"
-                  : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  ? "border-b-2 border-primary pb-1 text-foreground"
+                  : "text-muted hover:text-foreground"
               }
             >
               {item.label}

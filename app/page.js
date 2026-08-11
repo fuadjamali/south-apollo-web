@@ -43,7 +43,7 @@ export default function Home() {
   const whatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(contact.whatsappMessage)}`;
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+    <div className="min-h-screen bg-background text-foreground">
       {/* COMPONENT: header-nav (required) */}
       <SiteHeader />
 
@@ -53,19 +53,19 @@ export default function Home() {
         <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
           {hero.heading}
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
           {hero.subheading}
         </p>
         <div className="mt-8 flex justify-center gap-4">
           <a
             href={hero.primaryCta.href}
-            className="rounded-full bg-gray-900 dark:bg-white px-6 py-3 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200"
+            className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
           >
             {hero.primaryCta.label}
           </a>
           <a
             href={hero.secondaryCta.href}
-            className="rounded-full border border-gray-300 dark:border-gray-700 px-6 py-3 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
           >
             {hero.secondaryCta.label}
           </a>
@@ -74,12 +74,12 @@ export default function Home() {
 
       {/* COMPONENT: stats (optional) */}
       {stats && (
-        <section className="border-y border-gray-100 dark:border-gray-800 py-10">
+        <section className="border-y border-border py-10">
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center sm:grid-cols-4">
             {stats.items.map((stat) => (
               <div key={stat.label}>
                 <p className="text-3xl font-extrabold">{stat.value}</p>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                <p className="mt-1 text-sm text-muted">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -88,9 +88,9 @@ export default function Home() {
 
       {/* COMPONENT: trusted-by (optional) */}
       {trustedBy && (
-        <section className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 py-12">
+        <section className="border-b border-border bg-surface-alt py-12">
           <div className="mx-auto max-w-6xl px-6 text-center">
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{trustedBy.heading}</p>
+            <p className="text-sm font-medium text-muted">{trustedBy.heading}</p>
             <div className="mt-8 grid grid-cols-2 items-center gap-8 sm:grid-cols-3 md:grid-cols-5">
               {trustedBy.logos.map((logo) => (
                 <div
@@ -108,16 +108,16 @@ export default function Home() {
       {howItWorks && (
         <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-center text-3xl font-bold">{howItWorks.heading}</h2>
-          <p className="mt-2 text-center text-gray-600 dark:text-gray-400">{howItWorks.subheading}</p>
+          <p className="mt-2 text-center text-muted">{howItWorks.subheading}</p>
 
           <div className="mt-10 grid gap-8 sm:grid-cols-3">
             {howItWorks.steps.map((step, index) => (
               <div key={step.title} className="text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 dark:bg-white text-sm font-bold text-white dark:text-gray-900">
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   {index + 1}
                 </div>
                 <h3 className="mt-4 font-semibold">{step.title}</h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{step.description}</p>
+                <p className="mt-1 text-sm text-muted">{step.description}</p>
               </div>
             ))}
           </div>
@@ -127,18 +127,18 @@ export default function Home() {
       {/* COMPONENT: products (core — static now, swap for DB fetch later) */}
       <section id="products" className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="text-3xl font-bold">{products.heading}</h2>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">{products.subheading}</p>
+        <p className="mt-2 text-muted">{products.subheading}</p>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {products.items.map((product) => (
             <div
               key={product.id}
-              className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm transition hover:shadow-md"
+              className="overflow-hidden rounded-xl border border-border shadow-sm transition hover:shadow-md"
             >
               <div className="aspect-video bg-gray-100 dark:bg-gray-800" />
               <div className="p-5">
                 <h3 className="text-lg font-semibold">{product.name}</h3>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{product.description}</p>
+                <p className="mt-1 text-sm text-muted">{product.description}</p>
                 <p className="mt-3 font-bold">{product.price}</p>
               </div>
             </div>
@@ -148,10 +148,10 @@ export default function Home() {
 
       {/* COMPONENT: portfolio (optional) */}
       {portfolio && (
-        <section id="portfolio" className="bg-gray-50 dark:bg-gray-900 py-20">
+        <section id="portfolio" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-3xl font-bold">{portfolio.heading}</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">{portfolio.subheading}</p>
+            <p className="mt-2 text-muted">{portfolio.subheading}</p>
 
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {portfolio.items.map((item) => (
@@ -173,11 +173,11 @@ export default function Home() {
                 href={platform.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center transition hover:shadow-md"
+                className="flex flex-col items-center rounded-xl border border-border p-6 text-center transition hover:shadow-md"
               >
                 <div className="h-8 w-24 rounded bg-gray-200 dark:bg-gray-800" title={platform.name} />
                 <p className="mt-4 text-2xl font-bold">{platform.rating} / 5</p>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-sm text-muted">
                   {platform.name} &middot; {platform.count}
                 </p>
               </a>
@@ -189,14 +189,14 @@ export default function Home() {
       {/* COMPONENT: about (core) */}
       <section id="about" className="mx-auto max-w-4xl px-6 py-20 text-center">
         <h2 className="text-3xl font-bold">{about.heading}</h2>
-        <p className="mt-4 text-gray-600 dark:text-gray-400">{about.body}</p>
+        <p className="mt-4 text-muted">{about.body}</p>
       </section>
 
       {/* COMPONENT: certifications (optional) */}
       {certifications && (
-        <section className="bg-gray-50 dark:bg-gray-900 py-16">
+        <section className="bg-surface-alt py-16">
           <div className="mx-auto max-w-6xl px-6 text-center">
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{certifications.heading}</p>
+            <p className="text-sm font-medium text-muted">{certifications.heading}</p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-10">
               {certifications.items.map((cert) => (
                 <div
@@ -214,8 +214,8 @@ export default function Home() {
       {map && (
         <section className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-center text-3xl font-bold">{map.heading}</h2>
-          <p className="mt-2 text-center text-gray-600 dark:text-gray-400">{business.address}</p>
-          <div className="mt-10 aspect-16/6 w-full overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
+          <p className="mt-2 text-center text-muted">{business.address}</p>
+          <div className="mt-10 aspect-16/6 w-full overflow-hidden rounded-xl border border-border">
             <iframe
               title="Business location map"
               className="h-full w-full grayscale"
@@ -229,59 +229,59 @@ export default function Home() {
 
       {/* COMPONENT: enquiry-form (optional — wire the <form> up to an API route or mailto later) */}
       {enquiryForm && (
-        <section id="enquiry" className="bg-gray-50 dark:bg-gray-900 py-20">
+        <section id="enquiry" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-xl px-6">
             <h2 className="text-center text-3xl font-bold">{enquiryForm.heading}</h2>
-            <p className="mt-2 text-center text-gray-600 dark:text-gray-400">{enquiryForm.subheading}</p>
+            <p className="mt-2 text-center text-muted">{enquiryForm.subheading}</p>
 
             <form className="mt-10 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                  <label className="block text-sm font-medium text-foreground">Name</label>
                   <input
                     type="text"
                     name="name"
                     required
                     placeholder="Your name"
-                    className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
+                  <label className="block text-sm font-medium text-foreground">Phone</label>
                   <input
                     type="tel"
                     name="phone"
                     placeholder="Optional"
-                    className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                <label className="block text-sm font-medium text-foreground">Email</label>
                 <input
                   type="email"
                   name="email"
                   required
                   placeholder="you@example.com"
-                  className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+                <label className="block text-sm font-medium text-foreground">Message</label>
                 <textarea
                   name="message"
                   rows={4}
                   required
                   placeholder="Tell us what you're looking for"
-                  className="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-500 dark:focus:border-gray-400 focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full rounded-lg bg-gray-900 dark:bg-white py-2.5 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-200"
+                className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
               >
                 Send enquiry
               </button>

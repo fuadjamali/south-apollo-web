@@ -10,7 +10,7 @@ export default function ThemeToggle({ className = "" }) {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`rounded-full border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 ${className}`}
+      className={`rounded-full border border-border px-3 py-1.5 text-sm font-medium hover:bg-surface-alt ${className}`}
     >
       Theme
     </button>

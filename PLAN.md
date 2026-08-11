@@ -53,6 +53,22 @@
 - ✅ Fixed `proxy.js`: `/admin/*` paths without a real page previously fell through to Next's default 404 instead of the Site Unavailable page, because it prefix-matched `/admin` rather than checking against a real route list. `PROTECTED_ROUTES` is now an explicit allowlist — add new admin routes to it as they're actually built.
 - Still open: no rate limiting/lockout on `/admin/login`, no password-reset flow (re-seed only), enquiry form has no submit handler yet.
 
+## Color theme system
+
+- ✅ `app/globals.css` has a `MASTER COLOR THEME` block — `primary`/`primary-hover`/`primary-foreground`,
+  `accent`/`accent-foreground`, `surface`/`surface-alt`, `border-color`, `text-muted` (light + dark values),
+  exposed as Tailwind utilities via `@theme inline` (`bg-primary`, `text-muted`, `border-border`, etc.).
+- ✅ Every component (`app/page.js`, `SiteHeader`, `ThemeToggle`, `SignOutButton`, admin layout/pages,
+  login, site-unavailable) was swapped from hardcoded `gray-900`/`white` Tailwind classes to these tokens.
+  Deliberately left untouched: the always-dark contact footer, the WhatsApp button/icon (brand green),
+  and neutral image-placeholder blocks — none of those should shift with a brand color change.
+- ✅ `docs/theme-prompt-template.md` — fill-in-the-blanks prompt for recoloring a copied project: give it
+  a primary color + mood, it edits the hex values in `globals.css` (components already reference the
+  tokens, so that alone recolors the whole site).
+- Not done: the static `mockup/*.html` files still use hardcoded Tailwind classes (they're plain Tailwind
+  CDN, not the Next.js app's token system) — they'd need their own `<style>` block with matching CSS
+  variables to stay in sync, not attempted here since they're just design references, not shipped code.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.
