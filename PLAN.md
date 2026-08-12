@@ -1,4 +1,4 @@
-# falcon-app — Build Plan
+# falcon-web — Build Plan
 
 ## Pages
 

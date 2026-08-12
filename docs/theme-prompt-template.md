@@ -1,6 +1,6 @@
 # Theme color prompt template
 
-Copy the block below into a new project (copied from this `falcon-app` template),
+Copy the block below into a new project (copied from this `falcon-web` template),
 fill in the bracketed parts, and paste it as a prompt to Claude Code.
 
 ---
@@ -80,7 +80,7 @@ Do this:
 ## Notes
 
 - This assumes the target project still has the `MASTER COLOR THEME` block in
-  `app/globals.css` as shipped in `falcon-app` MVP Template V1 — if that file
+  `app/globals.css` as shipped in `falcon-web` MVP Template V1 — if that file
   has since been restructured, adjust the instructions accordingly.
 - Keep the fill-in-the-blanks section short. A single primary color plus a
   one-line mood description is usually enough for Claude to derive a

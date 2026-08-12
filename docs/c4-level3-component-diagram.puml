@@ -1,4 +1,4 @@
-@startuml falcon-app-c4-level3-component-diagram
+@startuml falcon-web-c4-level3-component-diagram
 ' C4 model — Level 3: Component diagram
 ' Zooms into the "Next.js Web Application" container from the Level 2
 ' Container diagram and shows the internal components that make it up.
