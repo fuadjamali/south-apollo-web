@@ -8,6 +8,13 @@ const siteConfig = {
     domain: "YOUR_DOMAIN",
   },
 
+  cookieConsent: {
+    message:
+      "We use minimal analytics (page visits, general location) to understand how visitors use this site. See our privacy practices for details.",
+    acceptLabel: "Accept",
+    declineLabel: "Decline",
+  },
+
   contact: {
     email: "hello@example.com",
     whatsappNumber: "10000000000",
@@ -19,6 +26,7 @@ const siteConfig = {
     { label: "Portfolio", href: "#portfolio" },
     { label: "Reviews", href: "#reviews" },
     { label: "About", href: "#about" },
+    { label: "Blog", href: "/blog" },
     { label: "Enquiry", href: "#enquiry" },
     { label: "Contact", href: "#contact" },
   ],
@@ -63,15 +71,11 @@ const siteConfig = {
     ],
   },
 
-  // Static now — swap for a DB fetch later, same shape.
+  // The product list itself now lives in Postgres (lib/products.js), editable via
+  // /admin/products — this just holds the section's static heading/subheading.
   products: {
     heading: "Our Products",
     subheading: "A few things we're proud of.",
-    items: [
-      { id: 1, name: "PRODUCT_1_NAME", description: "PRODUCT_1_DESCRIPTION", price: "PRODUCT_1_PRICE", image: "/images/product-1.jpg" },
-      { id: 2, name: "PRODUCT_2_NAME", description: "PRODUCT_2_DESCRIPTION", price: "PRODUCT_2_PRICE", image: "/images/product-2.jpg" },
-      { id: 3, name: "PRODUCT_3_NAME", description: "PRODUCT_3_DESCRIPTION", price: "PRODUCT_3_PRICE", image: "/images/product-3.jpg" },
-    ],
   },
 
   // Optional — set to null to remove the section from the home page.
@@ -151,6 +155,51 @@ const siteConfig = {
       { label: "Certifications", href: "/admin/certifications" },
       { label: "Contact Us", href: "/admin/contact" },
       { label: "Enquiries", href: "/admin/enquiries" },
+      { label: "Analytics", href: "/admin/analytics" },
+    ],
+  },
+
+  // Optional — set to null to remove Blog from the nav and disable /blog entirely.
+  // Static now, same spirit as products/portfolio — swap for a DB/CMS fetch later, same shape.
+  blog: {
+    heading: "From the blog",
+    subheading: "News, updates, and stories from the team.",
+    posts: [
+      {
+        slug: "post-one",
+        title: "BLOG_POST_1_TITLE",
+        excerpt: "BLOG_POST_1_EXCERPT",
+        date: "2026-01-15",
+        image: "/images/blog-1.jpg",
+        body: [
+          "BLOG_POST_1_PARAGRAPH_1",
+          "BLOG_POST_1_PARAGRAPH_2",
+          "BLOG_POST_1_PARAGRAPH_3",
+        ],
+      },
+      {
+        slug: "post-two",
+        title: "BLOG_POST_2_TITLE",
+        excerpt: "BLOG_POST_2_EXCERPT",
+        date: "2026-02-03",
+        image: "/images/blog-2.jpg",
+        body: [
+          "BLOG_POST_2_PARAGRAPH_1",
+          "BLOG_POST_2_PARAGRAPH_2",
+        ],
+      },
+      {
+        slug: "post-three",
+        title: "BLOG_POST_3_TITLE",
+        excerpt: "BLOG_POST_3_EXCERPT",
+        date: "2026-02-20",
+        image: "/images/blog-3.jpg",
+        body: [
+          "BLOG_POST_3_PARAGRAPH_1",
+          "BLOG_POST_3_PARAGRAPH_2",
+          "BLOG_POST_3_PARAGRAPH_3",
+        ],
+      },
     ],
   },
 

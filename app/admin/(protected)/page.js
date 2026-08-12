@@ -23,11 +23,23 @@ async function getDbStatus() {
   }
 }
 
+async function getVisitsThisMonth() {
+  try {
+    const result = await db.query(
+      "SELECT COUNT(*)::int AS count FROM site_visits WHERE created_at >= date_trunc('month', now())"
+    );
+    return result.rows[0]?.count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
 export default async function AdminPage() {
-  const [session, enquiryCount, dbConnected] = await Promise.all([
+  const [session, enquiryCount, dbConnected, visitCount] = await Promise.all([
     getServerSession(authOptions),
     getEnquiryCount(),
     getDbStatus(),
+    getVisitsThisMonth(),
   ]);
 
   const loginAt = session?.user?.loginAt ? new Date(session.user.loginAt) : null;
@@ -47,7 +59,7 @@ export default async function AdminPage() {
         )}
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <a
           href="/admin/enquiries"
           className="rounded-xl border border-border bg-surface p-6 text-center shadow-sm transition hover:shadow-md"
@@ -55,6 +67,16 @@ export default async function AdminPage() {
           <p className="text-3xl font-extrabold text-foreground">{enquiryCount}</p>
           <p className="mt-1 text-sm text-muted">
             {enquiryCount === 1 ? "Enquiry" : "Enquiries"} received
+          </p>
+        </a>
+
+        <a
+          href="/admin/analytics"
+          className="rounded-xl border border-border bg-surface p-6 text-center shadow-sm transition hover:shadow-md"
+        >
+          <p className="text-3xl font-extrabold text-foreground">{visitCount}</p>
+          <p className="mt-1 text-sm text-muted">
+            {visitCount === 1 ? "Visit" : "Visits"} this month
           </p>
         </a>
 

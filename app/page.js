@@ -1,10 +1,19 @@
 import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import EnquiryForm from "@/components/EnquiryForm";
+import VisitTracker from "@/components/VisitTracker";
+import CookieConsent from "@/components/CookieConsent";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import SocialLinks from "@/components/SocialLinks";
 import Logo from "@/components/Logo";
 import siteConfig from "@/config/site";
+import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
+import { getProducts } from "@/lib/products";
+
+// ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
+// on every create/update/delete, so admin edits actually show up immediately — this window is
+// just a safety net, not the primary way updates propagate.
+export const revalidate = 3600;
 
 export const metadata = {
   title: `${siteConfig.business.name} — ${siteConfig.business.tagline}`,
@@ -24,7 +33,7 @@ export const metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
   const {
     hero,
     stats,
@@ -42,10 +51,18 @@ export default function Home() {
     contact,
   } = siteConfig;
 
+  const productItems = await getProducts();
   const whatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(contact.whatsappMessage)}`;
+  const jsonLd = buildLocalBusinessJsonLd(siteConfig);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <VisitTracker />
+
       {/* COMPONENT: header-nav (required) */}
       <SiteHeader />
 
@@ -126,25 +143,29 @@ export default function Home() {
         </section>
       )}
 
-      {/* COMPONENT: products (core — static now, swap for DB fetch later) */}
+      {/* COMPONENT: products (core — live from Postgres, editable at /admin/products) */}
       <section id="products" className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="text-3xl font-bold">{products.heading}</h2>
         <p className="mt-2 text-muted">{products.subheading}</p>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {products.items.map((product) => (
+          {productItems.map((product) => (
             <div
               key={product.id}
               className="overflow-hidden rounded-xl border border-border shadow-sm transition hover:shadow-md"
             >
               <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  className="object-cover"
-                />
+                {product.image && (
+                  // Admin-editable image source (path or arbitrary external URL) — a plain
+                  // <img> avoids next/image's hostname allowlist, which would hard-crash the
+                  // page for any URL from a domain not preconfigured in next.config.mjs.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
+                )}
               </div>
               <div className="p-5">
                 <h3 className="text-lg font-semibold">{product.name}</h3>
@@ -285,6 +306,9 @@ export default function Home() {
 
       {/* COMPONENT: floating-whatsapp-button (optional) */}
       <FloatingWhatsApp />
+
+      {/* COMPONENT: cookie-consent (required if analytics tracking is enabled) */}
+      <CookieConsent />
     </div>
   );
 }

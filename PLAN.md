@@ -4,7 +4,7 @@
 
 - `/` — Home, public. Real home page branded "Falcon App" (usable for marketing later, not just a static placeholder).
 - `/admin/login` — public login form, calls `signIn("credentials", ...)`.
-- `/admin` — protected, minimal dashboard. Shared admin layout adds a section-wise nav (Home, Trusted By, Products, Portfolio, Reviews, About, Certifications, Contact Us) mapping to `config/site.js` keys, plus sign-out. Nav links point to future per-section edit routes (not built yet) — groundwork for letting the admin edit site content instead of hardcoding it.
+- `/admin` — protected, minimal dashboard. Shared admin layout adds a section-wise nav (Home, Trusted By, Products, Portfolio, Reviews, About, Certifications, Contact Us) mapping to `config/site.js` keys, plus sign-out. Nav links point to future per-section edit routes — groundwork for letting the admin edit site content instead of hardcoding it. **Products is now actually built** (see "Products CRUD" below); the rest (Trusted By, Portfolio, Reviews, About, Certifications, Contact Us) are still unbuilt placeholder links.
 - Site Unavailable (401) — component/page rendered for unmatched routes. Mockup at `mockup/site-unavailable.html`.
 - Home page additionally includes: a stats/counters strip, trusted-by/partners logo strip, a "How it works" 3-step section, review ratings (Trustpilot/Google/etc.), a certifications section, a map/location embed, and a social links row in the footer (X, Facebook, Instagram, TikTok, etc.) — all config-driven, static placeholders for now.
 - Home page also has a mobile hamburger nav, a floating WhatsApp button, SEO meta tags (Open Graph/Twitter card), and a standard enquiry form (name, phone, email, message) placed above the contact footer — not yet wired to a backend, needs an API route or mailto handler when building the real app.
@@ -73,9 +73,139 @@
   the enquiry list at whatever it was during the last deploy. Fixed by adding
   `export const dynamic = "force-dynamic"` to both pages explicitly, rather than relying on an
   incidental side effect of an unrelated API call.
-- Skipped on request: real content-editing CRUD for products/portfolio/etc. (nav links to
-  `/admin/products` etc. still point nowhere), and the security items (rate limiting, password
-  reset) — deliberately out of scope for this pass.
+- Skipped on request at the time: real content-editing CRUD (nav links pointed nowhere), and the
+  security items (rate limiting, password reset) — the CRUD gap was later closed for Products, see
+  below. Rate limiting/password reset remain deliberately out of scope.
+
+## Products CRUD (admin panel)
+
+- ✅ **Moved products from static `config/site.js` to a real `products` table.** This is the first
+  section actually migrated off the static-config pattern to a live, admin-editable data source —
+  `lib/products.js` (`getProducts`/`getProduct`/`createProduct`/`updateProduct`/`deleteProduct`),
+  auto-creating the table and seeding the original 3 placeholder products the first time it's
+  queried against an empty table (same self-healing pattern as `enquiries`/`site_visits`).
+  `config/site.js`'s `products` key now holds only the section heading/subheading — the actual
+  item list is DB-backed.
+- ✅ Full CRUD UI: `/admin/products` (list, with inline delete), `/admin/products/new` (create),
+  `/admin/products/[id]/edit` (edit + delete), all via **Server Actions**
+  (`app/admin/(protected)/products/actions.js`), not hand-rolled API routes — the modern
+  idiomatic Next.js pattern, and it keeps the mutation logic colocated with the pages that use it.
+  Shared `components/ProductForm.js` avoids duplicating the 5-field form across create/edit.
+- ✅ **Home page switched from fully static to ISR** (`export const revalidate = 3600` in
+  `app/page.js`) — necessary because products are no longer known at build time. Every mutation
+  also calls `revalidatePath("/")` directly, so an admin's edit shows up on the live site
+  immediately rather than waiting for the hourly window; the window is just a safety-net fallback.
+- ✅ **Product images use a plain `<img>`, not `next/image`**, specifically because the image
+  source is now admin-editable free-text (a local path or *any* external URL) — `next/image` hard-
+  crashes the page for a URL from a hostname not explicitly allowlisted in `next.config.mjs`. No
+  image upload was built (admin pastes a path/URL, same scope boundary as the rest of this pass);
+  worth flagging as the natural next step if real image management is ever wanted.
+- ✅ `proxy.js` gained a `PROTECTED_PREFIXES` list (parallel to `PUBLIC_PREFIXES`), used only for
+  `/admin/products` — the existing `PROTECTED_ROUTES` is an *exact*-match list by design (so an
+  unbuilt `/admin/xyz` correctly 401s instead of silently 404ing), but that design doesn't work
+  for a route tree with genuinely dynamic children like `/admin/products/[id]/edit`. Verified this
+  didn't widen protection elsewhere: `/admin/nonexistent-page` still correctly 401s.
+- **Testing gotcha worth remembering**: Server Actions cannot be exercised via a plain `curl` form
+  POST — Next.js invokes them through an internal action-ID protocol the browser's JS runtime
+  handles, not a conventional HTML form submission. Verified this by first attempting exactly that
+  (curl POST with form fields matching the input names) and confirming against the database that
+  nothing was created. Real browser testing was also initially unreliable — a coordinate-based
+  click on the submit button silently did nothing, seemingly intercepted by the dev-mode error
+  overlay pill sitting elsewhere on the page. Switched to directly calling `form.requestSubmit()`
+  via JS in the browser, which reliably invoked the real Server Action every time and is what
+  finally verified create/update/delete all work correctly end-to-end, including confirming
+  `revalidatePath` propagates every change to the live home page instantly.
+
+## Site visit analytics (country/city + daily graph)
+
+- ✅ **Requested but deliberately NOT built: Gender and Age Group.** There is no signal in an HTTP
+  request that reveals a visitor's gender or age — the only ways to get this are the visitor
+  telling you directly (a form/survey) or a paid third-party ad-profiling data enrichment service
+  (inaccurate, and real GDPR/CCPA exposure if shown to a client as if it were reliable). Building a
+  chart with plausible-looking fabricated numbers would be actively worse than not having the
+  feature, given the stated goal of showing this to prospective buyers to discuss what's real.
+- ✅ **Daily visits graph (current month) + source country/city** — new `site_visits` table
+  (`db/schema.sql`). A client-side beacon (`components/VisitTracker.js`, mounted in `app/page.js`)
+  fires once per home-page load to `POST /api/track-visit` (public route). That route reads
+  Vercel's own edge geolocation headers (`x-vercel-ip-country`, `x-vercel-ip-city`) — free,
+  built-in, no third-party geo service needed, but **only populated on the real Vercel deployment**;
+  local dev will always show "Unknown" since those headers don't exist outside Vercel's network.
+- ✅ New `/admin/analytics` page: total visits this month, a zero-filled daily bar chart (plain
+  inline SVG via `components/VisitsBarChart.js` — no new chart library dependency), top countries,
+  top cities. Added to `proxy.js`'s protected routes and the admin nav. Dashboard also gained a
+  "Visits this month" stat tile linking through to it, matching the enquiries tile pattern.
+- **Architecture note that mattered**: `proxy.js` runs on the Edge Runtime, which cannot use `pg`
+  (no raw TCP sockets there) — so visit logging could NOT happen inside the proxy itself, even
+  though it already intercepts every request. Used a client-side beacon hitting a normal Node.js
+  API route instead, which can use `pg` and still reads the same Vercel geo headers directly off
+  the incoming request.
+- Verified end-to-end: submitted visits with and without simulated geo headers, confirmed correct
+  NULL vs. populated country/city in Postgres, confirmed the monthly count query matches actual
+  row count, confirmed `/admin/analytics` and its API route are properly access-controlled.
+- ✅ **Country → city filter.** `components/CountryFilter.js` — a `<select>` that auto-submits a
+  `GET` (via the URL's `?country=` search param), so the page stays a plain server-rendered
+  component with no client-side data fetching. `NULL`-country rows surface as a selectable
+  "Unknown" option (mapped to `WHERE country IS NULL` server-side, since a `<select>` value can't
+  literally be `NULL`). Verified against the actual DB rows: filtering by GB correctly showed only
+  London/Manchester and excluded the US cities.
+- ✅ **World map with visit dots — v1 (abstract).** First pass deliberately avoided any mapping
+  library (Leaflet/Mapbox — heavy, usually needs an API key, pulls map tiles from a third party at
+  runtime) or external map SVG (licensing to sort out), using six hand-drawn abstract continent
+  blobs instead. `site_visits` gained `latitude`/`longitude` columns from Vercel's edge geo headers
+  (`x-vercel-ip-latitude`/`-longitude` — same free header set as country/city, no extra service).
+- ✅ **World map with visit dots — v2 (real, colorful map).** User explicitly authorized using an
+  open-source library for a more realistic result, changing the trade-off calculus from v1. Tried
+  `react-simple-maps` first — rejected: its React peer dependency range tops out at React 18, so it
+  conflicts with this project's React 19 and installing it would need `--legacy-peer-deps`, risking
+  runtime breakage since it's not RSC-aware. Used its underlying engine directly instead:
+  **d3-geo** + **topojson-client** + **world-atlas** (real Natural Earth country border data,
+  MIT/ISC-licensed, zero React dependency — no peer-conflict risk at all). All three are pure
+  computation/data, no browser APIs, so `components/WorldMapDots.js` stays a **Server Component**
+  — real, accurate country borders with zero extra client-side JS shipped. `world-atlas`'s
+  `countries-110m.json` (real country shapes, ~108KB, bundled at build time — no runtime fetch) is
+  converted to GeoJSON via `topojson-client`, projected with `d3-geo`'s `geoNaturalEarth1`
+  projection (`.fitSize()` auto-scales/centers), rendered as colored `<path>` elements (small
+  green/teal/blue palette cycling per country) on a fixed blue "ocean" background — the map keeps
+  its own atlas-style colors regardless of site theme, same reasoning as the WhatsApp button
+  staying brand-green. The same `projection([lng, lat])` call places the orange visit dots, so
+  dots and country shapes are guaranteed to agree pixel-for-pixel (no separate approximation math
+  to keep in sync, unlike v1). Verified with 7 real-world coordinates across every populated
+  continent (London, New York, Tokyo, Mumbai, São Paulo, Johannesburg, Sydney) — all landed
+  precisely on their correct countries, checked in both light and dark mode.
+- `react-simple-maps` was installed then removed once the peer-dependency conflict was found —
+  not left in `package.json`.
+
+## Final touches (universal, client-agnostic polish)
+
+- ✅ **Cookie/privacy consent banner.** Direct consequence of shipping real visitor tracking —
+  once a site actually collects data (country, city, lat/lng), a consent notice stops being
+  optional for EU/UK (GDPR) or California (CCPA) visitors. Not just decorative: `lib/consent.js` +
+  `components/CookieConsent.js` + updated `components/VisitTracker.js` — tracking is genuinely
+  gated on consent (opt-in, not opt-out). No consent decision yet → banner shows, nothing tracked.
+  Decline → nothing tracked, no banner shown again. Accept → tracked immediately via a custom
+  `window` event (no reload needed) and on every future visit via the stored `localStorage` value.
+  Positioned bottom-left (not a full-width bar) specifically to avoid overlapping the bottom-right
+  floating WhatsApp button. Verified in a real browser (this needs actual JS/localStorage — curl
+  can't test it): 0 tracked visits before consent, 1 immediately after clicking Accept.
+- ✅ **`robots.txt` + `sitemap.xml`** via Next.js's native `app/robots.js` / `app/sitemap.js`
+  conventions. **Caught a real bug**: both initially returned 401 — `proxy.js`'s catch-all
+  "unrecognized route → Site Unavailable" branch didn't know about them, same class of bug as the
+  earlier `/api/auth/*` miss. Added both to `PUBLIC_ROUTES`. Verified after the fix: correct
+  content, `/` and unknown-route 401 handling unaffected (no regression).
+- ✅ **JSON-LD `LocalBusiness` structured data** (`lib/structuredData.js`), rendered on the home
+  page — reuses data already in `config/site.js` (name, description, address, and the first
+  review platform's rating as the `aggregateRating`, since schema.org only supports one per
+  entity). This is what enables Google rich results (ratings/address in search) — no new content
+  to maintain, just exposing what's already there in a machine-readable format.
+- ✅ **Branded `app/error.js`** (Next.js's global error boundary), styled to match the existing
+  Site Unavailable page. Real testing gotcha: `curl` cannot verify this at all — `error.js` is a
+  required Client Component, and React error boundaries only render their fallback client-side
+  after hydration catches the error, so the server's initial HTML response is just a minimal
+  shell regardless of whether the boundary works correctly. Had to verify with an actual browser
+  (temporarily forced a real page to throw, confirmed the styled fallback renders, reverted the
+  test change). Also separately confirmed that testing this on a *statically* prerendered page
+  breaks the build itself (an unconditional throw fails prerendering) — needed
+  `force-dynamic` on the temporary test page to throw per-request instead.
 
 ## Color theme system
 
@@ -99,15 +229,28 @@ Goal: not a market product — an internal tool used to demo the template to pro
 and scope what they'd actually want built. Priority is "looks finished and real in a walkthrough,"
 not full production completeness.
 
-1. **Blog section/page**
-   - `/blog` (list) + `/blog/[slug]` (post) — new routes.
-   - Content source: start with static entries in `config/site.js` (or a small `content/blog/*`
-     folder of plain objects/MDX) rather than a database table — matches the existing
-     config-driven pattern, avoids scoping a full CMS just for the demo.
-   - List page: card grid (title, excerpt, date, image) reusing the existing card/token styling.
-   - Post page: heading, date, body content, back-to-blog link.
-   - Add a "Blog" link to `SiteHeader` nav and `config/site.js` nav array — mark optional
-     (`blog: null` to disable) like the other sections.
+1. ✅ **Blog section/page** — built. `/blog` (list) + `/blog/[slug]` (post), content as static
+   entries in `config/site.js` (`blog.posts[]` — title, excerpt, date, image, body paragraphs),
+   matching the existing config-driven pattern. 3 sample posts with real stock photos
+   (`public/images/blog-1/2/3.jpg`). `blog: null` disables the section entirely (nav link and
+   routes both go away — same optional-section convention as the rest of the config).
+   - **Design decision**: blog pages get their own minimal header (`app/blog/layout.js` — logo +
+     Home/Blog links only), NOT a reused `SiteHeader`. The home nav mixes anchor links
+     (`#products`, only valid on the home page) with the new `/blog` page link — reusing that nav
+     as-is on `/blog` would leave most items silently broken (no matching anchor on that page).
+   - **Real bug caught (twice, same root cause as before)**: `/blog` initially 401'd — same
+     "proxy doesn't know about this new route" issue as `/robots.txt`/`/sitemap.xml` earlier.
+     Fixed by adding `/blog` to `PUBLIC_PREFIXES`.
+   - **Second real bug caught**: `/blog/post-one` (a genuinely valid slug) returned 404 — same
+     class of issue as the `searchParams` fix on the analytics page. Next.js 16 also makes the
+     `params` prop on dynamic-route pages a **Promise**; `BlogPostPage`/`generateMetadata` were
+     reading `params.slug` synchronously instead of `const { slug } = await params`, so the
+     lookup silently always failed. Fixed in `app/blog/[slug]/page.js`.
+   - `app/sitemap.js` updated to include `/blog` and every post URL.
+   - Verified end-to-end: valid slug → 200 with correct content, invalid slug → 404 (not the
+     site-wide 401 — a bad slug within a real route is a normal 404, semantically different from
+     "this route doesn't exist in the app at all"), images serve, sitemap includes all 4 URLs,
+     existing routes unaffected (no regression).
 
 2. ✅ **Realistic generic imagery** — done for Products and Portfolio.
    - Downloaded 6 royalty-free stock photos (Picsum/Unsplash-sourced, fixed seeds so they're
