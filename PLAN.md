@@ -4,7 +4,7 @@
 
 - `/` — Home, public. Real home page branded "Falcon App" (usable for marketing later, not just a static placeholder).
 - `/admin/login` — public login form, calls `signIn("credentials", ...)`.
-- `/admin` — protected, minimal dashboard. Shared admin layout adds a section-wise nav (Home, Trusted By, Products, Portfolio, Reviews, About, Certifications, Contact Us) mapping to `config/site.js` keys, plus sign-out. Nav links point to future per-section edit routes — groundwork for letting the admin edit site content instead of hardcoding it. **Products is now actually built** (see "Products CRUD" below); the rest (Trusted By, Portfolio, Reviews, About, Certifications, Contact Us) are still unbuilt placeholder links.
+- `/admin` — protected, minimal dashboard. Shared admin layout adds a section-wise nav (Home, Trusted By, Products, Portfolio, Reviews, About, Certifications, Contact Us) mapping to `config/site.js` keys, plus sign-out. Nav links point to future per-section edit routes — groundwork for letting the admin edit site content instead of hardcoding it. **Products and Blog are now actually built** (see "Products CRUD" and "Blog CRUD" below; Blog's admin link lives outside this original nav array, in `admin.nav`); the rest (Trusted By, Portfolio, Reviews, About, Certifications, Contact Us) are still unbuilt placeholder links.
 - Site Unavailable (401) — component/page rendered for unmatched routes. Mockup at `mockup/site-unavailable.html`.
 - Home page additionally includes: a stats/counters strip, trusted-by/partners logo strip, a "How it works" 3-step section, review ratings (Trustpilot/Google/etc.), a certifications section, a map/location embed, and a social links row in the footer (X, Facebook, Instagram, TikTok, etc.) — all config-driven, static placeholders for now.
 - Home page also has a mobile hamburger nav, a floating WhatsApp button, SEO meta tags (Open Graph/Twitter card), and a standard enquiry form (name, phone, email, message) placed above the contact footer — not yet wired to a backend, needs an API route or mailto handler when building the real app.
@@ -115,6 +115,84 @@
   via JS in the browser, which reliably invoked the real Server Action every time and is what
   finally verified create/update/delete all work correctly end-to-end, including confirming
   `revalidatePath` propagates every change to the live home page instantly.
+
+## Blog CRUD (admin panel)
+
+- ✅ **Moved blog posts from static `config/site.js` to a real `blog_posts` table** — same
+  migration pattern as Products. `lib/blog.js` (`getPosts`/`getPostBySlug`/`getPostById`/
+  `createPost`/`updatePost`/`deletePost`), self-healing table creation + seeding the original 3
+  placeholder posts on first empty query. `config/site.js`'s `blog` key now holds only the
+  heading/subheading. `app/blog/page.js` and `app/blog/[slug]/page.js` switched from reading
+  `config/site.js` to querying the DB, both on ISR (`revalidate: 3600`).
+- ✅ **`body` is one text field, not an array** — a deliberate difference from the earlier config
+  shape (which had `body: [paragraph1, paragraph2, ...]`). An admin editing through a plain
+  `<textarea>` naturally types multiple paragraphs separated by blank lines; splitting on
+  `/\n\s*\n/` when rendering matches that mental model exactly, and avoids needing an array-editing
+  UI (add/remove paragraph rows) for what is otherwise a one-field form.
+- ✅ **Slugs auto-generate from the title** (`slugify()` in `lib/blog.js`) rather than being a
+  free-text admin field — avoids invalid-URL slugs and keeps the form one field simpler. Collision
+  handling appends `-2`, `-3`, etc. Editing a post's title regenerates its slug, and the Server
+  Action explicitly calls `revalidatePath()` on **both** the old and new slug paths — otherwise the
+  old URL would keep serving stale cached content indefinitely instead of correctly 404ing once
+  it's no longer a valid post. Verified directly: changed a post's title, confirmed the old slug
+  now 404s and the new slug serves the updated content, both within the same request cycle (no
+  waiting for the ISR window).
+- ✅ Same architecture as Products throughout: full CRUD via Server Actions
+  (`app/admin/(protected)/blog/actions.js`), shared `components/BlogPostForm.js`, plain `<img>`
+  instead of `next/image` for the same admin-editable-URL crash-risk reason, `proxy.js`'s
+  `PROTECTED_PREFIXES` extended with `/admin/blog` for the dynamic `[id]/edit` route,
+  `app/sitemap.js` updated to pull posts from the DB instead of static config.
+- Verified end-to-end via the same `form.requestSubmit()`-in-a-real-browser method established
+  while testing Products (Server Actions can't be exercised via `curl`): create (with correct
+  slug auto-generation), the title-change/slug-regeneration/old-URL-404 edge case specifically,
+  and delete — all confirmed against the actual database and live page responses, plus a full
+  regression pass (`/`, `/admin/products`, unknown `/admin/*` paths) to confirm nothing else broke.
+
+## Contact Us info section + admin CRUD
+
+- ✅ **Deliberate design difference from Products/Blog: a singleton, not a list.** A business has
+  one address, one phone number, one email — not a collection of many "contact records" — so this
+  is Read+Update only via a single `/admin/contact` settings page, no create/delete, no list view.
+  `contact_info` table always holds exactly one row (`lib/contactInfo.js` — `getContactInfo()`/
+  `updateContactInfo()`), auto-seeded with placeholder defaults on first empty query, same
+  self-healing pattern as everything else. This is also the first section built out for a nav link
+  (`/admin/contact`) that had existed as an unbuilt placeholder since the very start of the project.
+- ✅ **Enable/disable toggle, separate from the individual field values.** Turning the section off
+  hides it from the home page entirely without deleting anything the admin already entered —
+  verified directly: disabled it, confirmed 0 occurrences of the entered address on `/`, confirmed
+  the address was still sitting in the database unchanged, re-enabled it, confirmed it came back.
+  Each field is also independently optional at render time (address/phone/email each only show if
+  actually filled in), so an admin can show just an email with no phone, etc., without needing a
+  separate toggle per field.
+- ✅ New home-page section (`id="contact-info"`), placed between the map and enquiry-form
+  sections — distinct from the existing footer's WhatsApp CTA (`id="contact"`) and from
+  `siteConfig.contact` (the WhatsApp number/email used for the footer button), which were both
+  already there before this and are unrelated to this new block. Phone/email render as real
+  `tel:`/`mailto:` links; Tabler icons (`IconMapPin`/`IconPhone`/`IconMail`) label each row.
+- Verified end-to-end via the same real-browser `form.requestSubmit()` method used for Products/
+  Blog: edited all three fields, confirmed the update landed in Postgres and appeared on the live
+  home page instantly (no rebuild), toggled disabled/enabled, confirmed correct show/hide behavior
+  each time, plus a full regression pass (`/`, `/admin/products`, unknown `/admin/*` paths).
+
+## Not yet done: image upload for Products/Blog
+
+Both forms currently only accept an image *path or URL* — genuinely not easy for a non-technical
+client, who'd need to already have the image hosted somewhere or know how to drop a file into
+`public/images/` themselves. Raised, discussed, deliberately deferred (not forgotten):
+
+- **Why this needs real object storage, not a simple fix**: Vercel's serverless functions have a
+  **read-only filesystem at runtime** (aside from an ephemeral, per-invocation `/tmp`) — writing an
+  uploaded file into `public/images/` would work in local dev and then silently fail once deployed.
+- **Recommended approach**: Vercel Blob — Vercel's own object storage, added to the project the
+  same way Postgres was (Storage tab), works identically in local dev and production, no
+  third-party account needed (unlike Cloudinary/S3/R2, which are also viable but add more setup).
+- **Planned shape**: a real file input alongside the existing "paste a URL" text field on both
+  `ProductForm.js` and `BlogPostForm.js` — upload if a file is chosen, otherwise fall back to the
+  typed URL (fully backward compatible, doesn't remove the existing option).
+- **Blocked on**: needs Vercel Blob storage actually added to the project before this can be built
+  *and verified* — same as Postgres needed a real Neon database before `npm run seed` could be
+  tested. Come back to this together (same step-by-step Vercel dashboard walkthrough style as the
+  Postgres setup) when ready.
 
 ## Site visit analytics (country/city + daily graph)
 

@@ -42,3 +42,34 @@ CREATE TABLE IF NOT EXISTS products (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Admin-editable via /admin/blog. Seeded with the 3 placeholder posts from config/site.js
+-- the first time this table is queried and found empty (see lib/blog.js). `body` is one
+-- text block — paragraphs are separated by a blank line and split on render, same as an
+-- admin would naturally type multiple paragraphs into a plain textarea.
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id SERIAL PRIMARY KEY,
+  slug VARCHAR(255) UNIQUE NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  excerpt TEXT,
+  body TEXT,
+  image VARCHAR(500),
+  published_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Singleton (always exactly one row) — a business has one address/phone/email, not a list of
+-- many, so this is Read+Update only via /admin/contact, no create/delete. `enabled` lets the
+-- admin hide the whole public section without losing the entered details. Auto-seeded with
+-- placeholder defaults on first empty query (see lib/contactInfo.js).
+CREATE TABLE IF NOT EXISTS contact_info (
+  id SERIAL PRIMARY KEY,
+  heading VARCHAR(255) NOT NULL DEFAULT 'Contact Us',
+  subheading TEXT,
+  address TEXT,
+  phone VARCHAR(50),
+  email VARCHAR(255),
+  enabled BOOLEAN NOT NULL DEFAULT true,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

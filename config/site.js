@@ -156,51 +156,16 @@ const siteConfig = {
       { label: "Contact Us", href: "/admin/contact" },
       { label: "Enquiries", href: "/admin/enquiries" },
       { label: "Analytics", href: "/admin/analytics" },
+      { label: "Blog", href: "/admin/blog" },
     ],
   },
 
   // Optional — set to null to remove Blog from the nav and disable /blog entirely.
-  // Static now, same spirit as products/portfolio — swap for a DB/CMS fetch later, same shape.
+  // The post list itself now lives in Postgres (lib/blog.js), editable via /admin/blog —
+  // this just holds the section's static heading/subheading, same pattern as products.
   blog: {
     heading: "From the blog",
     subheading: "News, updates, and stories from the team.",
-    posts: [
-      {
-        slug: "post-one",
-        title: "BLOG_POST_1_TITLE",
-        excerpt: "BLOG_POST_1_EXCERPT",
-        date: "2026-01-15",
-        image: "/images/blog-1.jpg",
-        body: [
-          "BLOG_POST_1_PARAGRAPH_1",
-          "BLOG_POST_1_PARAGRAPH_2",
-          "BLOG_POST_1_PARAGRAPH_3",
-        ],
-      },
-      {
-        slug: "post-two",
-        title: "BLOG_POST_2_TITLE",
-        excerpt: "BLOG_POST_2_EXCERPT",
-        date: "2026-02-03",
-        image: "/images/blog-2.jpg",
-        body: [
-          "BLOG_POST_2_PARAGRAPH_1",
-          "BLOG_POST_2_PARAGRAPH_2",
-        ],
-      },
-      {
-        slug: "post-three",
-        title: "BLOG_POST_3_TITLE",
-        excerpt: "BLOG_POST_3_EXCERPT",
-        date: "2026-02-20",
-        image: "/images/blog-3.jpg",
-        body: [
-          "BLOG_POST_3_PARAGRAPH_1",
-          "BLOG_POST_3_PARAGRAPH_2",
-          "BLOG_POST_3_PARAGRAPH_3",
-        ],
-      },
-    ],
   },
 
   siteUnavailable: {

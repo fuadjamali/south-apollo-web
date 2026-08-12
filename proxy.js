@@ -8,11 +8,11 @@ const PUBLIC_PREFIXES = ["/api/auth", "/api/enquiries", "/api/track-visit", "/bl
 // page.js exists for it. Add new admin routes here as they're built; anything
 // under /admin that ISN'T listed falls through to the unrecognized-route branch
 // (401 Site Unavailable) rather than silently 404ing via Next's default page.
-const PROTECTED_ROUTES = ["/admin", "/admin/enquiries", "/admin/analytics"];
+const PROTECTED_ROUTES = ["/admin", "/admin/enquiries", "/admin/analytics", "/admin/contact"];
 
 // For admin route trees that legitimately have dynamic children (e.g. /admin/products/[id]/edit),
 // an exact-match list doesn't work — use a prefix match instead, scoped to just that subtree.
-const PROTECTED_PREFIXES = ["/admin/products"];
+const PROTECTED_PREFIXES = ["/admin/products", "/admin/blog"];
 
 export async function proxy(request) {
   const { pathname } = request.nextUrl;

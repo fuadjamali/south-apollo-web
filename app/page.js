@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { IconMapPin, IconPhone, IconMail } from "@tabler/icons-react";
 import SiteHeader from "@/components/SiteHeader";
 import EnquiryForm from "@/components/EnquiryForm";
 import VisitTracker from "@/components/VisitTracker";
@@ -9,6 +10,7 @@ import Logo from "@/components/Logo";
 import siteConfig from "@/config/site";
 import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
 import { getProducts } from "@/lib/products";
+import { getContactInfo } from "@/lib/contactInfo";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -52,6 +54,7 @@ export default async function Home() {
   } = siteConfig;
 
   const productItems = await getProducts();
+  const contactInfo = await getContactInfo();
   const whatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(contact.whatsappMessage)}`;
   const jsonLd = buildLocalBusinessJsonLd(siteConfig);
 
@@ -266,6 +269,46 @@ export default async function Home() {
               referrerPolicy="no-referrer-when-downgrade"
               src={`https://www.google.com/maps?q=${encodeURIComponent(business.address)}&output=embed`}
             />
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: contact-info (optional — admin-editable at /admin/contact, singleton with an enable/disable toggle) */}
+      {contactInfo?.enabled && (
+        <section id="contact-info" className="bg-surface-alt py-20">
+          <div className="mx-auto max-w-2xl px-6 text-center">
+            <h2 className="text-3xl font-bold">{contactInfo.heading}</h2>
+            {contactInfo.subheading && (
+              <p className="mt-2 text-muted">{contactInfo.subheading}</p>
+            )}
+
+            <div className="mt-10 space-y-4">
+              {contactInfo.address && (
+                <div className="flex items-center justify-center gap-3 text-sm">
+                  <IconMapPin size={20} className="shrink-0 text-muted" />
+                  <span className="text-foreground">{contactInfo.address}</span>
+                </div>
+              )}
+              {contactInfo.phone && (
+                <div className="flex items-center justify-center gap-3 text-sm">
+                  <IconPhone size={20} className="shrink-0 text-muted" />
+                  <a href={`tel:${contactInfo.phone}`} className="text-foreground hover:underline">
+                    {contactInfo.phone}
+                  </a>
+                </div>
+              )}
+              {contactInfo.email && (
+                <div className="flex items-center justify-center gap-3 text-sm">
+                  <IconMail size={20} className="shrink-0 text-muted" />
+                  <a
+                    href={`mailto:${contactInfo.email}`}
+                    className="text-foreground hover:underline"
+                  >
+                    {contactInfo.email}
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       )}
