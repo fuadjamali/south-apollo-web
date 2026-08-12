@@ -102,3 +102,9 @@ layout/copy changes quickly outside of Next.js.
 4. Run the seed script against production once, pointed at the Vercel Postgres connection string
    (e.g. via `vercel env pull` locally, then `npm run seed`), to create the first admin.
 5. Deploy.
+
+## Author
+
+MVP developed by Fuad Jamali — fuad06@gmail.com
+
+© 2026 Fuad Jamali. All rights reserved.
