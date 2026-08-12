@@ -13,18 +13,22 @@ export default function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <span className="flex items-center gap-2 text-xl font-bold">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="flex cursor-pointer items-center gap-2 text-xl font-bold"
+        >
           <Logo className="h-7 w-7 text-foreground" />
           {business.name}
-        </span>
+        </button>
 
-        <div className="hidden gap-8 text-sm font-medium md:flex">
+        <div className="hidden gap-6 text-sm font-medium lg:flex">
           {nav.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="hover:text-muted"
+              className="whitespace-nowrap hover:text-muted"
             >
               {item.label}
             </a>
@@ -36,7 +40,7 @@ export default function SiteHeader() {
           <ThemeToggle className="hidden sm:inline-block" />
           <a
             href="#contact"
-            className="hidden rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover md:inline-block"
+            className="hidden whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover lg:inline-block"
           >
             Get in touch
           </a>
@@ -44,7 +48,7 @@ export default function SiteHeader() {
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
             aria-label="Toggle menu"
-            className="rounded-lg border border-border p-2 md:hidden"
+            className="rounded-lg border border-border p-2 lg:hidden"
           >
             <IconMenu2 size={18} />
           </button>
@@ -52,7 +56,7 @@ export default function SiteHeader() {
       </nav>
 
       {menuOpen && (
-        <div className="border-t border-border md:hidden">
+        <div className="border-t border-border lg:hidden">
           <div className="flex flex-col gap-1 px-6 py-4 text-sm font-medium">
             {nav.map((item) => (
               <a
