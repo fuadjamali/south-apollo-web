@@ -1,6 +1,7 @@
 import siteConfig from "@/config/site";
+import { getPosts } from "@/lib/blog";
 
-export default function sitemap() {
+export default async function sitemap() {
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
   const entries = [
@@ -20,10 +21,11 @@ export default function sitemap() {
       priority: 0.8,
     });
 
-    for (const post of siteConfig.blog.posts) {
+    const posts = await getPosts();
+    for (const post of posts) {
       entries.push({
         url: `${baseUrl}/blog/${post.slug}`,
-        lastModified: new Date(post.date),
+        lastModified: new Date(post.published_date),
         changeFrequency: "monthly",
         priority: 0.6,
       });
