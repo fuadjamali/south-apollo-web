@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Falcon App — Developer Tutorial</title>
+<title>Falcon Web — Developer Tutorial</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23111827' fill-rule='evenodd'%3E%3Cpath d='M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z'/%3E%3C/svg%3E" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config = { darkMode: "class" };</script>
@@ -34,7 +34,7 @@
         <svg viewBox="0 0 100 100" class="h-6 w-6" fill="currentColor" fill-rule="evenodd" aria-hidden="true">
           <path d="M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z"/>
         </svg>
-        Falcon App — Developer Tutorial
+        Falcon Web — Developer Tutorial
       </span>
       <button onclick="toggleFalconTheme()"
               class="rounded-full border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800">
@@ -70,7 +70,7 @@
     <main class="prose-body min-w-0 flex-1 max-w-3xl">
 
       <section id="intro" class="scroll-mt-24 pb-14">
-        <h1 class="text-3xl font-extrabold tracking-tight">Falcon App — Developer Tutorial</h1>
+        <h1 class="text-3xl font-extrabold tracking-tight">Falcon Web — Developer Tutorial</h1>
         <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
           A full walkthrough of this project: what it is, why each tool was chosen, how it was
           built step by step, and the real mistakes made (and fixed) along the way.
@@ -87,7 +87,7 @@
 
         <h2 class="mt-8 text-xl font-bold">What this project is</h2>
         <p class="mt-3">
-          Falcon App is an MVP (minimum viable product) template for small-business websites: a
+          Falcon Web is an MVP (minimum viable product) template for small-business websites: a
           public marketing home page, an admin login, and a protected admin dashboard. It's meant
           to be copied and customized for real client projects rather than used as-is — see
           <a href="#new-project" class="text-blue-600 underline dark:text-blue-400">Section 12</a>
@@ -944,27 +944,56 @@ await db.query(
           <code>app/globals.css</code> defines a small set of named color tokens —
           <code>primary</code>, <code>primary-hover</code>, <code>primary-foreground</code>,
           <code>accent</code>, <code>surface</code>, <code>surface-alt</code>,
-          <code>border-color</code>, <code>text-muted</code> — each with a light-mode and
-          dark-mode value. Tailwind's <code>@theme inline</code> block exposes these as real
-          utility classes: <code>bg-primary</code>, <code>text-primary-foreground</code>,
-          <code>border-border</code>, and so on. Every component uses these tokens instead of
-          hardcoded colors like <code>bg-gray-900</code>.
+          <code>border-color</code>, <code>text-muted</code>. Tailwind's <code>@theme inline</code>
+          block exposes these as real utility classes: <code>bg-primary</code>,
+          <code>text-primary-foreground</code>, <code>border-border</code>, and so on. Every
+          component uses these tokens instead of hardcoded colors like <code>bg-gray-900</code>.
+        </p>
+        <p class="mt-3">
+          <strong>Six color themes, each with a light and dark variant:</strong> Ocean Blue,
+          Forest Green, Desert Orange, Royal Purple, Ferrari Red, and Golden. Each theme's 8
+          token values live under a <code>[data-theme="..."]</code> / <code>[data-theme="..."].dark</code>
+          CSS selector pair in <code>globals.css</code> — "Ocean" is the default and lives on
+          plain <code>:root</code> / <code>.dark</code> so the page still has color before any
+          script runs. Color theme and light/dark mode are two independent axes: which color
+          theme is active is controlled by a <code>data-theme</code> attribute on
+          <code>&lt;html&gt;</code>; whether it's light or dark is controlled by the
+          <code>.dark</code> class on the same element. The CSS selectors combine both, e.g.
+          <code>[data-theme="forest"].dark</code> only matches when both are set.
+        </p>
+        <p class="mt-3">
+          <code>components/ColorThemeSwitcher.js</code> is the dropdown that sets
+          <code>data-theme</code> and persists the choice to
+          <code>localStorage</code> under <code>falcon-color-theme</code>, mirroring how
+          <code>components/ThemeToggle.js</code> toggles <code>.dark</code> and persists to
+          <code>falcon-theme</code>. Both controls are wired in next to each other everywhere
+          the header appears: the home page, admin layout, login, blog, and the error/401 pages.
         </p>
         <p class="mt-3">
           <strong>Why this matters:</strong> recoloring the entire site for a new client is a
           one-file edit (change the hex values in <code>globals.css</code>) instead of hunting
           through every component for hardcoded colors. <code>docs/theme-prompt-template.md</code>
-          is a ready-made prompt for exactly that task.
+          is a ready-made prompt for exactly that task — the same pattern used to derive all six
+          shipped themes.
         </p>
         <p class="mt-3">
-          <strong>Dark mode specifically:</strong> Tailwind v4 needs an explicit
-          <code>@custom-variant dark (&amp;:where(.dark, .dark *));</code> to make
+          <strong>Dark mode and the flash-of-wrong-theme problem:</strong> Tailwind v4 needs an
+          explicit <code>@custom-variant dark (&amp;:where(.dark, .dark *));</code> to make
           <code>dark:</code> classes respond to a <code>.dark</code> class on
           <code>&lt;html&gt;</code>, rather than only the OS-level
           <code>prefers-color-scheme</code>. A small inline script in
-          <code>app/layout.js</code> (<code>components/ThemeScript.js</code>) sets that class
+          <code>app/layout.js</code> (<code>components/ThemeScript.js</code>) sets both the
+          <code>.dark</code> class and the <code>data-theme</code> attribute synchronously,
           before the page paints, based on <code>localStorage</code> or system preference —
-          without it, you'd see a flash of the wrong theme on every page load.
+          without it, you'd see a flash of the wrong theme (and wrong color) on every page load.
+        </p>
+        <p class="mt-3">
+          <strong>Pitfall hit here:</strong> setting <code>data-theme</code> on
+          <code>&lt;html&gt;</code> from that inline script — which runs before React hydrates —
+          made React log a hydration-mismatch warning, since the server-rendered HTML never had
+          that attribute. The fix is <code>suppressHydrationWarning</code> on the
+          <code>&lt;html&gt;</code> tag in <code>app/layout.js</code>, the standard escape hatch
+          for exactly this pattern (documented in Next.js's own dark-mode guidance).
         </p>
       </section>
 
