@@ -150,6 +150,7 @@ const siteConfig = {
       { label: "About", href: "/admin/about" },
       { label: "Certifications", href: "/admin/certifications" },
       { label: "Contact Us", href: "/admin/contact" },
+      { label: "Enquiries", href: "/admin/enquiries" },
     ],
   },
 

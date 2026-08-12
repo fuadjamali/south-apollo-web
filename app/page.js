@@ -1,5 +1,6 @@
 import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
+import EnquiryForm from "@/components/EnquiryForm";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import SocialLinks from "@/components/SocialLinks";
 import Logo from "@/components/Logo";
@@ -248,65 +249,14 @@ export default function Home() {
         </section>
       )}
 
-      {/* COMPONENT: enquiry-form (optional — wire the <form> up to an API route or mailto later) */}
+      {/* COMPONENT: enquiry-form (optional — submits to /api/enquiries, viewable at /admin/enquiries) */}
       {enquiryForm && (
         <section id="enquiry" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-xl px-6">
             <h2 className="text-center text-3xl font-bold">{enquiryForm.heading}</h2>
             <p className="mt-2 text-center text-muted">{enquiryForm.subheading}</p>
 
-            <form className="mt-10 space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-foreground">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    placeholder="Your name"
-                    className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground">Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Optional"
-                    className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  placeholder="you@example.com"
-                  className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground">Message</label>
-                <textarea
-                  name="message"
-                  rows={4}
-                  required
-                  placeholder="Tell us what you're looking for"
-                  className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
-              >
-                Send enquiry
-              </button>
-            </form>
+            <EnquiryForm />
           </div>
         </section>
       )}

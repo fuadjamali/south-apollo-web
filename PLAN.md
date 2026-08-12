@@ -51,7 +51,31 @@
 - ✅ Real favicon (`app/icon.svg`, matches the logo) — was still the default Next.js icon.
 - ✅ `public/og-image.svg` placeholder (needs to become a real PNG/JPG before actual deployment — most social crawlers don't render SVG `og:image`).
 - ✅ Fixed `proxy.js`: `/admin/*` paths without a real page previously fell through to Next's default 404 instead of the Site Unavailable page, because it prefix-matched `/admin` rather than checking against a real route list. `PROTECTED_ROUTES` is now an explicit allowlist — add new admin routes to it as they're actually built.
-- Still open: no rate limiting/lockout on `/admin/login`, no password-reset flow (re-seed only), enquiry form has no submit handler yet.
+- Still open: no rate limiting/lockout on `/admin/login`, no password-reset flow (re-seed only).
+- ✅ Enquiry form now has a real submit handler — see "Admin panel additions" below.
+
+## Admin panel additions
+
+- ✅ **Enquiry submissions inbox.** New `enquiries` table (`db/schema.sql`). The home page's enquiry
+  form (`components/EnquiryForm.js`, extracted from `app/page.js` into its own client component)
+  now actually submits via `POST /api/enquiries` (`app/api/enquiries/route.js` — public route,
+  validates required fields, returns 400/201) instead of doing nothing. Submissions are viewable at
+  `/admin/enquiries` (new protected page, added to `proxy.js`'s `PROTECTED_ROUTES` and to
+  `config/site.js`'s admin nav).
+- ✅ **Dashboard stats.** `/admin` now shows: enquiry count (links through to the inbox), a
+  DB connection health indicator (`SELECT 1`, green/red dot), and "Signed in since" (a `loginAt`
+  timestamp added to the JWT at sign-in via the `jwt`/`session` callbacks in the NextAuth route).
+- **Real bug caught during this work**: both `/admin` and `/admin/enquiries` need to query the
+  database live on every request, but Next.js only infers dynamic rendering automatically when a
+  page calls a dynamic API (like `getServerSession`, which reads cookies) — `/admin/enquiries`
+  doesn't call that, so it was silently getting prerendered as a **static** page at build time
+  (confirmed via `npm run build` output: `○ Static` instead of `ƒ Dynamic`). That would have frozen
+  the enquiry list at whatever it was during the last deploy. Fixed by adding
+  `export const dynamic = "force-dynamic"` to both pages explicitly, rather than relying on an
+  incidental side effect of an unrelated API call.
+- Skipped on request: real content-editing CRUD for products/portfolio/etc. (nav links to
+  `/admin/products` etc. still point nowhere), and the security items (rate limiting, password
+  reset) — deliberately out of scope for this pass.
 
 ## Color theme system
 

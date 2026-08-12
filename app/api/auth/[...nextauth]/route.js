@@ -47,12 +47,14 @@ export const authOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.loginAt = Date.now();
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
+        session.user.loginAt = token.loginAt;
       }
       return session;
     },

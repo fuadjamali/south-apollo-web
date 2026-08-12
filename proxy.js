@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const PUBLIC_ROUTES = ["/", "/admin/login"];
-const PUBLIC_PREFIXES = ["/api/auth"];
+const PUBLIC_PREFIXES = ["/api/auth", "/api/enquiries"];
 
 // Explicit allowlist, not a "/admin" prefix match — a path here means a real
 // page.js exists for it. Add new admin routes here as they're built; anything
 // under /admin that ISN'T listed falls through to the unrecognized-route branch
 // (401 Site Unavailable) rather than silently 404ing via Next's default page.
-const PROTECTED_ROUTES = ["/admin"];
+const PROTECTED_ROUTES = ["/admin", "/admin/enquiries"];
 
 export async function proxy(request) {
   const { pathname } = request.nextUrl;
