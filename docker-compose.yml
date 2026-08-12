@@ -1,16 +1,16 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: falcon-app-db
+    container_name: falcon-web-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: falcon
       POSTGRES_PASSWORD: falcon
-      POSTGRES_DB: falcon_app
+      POSTGRES_DB: falcon_web
     ports:
       - "5433:5432"
     volumes:
-      - falcon-app-db-data:/var/lib/postgresql/data
+      - falcon-web-db-data:/var/lib/postgresql/data
 
 volumes:
-  falcon-app-db-data:
+  falcon-web-db-data:
