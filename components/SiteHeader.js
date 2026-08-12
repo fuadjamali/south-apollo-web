@@ -4,6 +4,7 @@ import { useState } from "react";
 import { IconMenu2 } from "@tabler/icons-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import siteConfig from "@/config/site";
 
 export default function SiteHeader() {
@@ -31,6 +32,7 @@ export default function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-3">
+          <ColorThemeSwitcher className="hidden sm:inline-block" />
           <ThemeToggle className="hidden sm:inline-block" />
           <a
             href="#contact"
@@ -62,7 +64,10 @@ export default function SiteHeader() {
                 {item.label}
               </a>
             ))}
-            <ThemeToggle className="mt-2 text-left sm:hidden" />
+            <div className="mt-2 flex items-center gap-2 sm:hidden">
+              <ColorThemeSwitcher />
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       )}

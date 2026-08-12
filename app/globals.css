@@ -19,39 +19,222 @@
  *   surface / surface-alt     — card backgrounds; alt = section stripes
  *   border                    — hairline borders/dividers
  *   text-muted                — secondary/supporting text
+ *
+ * Six selectable color themes, each with a light + dark variant, picked via
+ * ColorThemeSwitcher (sets [data-theme] on <html>) crossed with ThemeToggle
+ * (toggles the .dark class on <html>). "Ocean" is the default/fallback and
+ * lives on plain :root / .dark so the page still has colors before the
+ * inline ThemeScript runs.
  */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
 
-  --primary: #111827;
-  --primary-hover: #374151;
+/* Ocean Blue — crystal glossy finishing (default) */
+:root {
+  --background: #f0f9ff;
+  --foreground: #0c2d48;
+
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
   --primary-foreground: #ffffff;
 
-  --accent: #2563eb;
+  --accent: #06b6d4;
   --accent-foreground: #ffffff;
 
   --surface: #ffffff;
-  --surface-alt: #f9fafb;
-  --border-color: #e5e7eb;
-  --text-muted: #6b7280;
+  --surface-alt: #e0f2fe;
+  --border-color: #bae6fd;
+  --text-muted: #475569;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #01121f;
+  --foreground: #e0f2fe;
 
-  --primary: #f9fafb;
-  --primary-hover: #e5e7eb;
-  --primary-foreground: #111827;
+  --primary: #38bdf8;
+  --primary-hover: #7dd3fc;
+  --primary-foreground: #01121f;
 
-  --accent: #3b82f6;
+  --accent: #22d3ee;
+  --accent-foreground: #01121f;
+
+  --surface: #0c2d48;
+  --surface-alt: #123a5c;
+  --border-color: #1e4a70;
+  --text-muted: #94a3b8;
+}
+
+/* Forest Green — matte finishing */
+[data-theme="forest"] {
+  --background: #f7f8f4;
+  --foreground: #23331b;
+
+  --primary: #4d6b3f;
+  --primary-hover: #3e5630;
+  --primary-foreground: #ffffff;
+
+  --accent: #6b8e23;
   --accent-foreground: #ffffff;
 
-  --surface: #111827;
-  --surface-alt: #1f2937;
-  --border-color: #374151;
-  --text-muted: #9ca3af;
+  --surface: #ffffff;
+  --surface-alt: #eef1e6;
+  --border-color: #d9ddc8;
+  --text-muted: #5c6b4f;
+}
+
+[data-theme="forest"].dark {
+  --background: #141a10;
+  --foreground: #e5e9dc;
+
+  --primary: #7c9a5f;
+  --primary-hover: #94b378;
+  --primary-foreground: #141a10;
+
+  --accent: #9caf6b;
+  --accent-foreground: #141a10;
+
+  --surface: #1f2818;
+  --surface-alt: #26311d;
+  --border-color: #384526;
+  --text-muted: #9aa88a;
+}
+
+/* Desert Orange — rusty rock finishing */
+[data-theme="desert"] {
+  --background: #fdf6f0;
+  --foreground: #3d2317;
+
+  --primary: #c2410c;
+  --primary-hover: #9a3412;
+  --primary-foreground: #ffffff;
+
+  --accent: #b45309;
+  --accent-foreground: #ffffff;
+
+  --surface: #ffffff;
+  --surface-alt: #f5e6d8;
+  --border-color: #e7c9ae;
+  --text-muted: #7c5e4c;
+}
+
+[data-theme="desert"].dark {
+  --background: #1c1210;
+  --foreground: #f2e4d8;
+
+  --primary: #f0965b;
+  --primary-hover: #f6b184;
+  --primary-foreground: #1c1210;
+
+  --accent: #e0a458;
+  --accent-foreground: #1c1210;
+
+  --surface: #2b1c16;
+  --surface-alt: #35241c;
+  --border-color: #4a3024;
+  --text-muted: #baa08e;
+}
+
+/* Royal Purple — velvet shine royal finishing */
+[data-theme="royal"] {
+  --background: #faf7fc;
+  --foreground: #2e1a47;
+
+  --primary: #6d28d9;
+  --primary-hover: #5b21b6;
+  --primary-foreground: #ffffff;
+
+  --accent: #b8860b;
+  --accent-foreground: #2e1a47;
+
+  --surface: #ffffff;
+  --surface-alt: #f2e9fa;
+  --border-color: #ddc9ef;
+  --text-muted: #6b5b7a;
+}
+
+[data-theme="royal"].dark {
+  --background: #170b26;
+  --foreground: #ecdffa;
+
+  --primary: #a78bfa;
+  --primary-hover: #c4b5fd;
+  --primary-foreground: #170b26;
+
+  --accent: #d4af37;
+  --accent-foreground: #170b26;
+
+  --surface: #241238;
+  --surface-alt: #2e1745;
+  --border-color: #422060;
+  --text-muted: #b8a2c9;
+}
+
+/* Ferrari Red — racing red + black */
+[data-theme="ferrari"] {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+
+  --primary: #d50000;
+  --primary-hover: #b71c1c;
+  --primary-foreground: #ffffff;
+
+  --accent: #1a1a1a;
+  --accent-foreground: #ffffff;
+
+  --surface: #ffffff;
+  --surface-alt: #fff0f0;
+  --border-color: #ffcdd2;
+  --text-muted: #6b4a4a;
+}
+
+[data-theme="ferrari"].dark {
+  --background: #0d0d0d;
+  --foreground: #f5f5f5;
+
+  --primary: #ff1744;
+  --primary-hover: #ff5252;
+  --primary-foreground: #0d0d0d;
+
+  --accent: #ffd600;
+  --accent-foreground: #0d0d0d;
+
+  --surface: #1a1a1a;
+  --surface-alt: #262626;
+  --border-color: #3d3d3d;
+  --text-muted: #a3a3a3;
+}
+
+/* Golden — gold + black vibe */
+[data-theme="golden"] {
+  --background: #fffdf5;
+  --foreground: #1a1a1a;
+
+  --primary: #b8860b;
+  --primary-hover: #9a6f08;
+  --primary-foreground: #1a1a1a;
+
+  --accent: #1a1a1a;
+  --accent-foreground: #d4af37;
+
+  --surface: #ffffff;
+  --surface-alt: #faf6ea;
+  --border-color: #e8dcc0;
+  --text-muted: #6b6353;
+}
+
+[data-theme="golden"].dark {
+  --background: #0a0a0a;
+  --foreground: #f5efdc;
+
+  --primary: #ffd700;
+  --primary-hover: #ffe55c;
+  --primary-foreground: #0a0a0a;
+
+  --accent: #d4af37;
+  --accent-foreground: #0a0a0a;
+
+  --surface: #161616;
+  --surface-alt: #201c12;
+  --border-color: #3a331f;
+  --text-muted: #b3a98a;
 }
 
 @theme inline {

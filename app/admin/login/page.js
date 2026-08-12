@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import siteConfig from "@/config/site";
 
 export default function AdminLoginPage() {
@@ -37,7 +38,10 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-surface-alt">
-      <ThemeToggle className="fixed right-6 top-6" />
+      <div className="fixed right-6 top-6 flex items-center gap-2">
+        <ColorThemeSwitcher />
+        <ThemeToggle />
+      </div>
 
       <main className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-8 shadow-sm">

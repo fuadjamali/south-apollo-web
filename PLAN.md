@@ -356,14 +356,27 @@ not full production completeness.
      standard practice for review badges. Clutch intentionally left as a placeholder (not
      requested; can add if wanted).
 
-3. **Demo color palette**
-   - Right now `app/globals.css` ships the neutral gray/black default — fine as a template
-     baseline, but flat for a pitch demo.
-   - Pick one attractive, finished-looking palette (not client-specific branding) and apply it via
-     the existing `docs/theme-prompt-template.md` workflow, so the demo actually looks designed
-     rather than like unstyled scaffolding.
-   - Keep the neutral default recoverable — e.g. note the original hex values here or in a comment,
-     since the neutral palette is still the right *starting* point for a real client project.
+3. **Demo color palette** ✅ Done
+   - Went further than a single static palette: shipped six selectable color themes — Ocean Blue
+     (crystal glossy), Forest Green (matte), Desert Orange (rusty rock), Royal Purple (velvet
+     shine), Ferrari Red (racing red + black), Golden (gold + black vibe) — each with its own
+     light *and* dark variant (12 value sets total), all defined in `app/globals.css` under
+     `[data-theme="..."]` / `[data-theme="..."].dark` selectors. Ocean Blue light is the default
+     and lives on plain `:root`/`.dark` so the page still has color before the inline theme
+     script runs.
+   - New `components/ColorThemeSwitcher.js` (client component, `<select>` of the 6 names) sets
+     `data-theme` on `<html>` and persists to `localStorage` under `falcon-color-theme`, mirroring
+     the existing `ThemeToggle`/`falcon-theme` pattern for light/dark. `components/ThemeScript.js`
+     was extended to read and apply the stored color theme synchronously (no flash).
+   - Wired the switcher in next to every existing `ThemeToggle` instance: `SiteHeader` (desktop +
+     mobile menu), admin layout, `/admin/login`, blog layout, `error.js`, and `/site-unavailable` —
+     same coverage the dark-mode toggle already had.
+   - Verified all 8 theme×mode combinations render the correct CSS variable values via browser JS
+     inspection (`getComputedStyle` against `--background`/`--primary`/`--accent`), and confirmed
+     `npm run build` passes.
+   - No neutral gray/black default was removed — it was never separately preserved since Ocean
+     Blue now serves as the fallback; if a future real client project wants to start neutral again,
+     recolor `:root`/`.dark` directly per `docs/theme-prompt-template.md`.
 
 ## Template conventions
 

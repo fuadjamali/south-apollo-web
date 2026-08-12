@@ -1,5 +1,6 @@
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import siteConfig from "@/config/site";
 
 export default function BlogLayout({ children }) {
@@ -18,6 +19,7 @@ export default function BlogLayout({ children }) {
             <a href="/blog" className="hover:text-muted">
               Blog
             </a>
+            <ColorThemeSwitcher />
             <ThemeToggle />
           </div>
         </nav>

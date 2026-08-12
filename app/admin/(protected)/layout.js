@@ -1,5 +1,6 @@
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import SignOutButton from "@/components/SignOutButton";
 import siteConfig from "@/config/site";
 
@@ -16,6 +17,7 @@ export default function AdminLayout({ children }) {
             <span className="font-normal text-muted">Admin</span>
           </span>
           <div className="flex items-center gap-3">
+            <ColorThemeSwitcher />
             <ThemeToggle />
             <SignOutButton />
           </div>

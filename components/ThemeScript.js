@@ -1,9 +1,12 @@
 const THEME_SCRIPT = `
 (function () {
-  var stored = localStorage.getItem("falcon-theme");
+  var storedMode = localStorage.getItem("falcon-theme");
   var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  var theme = stored || (prefersDark ? "dark" : "light");
-  if (theme === "dark") document.documentElement.classList.add("dark");
+  var mode = storedMode || (prefersDark ? "dark" : "light");
+  if (mode === "dark") document.documentElement.classList.add("dark");
+
+  var storedColor = localStorage.getItem("falcon-color-theme") || "ocean";
+  document.documentElement.setAttribute("data-theme", storedColor);
 })();
 `;
 
