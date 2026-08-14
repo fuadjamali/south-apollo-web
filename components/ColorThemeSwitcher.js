@@ -9,6 +9,7 @@ const COLOR_THEMES = [
   { id: "royal", label: "Royal Purple" },
   { id: "ferrari", label: "Ferrari Red" },
   { id: "golden", label: "Golden" },
+  { id: "burgundy", label: "Burgundy" },
 ];
 
 function applyColorTheme(id) {

@@ -20,11 +20,12 @@
  *   border                    — hairline borders/dividers
  *   text-muted                — secondary/supporting text
  *
- * Six selectable color themes, each with a light + dark variant, picked via
- * ColorThemeSwitcher (sets [data-theme] on <html>) crossed with ThemeToggle
- * (toggles the .dark class on <html>). "Ocean" is the default/fallback and
- * lives on plain :root / .dark so the page still has colors before the
- * inline ThemeScript runs.
+ * Seven selectable color themes, picked via ColorThemeSwitcher (sets [data-theme] on
+ * <html>) crossed with ThemeToggle (toggles the .dark class on <html>). "Ocean" is the
+ * default/fallback and lives on plain :root / .dark so the page still has colors before
+ * the inline ThemeScript runs. Six of the seven have both a light and dark variant;
+ * "Burgundy" is dark-only by design (same values under both the light and .dark
+ * selector), so it doesn't shift when the light/dark toggle is used.
  */
 
 /* Ocean Blue — crystal glossy finishing (default) */
@@ -235,6 +236,26 @@
   --surface-alt: #201c12;
   --border-color: #3a331f;
   --text-muted: #b3a98a;
+}
+
+/* Burgundy — dark-only, deep oud burgundy + ivory. Same values under both selectors
+   (light and .dark) since no separate light variant was specified for this theme. */
+[data-theme="burgundy"],
+[data-theme="burgundy"].dark {
+  --background: #5f1127;
+  --foreground: #f6f1e8;
+
+  --primary: #f6f1e8;
+  --primary-hover: #ece0cc;
+  --primary-foreground: #5f1127;
+
+  --accent: #f6f1e8;
+  --accent-foreground: #5f1127;
+
+  --surface: #4a0d1e;
+  --surface-alt: #551020;
+  --border-color: #7a2f42;
+  --text-muted: #c9a3ab;
 }
 
 @theme inline {
