@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# generated identity assets (scripts/generate-identity.js output — review and manually
+# promote files out of here, don't commit the staging output itself)
+/public/generated/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

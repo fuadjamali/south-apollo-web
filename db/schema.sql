@@ -32,12 +32,15 @@ CREATE TABLE IF NOT EXISTS site_visits (
 
 -- Admin-editable via /admin/products. Seeded with the 3 placeholder products from
 -- config/site.js the first time this table is queried and found empty (see lib/products.js).
+-- Each product also has a public detail page at /products/[id]. `category` powers the
+-- home page's category filter dropdown (free text, not a separate categories table).
 CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   description TEXT,
   price VARCHAR(50),
   image VARCHAR(500),
+  category VARCHAR(100),
   display_order INT NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -71,5 +74,29 @@ CREATE TABLE IF NOT EXISTS contact_info (
   phone VARCHAR(50),
   email VARCHAR(255),
   enabled BOOLEAN NOT NULL DEFAULT true,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Admin-editable via /admin/reviews. Seeded with the 3 placeholder platforms (Trustpilot/
+-- Google/Clutch) that used to live in config/site.js the first time this table is queried
+-- and found empty (see lib/reviews.js).
+CREATE TABLE IF NOT EXISTS reviews (
+  id SERIAL PRIMARY KEY,
+  platform_name VARCHAR(100) NOT NULL,
+  rating VARCHAR(10),
+  review_count VARCHAR(50),
+  url VARCHAR(500),
+  logo VARCHAR(500),
+  display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Singleton (always exactly one row), same pattern as contact_info — a business has one
+-- About Us blurb, not a list. Admin-editable via /admin/about.
+CREATE TABLE IF NOT EXISTS about_info (
+  id SERIAL PRIMARY KEY,
+  heading VARCHAR(255) NOT NULL DEFAULT 'About Us',
+  body TEXT,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

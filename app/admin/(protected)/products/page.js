@@ -1,5 +1,6 @@
 import { getProducts } from "@/lib/products";
 import { deleteProductAction } from "./actions";
+import DeleteButton from "@/components/DeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,9 @@ export default async function AdminProductsPage() {
                   <div>
                     <p className="font-semibold text-foreground">{product.name}</p>
                     <p className="text-sm text-muted">
-                      {product.price} · order {product.display_order}
+                      {product.price}
+                      {product.category ? ` · ${product.category}` : ""} · order{" "}
+                      {product.display_order}
                     </p>
                   </div>
                 </div>
@@ -58,12 +61,10 @@ export default async function AdminProductsPage() {
                   </a>
                   <form action={deleteProductAction}>
                     <input type="hidden" name="id" value={product.id} />
-                    <button
-                      type="submit"
+                    <DeleteButton
+                      confirmMessage={`Delete "${product.name}"? This can't be undone.`}
                       className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-surface-alt dark:text-red-400"
-                    >
-                      Delete
-                    </button>
+                    />
                   </form>
                 </div>
               </div>

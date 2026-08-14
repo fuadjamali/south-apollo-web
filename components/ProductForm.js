@@ -39,14 +39,25 @@ export default function ProductForm({ action, product, submitLabel }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground">Display order</label>
+          <label className="block text-sm font-medium text-foreground">Category</label>
           <input
-            type="number"
-            name="displayOrder"
-            defaultValue={product?.display_order ?? 0}
+            type="text"
+            name="category"
+            defaultValue={product?.category}
+            placeholder="e.g. General"
             className={fieldClass}
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-foreground">Display order</label>
+        <input
+          type="number"
+          name="displayOrder"
+          defaultValue={product?.display_order ?? 0}
+          className={fieldClass}
+        />
       </div>
 
       <div>

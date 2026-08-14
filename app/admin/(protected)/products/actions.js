@@ -10,6 +10,7 @@ function readForm(formData) {
     description: formData.get("description")?.toString().trim() || "",
     price: formData.get("price")?.toString().trim() || "",
     image: formData.get("image")?.toString().trim() || "",
+    category: formData.get("category")?.toString().trim() || "",
     displayOrder: parseInt(formData.get("displayOrder"), 10) || 0,
   };
 }

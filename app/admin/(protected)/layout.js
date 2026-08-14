@@ -17,6 +17,14 @@ export default function AdminLayout({ children }) {
             <span className="font-normal text-muted">Admin</span>
           </span>
           <div className="flex items-center gap-3">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-border px-3 py-1.5 text-sm font-semibold text-foreground hover:bg-surface-alt"
+            >
+              View site
+            </a>
             <ColorThemeSwitcher />
             <ThemeToggle />
             <SignOutButton />

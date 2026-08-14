@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/products";
 import ProductForm from "@/components/ProductForm";
+import DeleteButton from "@/components/DeleteButton";
 import { updateProductAction, deleteProductAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
@@ -23,12 +24,12 @@ export default async function EditProductPage({ params }) {
 
         <form action={deleteProductAction} className="mt-4 border-t border-border pt-4">
           <input type="hidden" name="id" value={product.id} />
-          <button
-            type="submit"
+          <DeleteButton
+            confirmMessage={`Delete "${product.name}"? This can't be undone.`}
             className="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
           >
             Delete this product
-          </button>
+          </DeleteButton>
         </form>
       </div>
     </div>

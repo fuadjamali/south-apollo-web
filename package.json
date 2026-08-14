@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "node --env-file=.env.local scripts/seed.js"
+    "seed": "node --env-file=.env.local scripts/seed.js",
+    "generate-identity": "node scripts/generate-identity.js"
   },
   "dependencies": {
     "@tabler/icons-react": "^3.46.0",
@@ -26,6 +27,7 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4"
   }
 }

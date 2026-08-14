@@ -1,5 +1,6 @@
 import { getPosts } from "@/lib/blog";
 import { deletePostAction } from "./actions";
+import DeleteButton from "@/components/DeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -67,12 +68,10 @@ export default async function AdminBlogPage() {
                   </a>
                   <form action={deletePostAction}>
                     <input type="hidden" name="id" value={post.id} />
-                    <button
-                      type="submit"
+                    <DeleteButton
+                      confirmMessage={`Delete "${post.title}"? This can't be undone.`}
                       className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-surface-alt dark:text-red-400"
-                    >
-                      Delete
-                    </button>
+                    />
                   </form>
                 </div>
               </div>

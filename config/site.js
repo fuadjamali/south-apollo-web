@@ -89,19 +89,11 @@ const siteConfig = {
     ],
   },
 
-  // Optional — set to null to remove the section from the home page.
+  // Optional — set to null to remove the section from the home page. The platform list itself
+  // now lives in Postgres (lib/reviews.js), editable via /admin/reviews — this just holds the
+  // section's static heading, same pattern as products/blog.
   reviews: {
     heading: "What people say about us",
-    platforms: [
-      { id: "trustpilot", name: "Trustpilot", rating: "4.8", count: "0 reviews", url: "https://www.trustpilot.com/review/YOUR_DOMAIN", logo: "/logos/trustpilot.svg" },
-      { id: "google", name: "Google", rating: "4.9", count: "0 reviews", url: "https://g.page/r/YOUR_GOOGLE_PLACE_ID/review", logo: "/logos/google.svg" },
-      { id: "clutch", name: "Clutch", rating: "5.0", count: "0 reviews", url: "https://clutch.co/profile/YOUR_PROFILE" },
-    ],
-  },
-
-  about: {
-    heading: "About Us",
-    body: "ABOUT_BODY",
   },
 
   // Optional — set to null to remove the section from the home page.
@@ -128,6 +120,9 @@ const siteConfig = {
   footer: {
     heading: "Ready to work together?",
     subheading: "Reach out and let's get started.",
+    // Distinct from contact.whatsappMessage (used by the floating button) — each WhatsApp CTA
+    // gets a message matching its context instead of one generic message everywhere.
+    whatsappMessage: "Hi, I just saw your website and I'd like to get in touch.",
   },
 
   // Optional — delete entries for platforms you don't use.
@@ -157,6 +152,7 @@ const siteConfig = {
       { label: "Enquiries", href: "/admin/enquiries" },
       { label: "Analytics", href: "/admin/analytics" },
       { label: "Blog", href: "/admin/blog" },
+      { label: "Account", href: "/admin/account" },
     ],
   },
 

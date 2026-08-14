@@ -6,11 +6,15 @@ import VisitTracker from "@/components/VisitTracker";
 import CookieConsent from "@/components/CookieConsent";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import SocialLinks from "@/components/SocialLinks";
+import CategoryFilter from "@/components/CategoryFilter";
 import Logo from "@/components/Logo";
 import siteConfig from "@/config/site";
 import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
-import { getProducts } from "@/lib/products";
+import { getProducts, getProductCategories } from "@/lib/products";
 import { getContactInfo } from "@/lib/contactInfo";
+import { getReviews } from "@/lib/reviews";
+import { getAboutInfo } from "@/lib/aboutInfo";
+import { getRecentPosts } from "@/lib/blog";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -35,7 +39,7 @@ export const metadata = {
   },
 };
 
-export default async function Home() {
+export default async function Home({ searchParams }) {
   const {
     hero,
     stats,
@@ -44,7 +48,6 @@ export default async function Home() {
     products,
     portfolio,
     reviews,
-    about,
     certifications,
     map,
     enquiryForm,
@@ -53,9 +56,20 @@ export default async function Home() {
     contact,
   } = siteConfig;
 
-  const productItems = await getProducts();
-  const contactInfo = await getContactInfo();
-  const whatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(contact.whatsappMessage)}`;
+  const params = await searchParams;
+  const selectedCategory = params?.category || "";
+
+  const [productItems, productCategories, contactInfo, reviewItems, aboutInfo, recentPosts] =
+    await Promise.all([
+      getProducts({ category: selectedCategory || undefined }),
+      getProductCategories(),
+      getContactInfo(),
+      getReviews(),
+      getAboutInfo(),
+      siteConfig.blog ? getRecentPosts(3) : Promise.resolve([]),
+    ]);
+
+  const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
   const jsonLd = buildLocalBusinessJsonLd(siteConfig);
 
   return (
@@ -151,33 +165,46 @@ export default async function Home() {
         <h2 className="text-3xl font-bold">{products.heading}</h2>
         <p className="mt-2 text-muted">{products.subheading}</p>
 
-        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {productItems.map((product) => (
-            <div
-              key={product.id}
-              className="overflow-hidden rounded-xl border border-border shadow-sm transition hover:shadow-md"
-            >
-              <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
-                {product.image && (
-                  // Admin-editable image source (path or arbitrary external URL) — a plain
-                  // <img> avoids next/image's hostname allowlist, which would hard-crash the
-                  // page for any URL from a domain not preconfigured in next.config.mjs.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-full w-full object-cover"
-                  />
-                )}
-              </div>
-              <div className="p-5">
-                <h3 className="text-lg font-semibold">{product.name}</h3>
-                <p className="mt-1 text-sm text-muted">{product.description}</p>
-                <p className="mt-3 font-bold">{product.price}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {productCategories.length > 0 && (
+          <div className="mt-6">
+            <CategoryFilter categories={productCategories} selected={selectedCategory} />
+          </div>
+        )}
+
+        {productItems.length === 0 ? (
+          <p className="mt-10 text-center text-sm text-muted">No products in this category.</p>
+        ) : (
+          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {productItems.map((product) => (
+              <a
+                key={product.id}
+                href={`/products/${product.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="overflow-hidden rounded-xl border border-border shadow-sm transition hover:shadow-md"
+              >
+                <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
+                  {product.image && (
+                    // Admin-editable image source (path or arbitrary external URL) — a plain
+                    // <img> avoids next/image's hostname allowlist, which would hard-crash the
+                    // page for any URL from a domain not preconfigured in next.config.mjs.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold">{product.name}</h3>
+                  <p className="mt-1 text-sm text-muted">{product.description}</p>
+                  <p className="mt-3 font-bold">{product.price}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* COMPONENT: portfolio (optional) */}
@@ -204,12 +231,12 @@ export default async function Home() {
         </section>
       )}
 
-      {/* COMPONENT: reviews (optional) */}
-      {reviews && (
+      {/* COMPONENT: reviews (optional — live from Postgres, editable at /admin/reviews) */}
+      {reviews && reviewItems.length > 0 && (
         <section id="reviews" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-center text-3xl font-bold">{reviews.heading}</h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
-            {reviews.platforms.map((platform) => (
+            {reviewItems.map((platform) => (
               <a
                 key={platform.id}
                 href={platform.url}
@@ -218,7 +245,9 @@ export default async function Home() {
                 className="flex flex-col items-center rounded-xl border border-border p-6 text-center transition hover:shadow-md"
               >
                 {platform.logo ? (
-                  <Image src={platform.logo} alt={platform.name} width={96} height={32} className="h-8 w-auto" />
+                  // Admin-editable image source — plain <img>, same reasoning as products/blog.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={platform.logo} alt={platform.name} className="h-8 w-auto" />
                 ) : (
                   <div className="h-8 w-24 rounded bg-gray-200 dark:bg-gray-800" title={platform.name} />
                 )}
@@ -232,10 +261,61 @@ export default async function Home() {
         </section>
       )}
 
-      {/* COMPONENT: about (core) */}
+      {/* COMPONENT: recent-posts (optional — latest 3 blog posts, only shown if Blog is enabled) */}
+      {siteConfig.blog && recentPosts.length > 0 && (
+        <section id="recent-posts" className="bg-surface-alt py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2 className="text-3xl font-bold">{siteConfig.blog.heading}</h2>
+            <p className="mt-2 text-muted">{siteConfig.blog.subheading}</p>
+
+            <div className="mt-10 grid gap-8 sm:grid-cols-3">
+              {recentPosts.map((post) => (
+                <a
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  className="overflow-hidden rounded-xl border border-border bg-background shadow-sm transition hover:shadow-md"
+                >
+                  <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
+                    {post.image && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="h-full w-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="p-5">
+                    <p className="text-xs text-muted">
+                      {new Date(post.published_date).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                    <h3 className="mt-1 text-lg font-semibold">{post.title}</h3>
+                    <p className="mt-1 text-sm text-muted">{post.excerpt}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <a
+                href="/blog"
+                className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
+              >
+                View all posts
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: about (core — live from Postgres, editable at /admin/about) */}
       <section id="about" className="mx-auto max-w-4xl px-6 py-20 text-center">
-        <h2 className="text-3xl font-bold">{about.heading}</h2>
-        <p className="mt-4 text-muted">{about.body}</p>
+        <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
+        <p className="mt-4 text-muted">{aboutInfo.body}</p>
       </section>
 
       {/* COMPONENT: certifications (optional) */}
@@ -330,7 +410,7 @@ export default async function Home() {
         <h2 className="text-2xl font-bold">{footer.heading}</h2>
         <p className="mt-2 text-gray-300">{footer.subheading}</p>
         <a
-          href={whatsappHref}
+          href={footerWhatsappHref}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-200"

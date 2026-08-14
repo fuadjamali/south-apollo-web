@@ -2,17 +2,24 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const PUBLIC_ROUTES = ["/", "/admin/login", "/robots.txt", "/sitemap.xml"];
-const PUBLIC_PREFIXES = ["/api/auth", "/api/enquiries", "/api/track-visit", "/blog"];
+const PUBLIC_PREFIXES = ["/api/auth", "/api/enquiries", "/api/track-visit", "/blog", "/products"];
 
 // Explicit allowlist, not a "/admin" prefix match — a path here means a real
 // page.js exists for it. Add new admin routes here as they're built; anything
 // under /admin that ISN'T listed falls through to the unrecognized-route branch
 // (401 Site Unavailable) rather than silently 404ing via Next's default page.
-const PROTECTED_ROUTES = ["/admin", "/admin/enquiries", "/admin/analytics", "/admin/contact"];
+const PROTECTED_ROUTES = [
+  "/admin",
+  "/admin/enquiries",
+  "/admin/analytics",
+  "/admin/contact",
+  "/admin/about",
+  "/admin/account",
+];
 
 // For admin route trees that legitimately have dynamic children (e.g. /admin/products/[id]/edit),
 // an exact-match list doesn't work — use a prefix match instead, scoped to just that subtree.
-const PROTECTED_PREFIXES = ["/admin/products", "/admin/blog"];
+const PROTECTED_PREFIXES = ["/admin/products", "/admin/blog", "/admin/reviews"];
 
 export async function proxy(request) {
   const { pathname } = request.nextUrl;

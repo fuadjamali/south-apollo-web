@@ -378,6 +378,71 @@ not full production completeness.
      Blue now serves as the fallback; if a future real client project wants to start neutral again,
      recolor `:root`/`.dark` directly per `docs/theme-prompt-template.md`.
 
+## Gap-closing pass (generalized-template comparison)
+
+User provided a generalized version of this template's feature set (from scoping similar
+business sites) and asked to close 10 specific gaps, explicitly **without** touching theme,
+color, or design. All 10 done:
+
+- ✅ **Product category field + filter.** `products.category` (free text, no separate
+  categories table), migrated onto the existing table via `ALTER TABLE ... ADD COLUMN IF NOT
+  EXISTS` for DBs created before this. `getProductCategories()` returns the distinct set in
+  use; a new `CategoryFilter` client component (same auto-submit-on-change pattern as the
+  existing analytics `CountryFilter`) renders only when at least one category exists.
+- ✅ **Product detail pages** at `/products/[id]` (numeric id, not a slug — products don't
+  have a slug column, unlike blog posts). Grid cards now link there in a new tab. Added to
+  `proxy.js` `PUBLIC_PREFIXES` and to `app/sitemap.js`.
+- ✅ **Delete confirmations.** New reusable `components/DeleteButton.js` (client component,
+  wraps the submit button with a `window.confirm()` gate that calls `preventDefault()` on
+  cancel) — wired into Products, Blog, and the new Reviews admin delete actions. Verified both
+  paths by overriding `window.confirm` in a real browser: cancel leaves the row untouched,
+  confirm deletes it.
+- ✅ **Reviews CRUD.** New `reviews` table + `lib/reviews.js`, full CRUD at `/admin/reviews`
+  (list/new/edit), same Server Actions + shared-form pattern as Products. Seeded with the same
+  3 placeholder platforms (Trustpilot/Google/Clutch) that used to live in `config/site.js`
+  — that static `reviews.platforms` array is now removed from config; only `reviews.heading`
+  stays there, matching the products/blog split.
+- ✅ **About Us CRUD.** New singleton `about_info` table + `lib/aboutInfo.js` (same
+  read+update-only pattern as `contact_info`, no create/delete since a business has exactly
+  one About blurb), admin settings page at `/admin/about`. The static `about: {...}` key was
+  removed entirely from `config/site.js` — fully DB-owned now, same as contact info.
+- ✅ **Account/password settings** at `/admin/account`. Uses `useActionState` (React 19) for
+  inline error/success feedback without a redirect-and-searchParams workaround. Validates the
+  current password via `bcrypt.compare` before allowing a change. New `lib/admins.js` for the
+  two needed queries.
+- ✅ **"View site" admin link** — added to the admin header next to the theme controls, opens
+  `/` in a new tab.
+- ✅ **Latest posts on home page.** New "From the blog" section (only rendered when `blog` is
+  enabled in config and at least one post exists), pulling the 3 most recent via a new
+  `getRecentPosts()` in `lib/blog.js`.
+- ✅ **Per-CTA WhatsApp messages.** Previously both WhatsApp touchpoints (floating button +
+  footer CTA) shared one `contact.whatsappMessage`. Added a separate `footer.whatsappMessage`
+  so the footer CTA sends a distinct, context-appropriate message while the floating button
+  keeps the original generic one.
+- ✅ **Identity-generation pipeline.** New `scripts/generate-identity.js` (uses `sharp`, added
+  as a devDependency) — takes one source logo image and generates favicon/apple-touch-icon/
+  512px-icon/OG-image variants. Deliberately writes to `public/generated/` (gitignored)
+  instead of overwriting `app/icon.svg` / `public/og-image.svg` directly, so running it never
+  silently changes the site's current branding — review the output and manually promote
+  whichever files you want. `npm run generate-identity -- --source path/to/logo.png`.
+
+**Real bug caught during this pass**: two brand-new tables (`about_info`, `reviews`) hit a
+transient `duplicate key value violates unique constraint "pg_type_typname_nsp_index"` on
+their very first concurrent `CREATE TABLE IF NOT EXISTS` — two requests both saw "table
+doesn't exist" under READ COMMITTED before either committed. Self-healing on retry (the losing
+transaction just doesn't create the table; the next request finds it already there) — same
+theoretical race has always existed for every other self-healing table in this codebase, just
+hadn't been hit before now. Not specially guarded against, consistent with the rest of the
+pattern.
+
+**Also fixed in passing**: after the `falcon-app` → `falcon-web` rename, `docker-compose`'s
+project name changed too (it's derived from the folder name), which orphaned the local DB
+volume under a stale `falcon-app_...` prefix and left `falcon-web-db` unable to start at all
+on a port (5433) another unrelated project's container had since claimed. Moved local Postgres
+to port 5434 and migrated the actual data into a correctly-prefixed `falcon-web_...` volume
+(verified all 6 tables' row counts survived) — `docker-compose.yml` and all `.env*` files
+updated to match.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

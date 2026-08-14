@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPostById } from "@/lib/blog";
 import BlogPostForm from "@/components/BlogPostForm";
+import DeleteButton from "@/components/DeleteButton";
 import { updatePostAction, deletePostAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
@@ -23,12 +24,12 @@ export default async function EditBlogPostPage({ params }) {
 
         <form action={deletePostAction} className="mt-4 border-t border-border pt-4">
           <input type="hidden" name="id" value={post.id} />
-          <button
-            type="submit"
+          <DeleteButton
+            confirmMessage={`Delete "${post.title}"? This can't be undone.`}
             className="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
           >
             Delete this post
-          </button>
+          </DeleteButton>
         </form>
       </div>
     </div>

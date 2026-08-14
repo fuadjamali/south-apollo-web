@@ -1,5 +1,6 @@
 import siteConfig from "@/config/site";
 import { getPosts } from "@/lib/blog";
+import { getProducts } from "@/lib/products";
 
 export default async function sitemap() {
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
@@ -12,6 +13,16 @@ export default async function sitemap() {
       priority: 1,
     },
   ];
+
+  const products = await getProducts();
+  for (const product of products) {
+    entries.push({
+      url: `${baseUrl}/products/${product.id}`,
+      lastModified: new Date(product.updated_at),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    });
+  }
 
   if (siteConfig.blog) {
     entries.push({
