@@ -10,6 +10,7 @@ const COLOR_THEMES = [
   { id: "ferrari", label: "Ferrari Red" },
   { id: "golden", label: "Golden" },
   { id: "burgundy", label: "Burgundy" },
+  { id: "onyx-gold", label: "Onyx Gold" },
 ];
 
 function applyColorTheme(id) {

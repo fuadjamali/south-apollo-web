@@ -20,12 +20,12 @@
  *   border                    — hairline borders/dividers
  *   text-muted                — secondary/supporting text
  *
- * Seven selectable color themes, picked via ColorThemeSwitcher (sets [data-theme] on
+ * Eight selectable color themes, picked via ColorThemeSwitcher (sets [data-theme] on
  * <html>) crossed with ThemeToggle (toggles the .dark class on <html>). "Ocean" is the
  * default/fallback and lives on plain :root / .dark so the page still has colors before
- * the inline ThemeScript runs. Six of the seven have both a light and dark variant;
- * "Burgundy" is dark-only by design (same values under both the light and .dark
- * selector), so it doesn't shift when the light/dark toggle is used.
+ * the inline ThemeScript runs. Six of the eight have both a light and dark variant;
+ * "Burgundy" and "Onyx Gold" are dark-only by design (same values under both the light
+ * and .dark selector), so they don't shift when the light/dark toggle is used.
  */
 
 /* Ocean Blue — crystal glossy finishing (default) */
@@ -256,6 +256,26 @@
   --surface-alt: #551020;
   --border-color: #7a2f42;
   --text-muted: #c9a3ab;
+}
+
+/* Onyx Gold — dark-only, black canvas + golden text. Same values under both selectors
+   (light and .dark), same reasoning as Burgundy. */
+[data-theme="onyx-gold"],
+[data-theme="onyx-gold"].dark {
+  --background: #000000;
+  --foreground: #d4af37;
+
+  --primary: #d4af37;
+  --primary-hover: #e8c766;
+  --primary-foreground: #000000;
+
+  --accent: #d4af37;
+  --accent-foreground: #000000;
+
+  --surface: #0d0d0d;
+  --surface-alt: #161616;
+  --border-color: #4a3f1f;
+  --text-muted: #a8935a;
 }
 
 @theme inline {
