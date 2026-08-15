@@ -212,3 +212,15 @@ CREATE TABLE IF NOT EXISTS how_it_works_steps (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Admin-editable via /admin/gallery. The 3 most recent photos (by created_at) show on the
+-- home page; the full set lives at /gallery — same "recent slice on home, full list on its
+-- own page" pattern as Blog and News & Events. No display_order: "recent" here is purely
+-- chronological (upload order), unlike the manually-ordered sections elsewhere.
+CREATE TABLE IF NOT EXISTS gallery_photos (
+  id SERIAL PRIMARY KEY,
+  image VARCHAR(500) NOT NULL,
+  caption VARCHAR(255),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

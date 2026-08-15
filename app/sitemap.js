@@ -2,6 +2,7 @@ import siteConfig from "@/config/site";
 import { getPosts } from "@/lib/blog";
 import { getProducts } from "@/lib/products";
 import { getItems } from "@/lib/newsEvents";
+import { getPhotos } from "@/lib/gallery";
 
 export default async function sitemap() {
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
@@ -49,6 +50,16 @@ export default async function sitemap() {
         priority: 0.6,
       });
     }
+  }
+
+  if (siteConfig.gallery) {
+    const photos = await getPhotos();
+    entries.push({
+      url: `${baseUrl}/gallery`,
+      lastModified: photos[0] ? new Date(photos[0].created_at) : new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    });
   }
 
   if (siteConfig.newsEvents) {

@@ -21,6 +21,7 @@ import { getActivePartners } from "@/lib/partners";
 import { getRecentItems } from "@/lib/newsEvents";
 import { getStats } from "@/lib/stats";
 import { getSteps } from "@/lib/howItWorks";
+import { getRecentPhotos } from "@/lib/gallery";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -53,6 +54,7 @@ export default async function Home({ searchParams }) {
     howItWorks,
     products,
     portfolio,
+    gallery,
     reviews,
     team,
     certifications,
@@ -78,6 +80,7 @@ export default async function Home({ searchParams }) {
     recentNewsEvents,
     statItems,
     howItWorksSteps,
+    recentPhotos,
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
@@ -90,6 +93,7 @@ export default async function Home({ searchParams }) {
     siteConfig.newsEvents ? getRecentItems(3) : Promise.resolve([]),
     siteConfig.stats ? getStats() : Promise.resolve([]),
     siteConfig.howItWorks ? getSteps() : Promise.resolve([]),
+    siteConfig.gallery ? getRecentPhotos(3) : Promise.resolve([]),
   ]);
 
   const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
@@ -264,6 +268,45 @@ export default async function Home({ searchParams }) {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: gallery (optional — live from Postgres, editable at /admin/gallery; the 3
+          most recent photos show here, the full set lives at /gallery) */}
+      {gallery && recentPhotos.length > 0 && (
+        <section id="gallery" className="mx-auto max-w-6xl px-6 py-20">
+          <h2 className="text-3xl font-bold">{gallery.heading}</h2>
+          <p className="mt-2 text-muted">{gallery.subheading}</p>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+            {recentPhotos.map((photo) => (
+              <figure
+                key={photo.id}
+                className="overflow-hidden rounded-xl border border-border shadow-sm"
+              >
+                <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.image}
+                    alt={photo.caption || ""}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                {photo.caption && (
+                  <figcaption className="p-3 text-sm text-muted">{photo.caption}</figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <a
+              href="/gallery"
+              className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
+            >
+              View full gallery
+            </a>
           </div>
         </section>
       )}

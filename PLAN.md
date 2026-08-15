@@ -616,6 +616,26 @@ updated to match.
   the header button) — confirmed correctness by intercepting `window.scrollTo` and checking the
   button calls it with `{ top: 0, behavior: "smooth" }`.
 
+## Gallery (admin CRUD + "recent slice on home, full list on its own page")
+
+- ✅ **`gallery_photos` table + full admin CRUD at `/admin/gallery`.** Fields: Image (path/URL,
+  same admin-editable-image convention as products/blog/reviews) and Caption. No
+  `display_order` — unlike every manually-ordered section elsewhere, "recent" here is purely
+  chronological (`created_at DESC`), matching the literal ask ("top 3 recent photos"). Same
+  list/new/edit + `DeleteButton` confirmation pattern as everything else. Seeded with 3
+  placeholder photos borrowed from the existing portfolio image set.
+- ✅ **Public: 3 most recent photos + captions on the home page, full set at `/gallery`** — same
+  "recent slice on home, full list on its own page" pattern as Blog and News & Events,
+  explicitly requested this way ("more like blog"). `/gallery` gets its own minimal header
+  (`app/gallery/layout.js`, mirroring `/blog`'s and `/news-events`'s), rendered as a photo grid
+  with captions — no per-photo detail pages, since a caption-only photo doesn't need one (unlike
+  Blog/News & Events, which have real body content worth a dedicated page).
+- Verified end-to-end: home page section shows exactly the 3 most recent captions in the right
+  order, adding a new photo makes it appear first on the home page and pushes the oldest of the
+  3 off (while it remains visible in the full `/gallery` list, confirming the recent-slice vs.
+  full-list split works correctly), delete-confirm cancel/confirm both behave correctly,
+  sitemap includes `/gallery`, and the full access-control regression passes.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

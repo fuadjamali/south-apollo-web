@@ -29,6 +29,7 @@ const siteConfig = {
     { label: "Team", href: "#team" },
     { label: "Blog", href: "/blog" },
     { label: "News & Events", href: "/news-events" },
+    { label: "Gallery", href: "/gallery" },
     { label: "Membership", href: "/membership" },
     { label: "Enquiry", href: "#enquiry" },
     { label: "Contact", href: "#contact" },
@@ -78,6 +79,16 @@ const siteConfig = {
       { id: 2, image: "/images/portfolio-2.jpg" },
       { id: 3, image: "/images/portfolio-3.jpg" },
     ],
+  },
+
+  // Optional — set to null to remove the section from the home page and disable /gallery
+  // entirely. The photo list itself lives in Postgres (lib/gallery.js), editable via
+  // /admin/gallery — this just holds the section's static heading/subheading. Only the 3 most
+  // recent photos show on the home page; the full set lives at /gallery, same "recent slice on
+  // home, full list on its own page" pattern as Blog and News & Events.
+  gallery: {
+    heading: "Gallery",
+    subheading: "A look at our recent work.",
   },
 
   // Optional — set to null to remove the section from the home page. The platform list itself
@@ -153,6 +164,7 @@ const siteConfig = {
           { label: "How It Works", href: "/admin/how-it-works" },
           { label: "Products", href: "/admin/products" },
           { label: "Portfolio", href: "/admin/portfolio" },
+          { label: "Gallery", href: "/admin/gallery" },
           { label: "Blog", href: "/admin/blog" },
           { label: "News & Events", href: "/admin/news-events" },
           { label: "Reviews", href: "/admin/reviews" },
