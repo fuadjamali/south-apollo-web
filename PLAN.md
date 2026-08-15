@@ -554,6 +554,25 @@ updated to match.
   cancel/confirm both behave correctly, sitemap includes all news/event URLs, and the full
   access-control regression passes.
 
+## Admin nav grouped into submenus
+
+- ✅ `config/site.js`'s `admin.nav` had grown to 16 flat items across all the CRUD features
+  built this session — grouped into dropdown submenus: **Content** (Products, Portfolio, Blog,
+  News & Events, Reviews, About, Certifications), **People** (Team, Team Members, Members,
+  Partners), **Insights** (Enquiries, Analytics), plus top-level Home, Contact Us, Account —
+  down to 6 top-level entries. The nav data shape now supports both plain `{ label, href }`
+  items and grouped `{ label, children: [...] }` items.
+- ✅ New `components/AdminNavDropdown.js` (client component) renders a click-to-toggle dropdown
+  for desktop (`lg` and up) — closes on selecting a link, and closes on blur once focus leaves
+  the whole button+menu (not just the button, which would close it before a click on a menu
+  item could register). `app/admin/(protected)/layout.js`'s mobile menu renders the same
+  grouped data as a flat list with uppercase group-label headers instead of nested dropdowns,
+  since the mobile panel is already a full scrollable overlay — no need for a second level of
+  disclosure there.
+- Verified: desktop dropdown opens/closes correctly and its links navigate (tested via the
+  "Content" group → Blog), mobile menu shows all 16 items reachable under their group headers
+  with no horizontal overflow at 375px, and the build/console stay clean.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

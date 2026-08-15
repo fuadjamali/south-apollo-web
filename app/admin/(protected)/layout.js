@@ -6,6 +6,7 @@ import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import SignOutButton from "@/components/SignOutButton";
+import AdminNavDropdown from "@/components/AdminNavDropdown";
 import siteConfig from "@/config/site";
 
 const viewSiteLinkClass =
@@ -46,39 +47,61 @@ export default function AdminLayout({ children }) {
           </button>
         </div>
 
-        <nav className="mx-auto hidden max-w-6xl flex-wrap gap-x-6 gap-y-2 px-6 pb-4 text-sm font-medium lg:flex">
-          {admin.nav.map((item, index) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={
-                index === 0
-                  ? "border-b-2 border-primary pb-1 text-foreground"
-                  : "text-muted hover:text-foreground"
-              }
-            >
-              {item.label}
-            </a>
-          ))}
+        <nav className="mx-auto hidden max-w-6xl flex-wrap items-center gap-x-2 gap-y-2 px-6 pb-4 text-sm font-medium lg:flex">
+          {admin.nav.map((item, index) =>
+            item.children ? (
+              <AdminNavDropdown key={item.label} label={item.label} items={item.children} />
+            ) : (
+              <a
+                key={item.href}
+                href={item.href}
+                className={
+                  index === 0
+                    ? "rounded-lg border-b-2 border-primary px-3 py-1.5 pb-1 text-foreground"
+                    : "rounded-lg px-3 py-1.5 text-muted hover:bg-surface-alt hover:text-foreground"
+                }
+              >
+                {item.label}
+              </a>
+            )
+          )}
         </nav>
 
         {menuOpen && (
           <div className="border-t border-border lg:hidden">
             <nav className="flex flex-col gap-1 px-6 py-4 text-sm font-medium">
-              {admin.nav.map((item, index) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={
-                    index === 0
-                      ? "rounded-lg bg-surface-alt px-3 py-2 text-foreground"
-                      : "rounded-lg px-3 py-2 text-muted hover:bg-surface-alt hover:text-foreground"
-                  }
-                >
-                  {item.label}
-                </a>
-              ))}
+              {admin.nav.map((item, index) =>
+                item.children ? (
+                  <div key={item.label} className="mt-3 first:mt-0">
+                    <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted">
+                      {item.label}
+                    </p>
+                    {item.children.map((child) => (
+                      <a
+                        key={child.href}
+                        href={child.href}
+                        onClick={() => setMenuOpen(false)}
+                        className="block rounded-lg px-3 py-2 text-muted hover:bg-surface-alt hover:text-foreground"
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={
+                      index === 0
+                        ? "rounded-lg bg-surface-alt px-3 py-2 text-foreground"
+                        : "rounded-lg px-3 py-2 text-muted hover:bg-surface-alt hover:text-foreground"
+                    }
+                  >
+                    {item.label}
+                  </a>
+                )
+              )}
             </nav>
             <div className="flex flex-wrap items-center gap-2 border-t border-border px-6 py-4">
               <a href="/" target="_blank" rel="noopener noreferrer" className={viewSiteLinkClass}>

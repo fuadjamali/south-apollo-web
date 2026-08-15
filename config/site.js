@@ -148,22 +148,41 @@ const siteConfig = {
     loginSubheading: "Sign in to manage your site.",
     dashboardHeading: "Dashboard",
     dashboardSubheading: "You're signed in as an admin.",
+    // A plain item is { label, href }. A grouped item is { label, children: [...] } and
+    // renders as a dropdown on desktop / a labeled sub-list on mobile — see
+    // app/admin/(protected)/layout.js. Keep "Home" first: AdminLayout underlines index 0
+    // as the active/root nav item.
     nav: [
       { label: "Home", href: "/admin" },
-      { label: "Partners", href: "/admin/partners" },
-      { label: "Products", href: "/admin/products" },
-      { label: "Portfolio", href: "/admin/portfolio" },
-      { label: "Reviews", href: "/admin/reviews" },
-      { label: "About", href: "/admin/about" },
-      { label: "Team", href: "/admin/team" },
-      { label: "Team Members", href: "/admin/team-members" },
-      { label: "Members", href: "/admin/members" },
-      { label: "Certifications", href: "/admin/certifications" },
+      {
+        label: "Content",
+        children: [
+          { label: "Products", href: "/admin/products" },
+          { label: "Portfolio", href: "/admin/portfolio" },
+          { label: "Blog", href: "/admin/blog" },
+          { label: "News & Events", href: "/admin/news-events" },
+          { label: "Reviews", href: "/admin/reviews" },
+          { label: "About", href: "/admin/about" },
+          { label: "Certifications", href: "/admin/certifications" },
+        ],
+      },
+      {
+        label: "People",
+        children: [
+          { label: "Team", href: "/admin/team" },
+          { label: "Team Members", href: "/admin/team-members" },
+          { label: "Members", href: "/admin/members" },
+          { label: "Partners", href: "/admin/partners" },
+        ],
+      },
+      {
+        label: "Insights",
+        children: [
+          { label: "Enquiries", href: "/admin/enquiries" },
+          { label: "Analytics", href: "/admin/analytics" },
+        ],
+      },
       { label: "Contact Us", href: "/admin/contact" },
-      { label: "Enquiries", href: "/admin/enquiries" },
-      { label: "Analytics", href: "/admin/analytics" },
-      { label: "Blog", href: "/admin/blog" },
-      { label: "News & Events", href: "/admin/news-events" },
       { label: "Account", href: "/admin/account" },
     ],
   },
