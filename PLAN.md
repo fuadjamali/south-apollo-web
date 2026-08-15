@@ -601,6 +601,21 @@ updated to match.
   itself correctly (1-4), delete-confirm cancel/confirm both behave correctly, and the full
   access-control regression passes.
 
+## Back-to-top floating button
+
+- ✅ New `components/BackToTopButton.js` — fixed-position button, hidden until the visitor
+  scrolls past 400px, then smooth-scrolls to top on click (`window.scrollTo({ top: 0, behavior:
+  "smooth" })`, same call shape already used and verified for the header's business-name
+  scroll-to-top button earlier). Stacked directly above the floating WhatsApp button
+  (`bottom-24` vs its `bottom-6`, both `right-6`) with a clean 16px gap between them — checked
+  directly via `getBoundingClientRect()` rather than eyeballing it, since the two are
+  independently-positioned fixed elements that could easily overlap without checking.
+- Verified: hidden at scroll position 0, appears after scrolling past the 400px threshold on
+  both desktop and mobile widths (no horizontal overflow introduced), and — since this
+  environment's browser pane doesn't animate smooth-scroll (a known limitation hit earlier with
+  the header button) — confirmed correctness by intercepting `window.scrollTo` and checking the
+  button calls it with `{ top: 0, behavior: "smooth" }`.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

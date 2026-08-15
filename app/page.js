@@ -5,6 +5,7 @@ import EnquiryForm from "@/components/EnquiryForm";
 import VisitTracker from "@/components/VisitTracker";
 import CookieConsent from "@/components/CookieConsent";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import BackToTopButton from "@/components/BackToTopButton";
 import SocialLinks from "@/components/SocialLinks";
 import CategoryFilter from "@/components/CategoryFilter";
 import Logo from "@/components/Logo";
@@ -562,6 +563,9 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: floating-whatsapp-button (optional) */}
       <FloatingWhatsApp />
+
+      {/* Back-to-top button — stacked above the WhatsApp button, appears after scrolling down. */}
+      <BackToTopButton />
 
       {/* COMPONENT: cookie-consent (required if analytics tracking is enabled) */}
       <CookieConsent />
