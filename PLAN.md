@@ -573,6 +573,21 @@ updated to match.
   "Content" group → Blog), mobile menu shows all 16 items reachable under their group headers
   with no horizontal overflow at 375px, and the build/console stay clean.
 
+## Stats CRUD
+
+- ✅ **`stats` table + full admin CRUD at `/admin/stats`.** Fields: Value (e.g. "500+"), Label
+  (e.g. "Happy customers"), Display Order — migrated off the static `stats.items` array in
+  `config/site.js` the same way products/reviews/team/partners were. Same list/new/edit +
+  `DeleteButton` confirmation pattern as every other section. Seeded with the same 4
+  placeholder stats that used to live in config.
+  - Since this section has no heading of its own (just a strip of numbers), `config.stats`
+    became a plain `true`/`null` flag instead of an object with a `heading` key — the only
+    config-driven section shaped this way, everywhere else keeps `{ heading, ... }`.
+  - Added to the admin nav's "Content" dropdown group.
+- Verified end-to-end: editing a stat's label updates the home page strip immediately, creating
+  a new stat persists correctly, delete-confirm cancel/confirm both behave correctly, and the
+  full access-control regression passes.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

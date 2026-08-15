@@ -188,3 +188,15 @@ CREATE TABLE IF NOT EXISTS news_events (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Admin-editable via /admin/stats. Powers the small stats strip near the top of the home
+-- page (e.g. "500+ Happy customers"). Seeded with the 4 placeholder stats that used to live
+-- in config/site.js the first time this table is queried and found empty (see lib/stats.js).
+CREATE TABLE IF NOT EXISTS stats (
+  id SERIAL PRIMARY KEY,
+  value VARCHAR(50) NOT NULL,
+  label VARCHAR(255) NOT NULL,
+  display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

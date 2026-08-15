@@ -18,6 +18,7 @@ import { getRecentPosts } from "@/lib/blog";
 import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
 import { getActivePartners } from "@/lib/partners";
 import { getRecentItems } from "@/lib/newsEvents";
+import { getStats } from "@/lib/stats";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -73,6 +74,7 @@ export default async function Home({ searchParams }) {
     teamGroups,
     partnerItems,
     recentNewsEvents,
+    statItems,
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
@@ -83,6 +85,7 @@ export default async function Home({ searchParams }) {
     getActiveTeamsWithMembers(),
     getActivePartners(),
     siteConfig.newsEvents ? getRecentItems(3) : Promise.resolve([]),
+    siteConfig.stats ? getStats() : Promise.resolve([]),
   ]);
 
   const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
@@ -124,12 +127,12 @@ export default async function Home({ searchParams }) {
         </div>
       </section>
 
-      {/* COMPONENT: stats (optional) */}
-      {stats && (
+      {/* COMPONENT: stats (optional — live from Postgres, editable at /admin/stats) */}
+      {stats && statItems.length > 0 && (
         <section className="border-y border-border py-10">
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center sm:grid-cols-4">
-            {stats.items.map((stat) => (
-              <div key={stat.label}>
+            {statItems.map((stat) => (
+              <div key={stat.id}>
                 <p className="text-3xl font-extrabold">{stat.value}</p>
                 <p className="mt-1 text-sm text-muted">{stat.label}</p>
               </div>

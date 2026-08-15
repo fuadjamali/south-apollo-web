@@ -41,15 +41,10 @@ const siteConfig = {
     secondaryCta: { label: "Contact Us", href: "#contact" },
   },
 
-  // Optional — set to null to remove the section from the home page.
-  stats: {
-    items: [
-      { value: "500+", label: "STAT_1_LABEL" },
-      { value: "10", label: "STAT_2_LABEL" },
-      { value: "50+", label: "STAT_3_LABEL" },
-      { value: "98%", label: "STAT_4_LABEL" },
-    ],
-  },
+  // Optional — set to null to remove the section from the home page. The stat list itself
+  // now lives in Postgres (lib/stats.js), editable via /admin/stats — this key just flags
+  // the section as enabled (it has no static heading of its own).
+  stats: true,
 
   // Optional — set to null to remove the section from the home page. The partner list itself
   // now lives in Postgres (lib/partners.js), editable via /admin/partners — this just holds
@@ -157,6 +152,7 @@ const siteConfig = {
       {
         label: "Content",
         children: [
+          { label: "Stats", href: "/admin/stats" },
           { label: "Products", href: "/admin/products" },
           { label: "Portfolio", href: "/admin/portfolio" },
           { label: "Blog", href: "/admin/blog" },
