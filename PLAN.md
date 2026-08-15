@@ -588,6 +588,19 @@ updated to match.
   a new stat persists correctly, delete-confirm cancel/confirm both behave correctly, and the
   full access-control regression passes.
 
+## How It Works CRUD
+
+- ✅ **`how_it_works_steps` table + full admin CRUD at `/admin/how-it-works`.** Fields: Title,
+  Description, Display Order — migrated off the static `howItWorks.steps` array in
+  `config/site.js`, same pattern as Stats right before it (heading/subheading stay in config,
+  the numbered step list moves to Postgres). Same list/new/edit + `DeleteButton` confirmation
+  pattern as every other section; the admin list shows the same numbered-circle badge the
+  public section uses, so the display order is easy to picture. Seeded with the same 3
+  placeholder steps. Added to the admin nav's "Content" dropdown group, right under Stats.
+- Verified end-to-end: creating a 4th step appears on the live home page immediately and numbers
+  itself correctly (1-4), delete-confirm cancel/confirm both behave correctly, and the full
+  access-control regression passes.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

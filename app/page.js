@@ -19,6 +19,7 @@ import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
 import { getActivePartners } from "@/lib/partners";
 import { getRecentItems } from "@/lib/newsEvents";
 import { getStats } from "@/lib/stats";
+import { getSteps } from "@/lib/howItWorks";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -75,6 +76,7 @@ export default async function Home({ searchParams }) {
     partnerItems,
     recentNewsEvents,
     statItems,
+    howItWorksSteps,
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
@@ -86,6 +88,7 @@ export default async function Home({ searchParams }) {
     getActivePartners(),
     siteConfig.newsEvents ? getRecentItems(3) : Promise.resolve([]),
     siteConfig.stats ? getStats() : Promise.resolve([]),
+    siteConfig.howItWorks ? getSteps() : Promise.resolve([]),
   ]);
 
   const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
@@ -173,15 +176,15 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: how-it-works (optional) */}
-      {howItWorks && (
+      {/* COMPONENT: how-it-works (optional — live from Postgres, editable at /admin/how-it-works) */}
+      {howItWorks && howItWorksSteps.length > 0 && (
         <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-center text-3xl font-bold">{howItWorks.heading}</h2>
           <p className="mt-2 text-center text-muted">{howItWorks.subheading}</p>
 
           <div className="mt-10 grid gap-8 sm:grid-cols-3">
-            {howItWorks.steps.map((step, index) => (
-              <div key={step.title} className="text-center">
+            {howItWorksSteps.map((step, index) => (
+              <div key={step.id} className="text-center">
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                   {index + 1}
                 </div>

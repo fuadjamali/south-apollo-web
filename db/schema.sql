@@ -200,3 +200,15 @@ CREATE TABLE IF NOT EXISTS stats (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Admin-editable via /admin/how-it-works. Powers the numbered "How it works" step strip on
+-- the home page. Seeded with the 3 placeholder steps that used to live in config/site.js the
+-- first time this table is queried and found empty (see lib/howItWorks.js).
+CREATE TABLE IF NOT EXISTS how_it_works_steps (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

@@ -54,15 +54,12 @@ const siteConfig = {
     heading: "Trusted by teams at",
   },
 
-  // Optional — set to null to remove the section from the home page.
+  // Optional — set to null to remove the section from the home page. The step list itself
+  // now lives in Postgres (lib/howItWorks.js), editable via /admin/how-it-works — this just
+  // holds the section's static heading/subheading, same pattern as products/blog/reviews.
   howItWorks: {
     heading: "How it works",
     subheading: "A simple process from start to finish.",
-    steps: [
-      { title: "STEP_1_TITLE", description: "STEP_1_DESCRIPTION" },
-      { title: "STEP_2_TITLE", description: "STEP_2_DESCRIPTION" },
-      { title: "STEP_3_TITLE", description: "STEP_3_DESCRIPTION" },
-    ],
   },
 
   // The product list itself now lives in Postgres (lib/products.js), editable via
@@ -153,6 +150,7 @@ const siteConfig = {
         label: "Content",
         children: [
           { label: "Stats", href: "/admin/stats" },
+          { label: "How It Works", href: "/admin/how-it-works" },
           { label: "Products", href: "/admin/products" },
           { label: "Portfolio", href: "/admin/portfolio" },
           { label: "Blog", href: "/admin/blog" },

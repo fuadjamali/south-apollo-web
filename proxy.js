@@ -37,6 +37,7 @@ const PROTECTED_PREFIXES = [
   "/admin/partners",
   "/admin/news-events",
   "/admin/stats",
+  "/admin/how-it-works",
 ];
 
 export async function proxy(request) {
