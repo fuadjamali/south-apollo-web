@@ -13,6 +13,10 @@ export default function VisitsBarChart({ data }) {
       {data.map((d, i) => {
         const height = (d.count / maxCount) * 36;
         return (
+          // A nested SVG <title> child here triggers a React SSR/hydration mismatch (React's
+          // raw-text-element special-casing for <title>/<script>/<style> doesn't correctly
+          // account for the SVG namespace) — aria-label gives the same per-bar accessible
+          // description without hitting that bug, just without a native hover tooltip.
           <rect
             key={d.day}
             x={i * barWidth + barWidth * 0.15}
@@ -20,11 +24,8 @@ export default function VisitsBarChart({ data }) {
             width={barWidth * 0.7}
             height={height}
             className="fill-primary"
-          >
-            <title>
-              Day {d.day}: {d.count} visit{d.count === 1 ? "" : "s"}
-            </title>
-          </rect>
+            aria-label={`Day ${d.day}: ${d.count} visit${d.count === 1 ? "" : "s"}`}
+          />
         );
       })}
     </svg>

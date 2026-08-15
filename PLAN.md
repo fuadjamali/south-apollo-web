@@ -683,6 +683,37 @@ updated to match.
   groups, `/team` shows all 30, and the admin `/admin/team` list shows all 3 teams with the
   green "Home" badge and correct 10-member counts.
 
+## End-to-end checkup
+
+Full sweep after the extended feature build-out: build, all ~60 routes' access control,
+sitemap accuracy, and console cleanliness across every public page and every built admin page
+(logged in fresh each time, not relying on a carried-over session).
+
+- ✅ Public routes (`/`, `/blog`, `/news-events`, `/gallery`, `/team`, `/membership`,
+  `/products/[id]`, `/blog/[slug]`, `/news-events/[slug]`, `/robots.txt`, `/sitemap.xml`) all
+  200, all with clean consoles.
+- ✅ Every admin route redirects unauthenticated requests to `/admin/login` (307); every
+  genuinely unknown route (public or admin) still 401s via the Site Unavailable page — the
+  known-unbuilt placeholders (`/admin/portfolio`, `/admin/certifications`) correctly 401 too,
+  same as always (never built, not a regression).
+- ✅ Sitemap includes every dynamic entity: 3 products, 3 blog posts, 2 news/event items,
+  `/gallery`, `/team`, `/membership` — spot-checked real slugs resolve 200 and a bogus slug
+  404s (not the site-wide 401).
+- ✅ All 17 built admin pages checked with a **fresh, freshly-authenticated browser tab** (not
+  reusing an old session, to avoid trusting stale console history) — every one console-clean.
+- **Real bug found and fixed**: `/admin/analytics` had a genuine, reproducible React SSR/
+  hydration error (`components/VisitsBarChart.js`) — a nested SVG `<title>` inside each `<rect>`
+  tripped React's raw-text-element special-casing for `<title>`/`<script>`/`<style>`, which
+  doesn't correctly account for the SVG namespace. This had been dismissed as "stale log buffer
+  noise" twice earlier in this session because it kept showing up in `read_console_messages` on
+  a long-lived tab — this checkup specifically re-tested it on a brand-new tab with a fresh
+  login to rule that out, and it reproduced every time. Fixed by moving the per-bar label from
+  a nested `<title>` child to an `aria-label` attribute on the `<rect>` itself — same
+  accessible-name information, no native hover tooltip, no hydration error.
+- ✅ Mobile viewport (375px) checked on both the home page and `/admin` — no horizontal
+  overflow, hamburger menu correctly active on admin.
+- ✅ `npm run build` clean throughout.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.
