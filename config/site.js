@@ -26,6 +26,7 @@ const siteConfig = {
     { label: "Portfolio", href: "#portfolio" },
     { label: "Reviews", href: "#reviews" },
     { label: "About", href: "#about" },
+    { label: "Team", href: "#team" },
     { label: "Blog", href: "/blog" },
     { label: "Enquiry", href: "#enquiry" },
     { label: "Contact", href: "#contact" },
@@ -106,6 +107,15 @@ const siteConfig = {
     ],
   },
 
+  // Optional — set to null to remove the section from the home page. Team/member data lives
+  // in Postgres (lib/teams.js / lib/teamMembers.js), editable via /admin/team and
+  // /admin/team-members — this just holds the section's static heading/subheading, same
+  // pattern as products/blog/reviews. Only active members are shown, grouped by team.
+  team: {
+    heading: "Meet our team",
+    subheading: "The people behind the work.",
+  },
+
   // Optional — set to null to remove the section from the home page. Live-queries Google Maps with `business.address`.
   map: {
     heading: "Find us",
@@ -147,6 +157,8 @@ const siteConfig = {
       { label: "Portfolio", href: "/admin/portfolio" },
       { label: "Reviews", href: "/admin/reviews" },
       { label: "About", href: "/admin/about" },
+      { label: "Team", href: "/admin/team" },
+      { label: "Team Members", href: "/admin/team-members" },
       { label: "Certifications", href: "/admin/certifications" },
       { label: "Contact Us", href: "/admin/contact" },
       { label: "Enquiries", href: "/admin/enquiries" },

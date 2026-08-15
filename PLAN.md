@@ -443,6 +443,47 @@ to port 5434 and migrated the actual data into a correctly-prefixed `falcon-web_
 (verified all 6 tables' row counts survived) — `docker-compose.yml` and all `.env*` files
 updated to match.
 
+## Team / Team Members (admin panel + "Meet our team" section)
+
+- ✅ **Two-level CRUD, same pattern as everywhere else.** `teams` (master) and `team_members`
+  (child, FK `team_id REFERENCES teams(id) ON DELETE CASCADE`). `lib/teams.js` exports
+  `ensureTeamsTable()` (not just an internal helper) specifically so `lib/teamMembers.js` can
+  call it first — team_members' FK needs teams to exist before its own `CREATE TABLE IF NOT
+  EXISTS` can run.
+  - Team fields: name, description, display order. Index page at `/admin/team` (list, new,
+    edit), same Server-Actions-plus-shared-form architecture as Products/Reviews.
+  - Member fields: ID No, name, title, contact number, email, service join/end date, Team
+    (dropdown, populated from `getTeams()`), Active (checkbox). Index page at
+    `/admin/team-members`.
+  - Seeded with 1 placeholder team + 2 placeholder members on first empty query, same
+    convention as every other CRUD section.
+- ✅ **Delete confirmations on both**, reusing the existing `DeleteButton` component. Team's
+  confirm message is dynamic — if the team still has members, it names the exact count and
+  warns they'll be deleted too (`ON DELETE CASCADE` at the DB level), e.g. `Delete "Leadership"?
+  This will also delete its 3 team member(s). This can't be undone.` Verified both the
+  cancel-preserves and confirm-deletes paths for members, and confirmed the cascade-warning
+  message text is correct, by overriding `window.confirm` in a real browser.
+- ✅ **"Meet our team" public section** — new section on the home page (after About, before
+  Certifications), optional via `config/site.js`'s `team` key (heading/subheading only, same
+  split as products/blog/reviews). `getActiveTeamsWithMembers()` in `lib/teamMembers.js`
+  returns only `active = true` members, grouped by team in team `display_order`, and the
+  section only renders member **name and title** — none of the admin-only fields (ID No,
+  contact info, service dates) are exposed publicly. Verified: toggling a member to Inactive
+  removes them (and, if they were the only member, the whole group) from the live page
+  immediately.
+- **Real bug hit while testing, not a product bug**: logging in via the established
+  `form.requestSubmit()`-in-browser test method intermittently failed with "Invalid email or
+  password" — turned out to be a test-harness timing issue, not an auth bug. Setting
+  `input.value` and dispatching `input` events immediately after `navigate()` can race React
+  hydration; if the listener isn't attached yet, the native form submission fires with
+  whatever's in the DOM, but the login page's `onSubmit` (which reads React state, still `""`
+  at that point) intercepts it first and calls `signIn()` with empty credentials. Fixed the
+  *test* by using the native `HTMLInputElement` value setter + a longer post-navigation wait
+  before interacting, not the app code — confirmed via a temporary debug log in `authorize()`
+  that `credentials.email`/`password` were arriving empty, then confirmed the real password
+  hash was correct via `bcrypt.compare` outside the app before concluding it was a test-only
+  issue.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

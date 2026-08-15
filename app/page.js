@@ -15,6 +15,7 @@ import { getContactInfo } from "@/lib/contactInfo";
 import { getReviews } from "@/lib/reviews";
 import { getAboutInfo } from "@/lib/aboutInfo";
 import { getRecentPosts } from "@/lib/blog";
+import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -48,6 +49,7 @@ export default async function Home({ searchParams }) {
     products,
     portfolio,
     reviews,
+    team,
     certifications,
     map,
     enquiryForm,
@@ -59,15 +61,23 @@ export default async function Home({ searchParams }) {
   const params = await searchParams;
   const selectedCategory = params?.category || "";
 
-  const [productItems, productCategories, contactInfo, reviewItems, aboutInfo, recentPosts] =
-    await Promise.all([
-      getProducts({ category: selectedCategory || undefined }),
-      getProductCategories(),
-      getContactInfo(),
-      getReviews(),
-      getAboutInfo(),
-      siteConfig.blog ? getRecentPosts(3) : Promise.resolve([]),
-    ]);
+  const [
+    productItems,
+    productCategories,
+    contactInfo,
+    reviewItems,
+    aboutInfo,
+    recentPosts,
+    teamGroups,
+  ] = await Promise.all([
+    getProducts({ category: selectedCategory || undefined }),
+    getProductCategories(),
+    getContactInfo(),
+    getReviews(),
+    getAboutInfo(),
+    siteConfig.blog ? getRecentPosts(3) : Promise.resolve([]),
+    getActiveTeamsWithMembers(),
+  ]);
 
   const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
   const jsonLd = buildLocalBusinessJsonLd(siteConfig);
@@ -317,6 +327,40 @@ export default async function Home({ searchParams }) {
         <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
         <p className="mt-4 text-muted">{aboutInfo.body}</p>
       </section>
+
+      {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and
+          /admin/team-members; only active members shown, grouped by team) */}
+      {team && teamGroups.length > 0 && (
+        <section id="team" className="bg-surface-alt py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2 className="text-center text-3xl font-bold">{team.heading}</h2>
+            {team.subheading && (
+              <p className="mt-2 text-center text-muted">{team.subheading}</p>
+            )}
+
+            <div className="mt-10 space-y-12">
+              {teamGroups.map((group) => (
+                <div key={group.id}>
+                  <h3 className="text-lg font-semibold text-foreground">{group.name}</h3>
+                  <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {group.members.map((member) => (
+                      <div
+                        key={member.id}
+                        className="rounded-xl border border-border bg-background p-4"
+                      >
+                        <p className="font-semibold text-foreground">{member.name}</p>
+                        {member.title && (
+                          <p className="mt-1 text-sm text-muted">{member.title}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* COMPONENT: certifications (optional) */}
       {certifications && (

@@ -19,7 +19,8 @@ const PROTECTED_ROUTES = [
 
 // For admin route trees that legitimately have dynamic children (e.g. /admin/products/[id]/edit),
 // an exact-match list doesn't work — use a prefix match instead, scoped to just that subtree.
-const PROTECTED_PREFIXES = ["/admin/products", "/admin/blog", "/admin/reviews"];
+// "/admin/team" also covers "/admin/team-members*" (string prefix match), so one entry protects both.
+const PROTECTED_PREFIXES = ["/admin/products", "/admin/blog", "/admin/reviews", "/admin/team"];
 
 export async function proxy(request) {
   const { pathname } = request.nextUrl;

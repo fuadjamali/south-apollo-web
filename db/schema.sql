@@ -100,3 +100,32 @@ CREATE TABLE IF NOT EXISTS about_info (
   body TEXT,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Admin-editable via /admin/team. Grouping parent for team_members. Seeded with 1 placeholder
+-- team the first time this table is queried and found empty (see lib/teams.js).
+CREATE TABLE IF NOT EXISTS teams (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Admin-editable via /admin/team-members. `active = false` hides a member from the public
+-- "Meet our team" section without deleting their record. team_id cascades on delete — removing
+-- a team removes its members too (the admin delete confirmation warns about this).
+CREATE TABLE IF NOT EXISTS team_members (
+  id SERIAL PRIMARY KEY,
+  id_no VARCHAR(50),
+  name VARCHAR(255) NOT NULL,
+  title VARCHAR(255),
+  contact_no VARCHAR(50),
+  email VARCHAR(255),
+  service_join_date DATE,
+  service_end_date DATE,
+  team_id INT REFERENCES teams(id) ON DELETE CASCADE,
+  active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
