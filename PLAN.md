@@ -511,6 +511,25 @@ updated to match.
 - Not rate-limited, consistent with the codebase's existing stance on `/admin/login` (no
   lockout, deliberately out of scope, documented above) — not requested here either.
 
+## Partners (admin CRUD, wired into the existing "Trusted By" strip)
+
+- ✅ **`partners` table + full admin CRUD at `/admin/partners`.** Fields: Partner Name, Logo
+  Image (path/URL, same admin-editable-image convention as products/blog/reviews), Description,
+  Status (`Active`/`Inactive`, DB `CHECK` constraint), Partnership From (date), Partnership
+  Ended (date). Same list/new/edit + `DeleteButton` confirmation pattern as every other CRUD
+  section.
+- ✅ **Replaced the "Trusted By" section's static gray-box placeholders with real partner
+  logos**, rather than building a parallel/duplicate section — the existing `trustedBy`
+  config key (`{ heading, logos: [{id, name}] }`, rendered as untitled gray divs) was exactly
+  the same concept the user was describing, just not yet backed by real data or images.
+  Renamed to `partners` in `config/site.js` (heading only, items now DB-backed, same
+  products/blog/reviews/team split), and the old unbuilt `/admin/trusted-by` admin nav
+  placeholder was replaced with the real `/admin/partners` link. Only `status = 'Active'`
+  partners render, via `getActivePartners()` in `lib/partners.js`. This wasn't explicitly
+  requested in this exact message, so flagged clearly to the user rather than assumed silently.
+  Verified: toggling a partner to Inactive removes its logo from the live strip immediately,
+  and the seeded placeholder partner's logo renders correctly by default.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

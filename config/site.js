@@ -50,16 +50,12 @@ const siteConfig = {
     ],
   },
 
-  // Optional — set to null to remove the section from the home page.
-  trustedBy: {
+  // Optional — set to null to remove the section from the home page. The partner list itself
+  // now lives in Postgres (lib/partners.js), editable via /admin/partners — this just holds
+  // the section's static heading, same pattern as products/blog/reviews/team. Only partners
+  // with status "Active" are shown.
+  partners: {
     heading: "Trusted by teams at",
-    logos: [
-      { id: 1, name: "CUSTOMER_1_NAME" },
-      { id: 2, name: "CUSTOMER_2_NAME" },
-      { id: 3, name: "CUSTOMER_3_NAME" },
-      { id: 4, name: "CUSTOMER_4_NAME" },
-      { id: 5, name: "CUSTOMER_5_NAME" },
-    ],
   },
 
   // Optional — set to null to remove the section from the home page.
@@ -153,7 +149,7 @@ const siteConfig = {
     dashboardSubheading: "You're signed in as an admin.",
     nav: [
       { label: "Home", href: "/admin" },
-      { label: "Trusted By", href: "/admin/trusted-by" },
+      { label: "Partners", href: "/admin/partners" },
       { label: "Products", href: "/admin/products" },
       { label: "Portfolio", href: "/admin/portfolio" },
       { label: "Reviews", href: "/admin/reviews" },

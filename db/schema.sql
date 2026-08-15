@@ -154,3 +154,18 @@ CREATE TABLE IF NOT EXISTS members (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Admin-editable via /admin/partners. Powers the home page's "Trusted by" logo strip —
+-- only status = 'Active' partners are shown there (see lib/partners.js getActivePartners()).
+CREATE TABLE IF NOT EXISTS partners (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  logo VARCHAR(500),
+  description TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'Active'
+    CHECK (status IN ('Active', 'Inactive')),
+  partnership_from DATE,
+  partnership_ended DATE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

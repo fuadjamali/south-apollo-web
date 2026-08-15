@@ -16,6 +16,7 @@ import { getReviews } from "@/lib/reviews";
 import { getAboutInfo } from "@/lib/aboutInfo";
 import { getRecentPosts } from "@/lib/blog";
 import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
+import { getActivePartners } from "@/lib/partners";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -44,7 +45,7 @@ export default async function Home({ searchParams }) {
   const {
     hero,
     stats,
-    trustedBy,
+    partners,
     howItWorks,
     products,
     portfolio,
@@ -69,6 +70,7 @@ export default async function Home({ searchParams }) {
     aboutInfo,
     recentPosts,
     teamGroups,
+    partnerItems,
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
@@ -77,6 +79,7 @@ export default async function Home({ searchParams }) {
     getAboutInfo(),
     siteConfig.blog ? getRecentPosts(3) : Promise.resolve([]),
     getActiveTeamsWithMembers(),
+    getActivePartners(),
   ]);
 
   const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
@@ -132,19 +135,33 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: trusted-by (optional) */}
-      {trustedBy && (
+      {/* COMPONENT: trusted-by (optional — live from Postgres, editable at /admin/partners;
+          only status "Active" partners shown) */}
+      {partners && partnerItems.length > 0 && (
         <section className="border-b border-border bg-surface-alt py-12">
           <div className="mx-auto max-w-6xl px-6 text-center">
-            <p className="text-sm font-medium text-muted">{trustedBy.heading}</p>
+            <p className="text-sm font-medium text-muted">{partners.heading}</p>
             <div className="mt-8 grid grid-cols-2 items-center gap-8 sm:grid-cols-3 md:grid-cols-5">
-              {trustedBy.logos.map((logo) => (
-                <div
-                  key={logo.id}
-                  className="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70"
-                  title={logo.name}
-                />
-              ))}
+              {partnerItems.map((partner) =>
+                partner.logo ? (
+                  // Admin-editable image source — plain <img>, same reasoning as
+                  // products/blog/reviews.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={partner.id}
+                    src={partner.logo}
+                    alt={partner.name}
+                    title={partner.name}
+                    className="mx-auto h-8 w-24 object-contain opacity-70"
+                  />
+                ) : (
+                  <div
+                    key={partner.id}
+                    className="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70"
+                    title={partner.name}
+                  />
+                )
+              )}
             </div>
           </div>
         </section>
