@@ -14,6 +14,13 @@ export default async function sitemap() {
     },
   ];
 
+  entries.push({
+    url: `${baseUrl}/membership`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.4,
+  });
+
   const products = await getProducts();
   for (const product of products) {
     entries.push({

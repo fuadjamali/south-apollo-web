@@ -129,3 +129,28 @@ CREATE TABLE IF NOT EXISTS team_members (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Admin-editable via /admin/members. `member_id` is a business-facing membership number
+-- (distinct from the internal `id` PK), unique and required. Publicly, visitors can only
+-- verify their own status at /membership by submitting last_name + postcode — that lookup
+-- (see lib/members.js verifyMembership()) returns member_id/first_name/last_name/status only,
+-- never address/email/mobile/additional_details, even to a matching requester.
+CREATE TABLE IF NOT EXISTS members (
+  id SERIAL PRIMARY KEY,
+  member_id VARCHAR(50) UNIQUE NOT NULL,
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  mobile_no VARCHAR(50),
+  email VARCHAR(255),
+  membership_status VARCHAR(20) NOT NULL DEFAULT 'Active'
+    CHECK (membership_status IN ('Active', 'Expired', 'Suspended')),
+  address_line1 VARCHAR(255),
+  address_line2 VARCHAR(255),
+  city VARCHAR(100),
+  postcode VARCHAR(20),
+  county VARCHAR(100),
+  country VARCHAR(100),
+  additional_details TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

@@ -484,6 +484,33 @@ updated to match.
   hash was correct via `bcrypt.compare` outside the app before concluding it was a test-only
   issue.
 
+## Membership (admin CRUD + public status verification)
+
+- ✅ **`members` table + full admin CRUD at `/admin/members`.** Fields: Member ID (business-
+  facing membership number, `UNIQUE NOT NULL` — distinct from the internal `id` PK, same split
+  as `team_members.id_no`), First Name, Last Name, Mobile No, Email, Membership Status
+  (`Active`/`Expired`/`Suspended`, enforced with a Postgres `CHECK` constraint, not just
+  client-side validation), Address Line 1/2, City, Postcode, County, Country, Additional
+  Details. Same list/new/edit + `DeleteButton` confirmation pattern as every other CRUD
+  section. Seeded with 1 placeholder member (including a real postcode) so the public
+  verification form has something to test against on a fresh install.
+- ✅ **Public self-service verification at `/membership`, deliberately *not* a public
+  directory.** The ask was "user can verify their status by inputting Last Name and Postcode"
+  — built as a single-record lookup (own dedicated page, own minimal header like `/blog`'s),
+  not a browsable list of every member, since a full public directory would leak every
+  member's PII. `POST /api/verify-membership` (public route) calls
+  `verifyMembership({ lastName, postcode })` in `lib/members.js`, which does a case-
+  insensitive, whitespace-trimmed match and returns **only** `memberId`/`firstName`/
+  `lastName`/`status` — never address, email, mobile, or additional details, even to a
+  correctly-matching requester. A non-match returns a single generic "No matching membership
+  found" message without indicating which field was wrong, to avoid making the form useful for
+  enumerating valid last-name/postcode combinations. Verified: exact match returns the right
+  status styled by state (green/Active, yellow/Expired, red/Suspended), a non-match returns
+  the generic message, and the raw network response body was inspected directly to confirm no
+  extra fields leak.
+- Not rate-limited, consistent with the codebase's existing stance on `/admin/login` (no
+  lockout, deliberately out of scope, documented above) — not requested here either.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.
