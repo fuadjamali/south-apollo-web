@@ -103,18 +103,24 @@ CREATE TABLE IF NOT EXISTS about_info (
 
 -- Admin-editable via /admin/team. Grouping parent for team_members. Seeded with 1 placeholder
 -- team the first time this table is queried and found empty (see lib/teams.js).
+-- `show_on_home`: whether this team appears in the home page's "Meet our team" section. Every
+-- team (regardless of this flag) appears on the full /team page.
 CREATE TABLE IF NOT EXISTS teams (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   description TEXT,
   display_order INT NOT NULL DEFAULT 0,
+  show_on_home BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Admin-editable via /admin/team-members. `active = false` hides a member from the public
--- "Meet our team" section without deleting their record. team_id cascades on delete — removing
--- a team removes its members too (the admin delete confirmation warns about this).
+-- Admin-editable via /admin/team-members. `active = false` hides a member everywhere public
+-- (both home and /team) without deleting their record. `show_on_home` additionally gates just
+-- the home page section — an active member with show_on_home = false still appears on the
+-- full /team page. Both the member's own show_on_home AND the parent team's must be true for
+-- a member to appear on home. team_id cascades on delete — removing a team removes its members
+-- too (the admin delete confirmation warns about this).
 CREATE TABLE IF NOT EXISTS team_members (
   id SERIAL PRIMARY KEY,
   id_no VARCHAR(50),
@@ -126,6 +132,7 @@ CREATE TABLE IF NOT EXISTS team_members (
   service_end_date DATE,
   team_id INT REFERENCES teams(id) ON DELETE CASCADE,
   active BOOLEAN NOT NULL DEFAULT true,
+  show_on_home BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

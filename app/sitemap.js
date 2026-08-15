@@ -52,6 +52,15 @@ export default async function sitemap() {
     }
   }
 
+  if (siteConfig.team) {
+    entries.push({
+      url: `${baseUrl}/team`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    });
+  }
+
   if (siteConfig.gallery) {
     const photos = await getPhotos();
     entries.push({

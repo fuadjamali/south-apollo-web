@@ -636,6 +636,35 @@ updated to match.
   full-list split works correctly), delete-confirm cancel/confirm both behave correctly,
   sitemap includes `/gallery`, and the full access-control regression passes.
 
+## Team "Show on home" + full /team page
+
+- ✅ **`show_on_home BOOLEAN NOT NULL DEFAULT true` added to both `teams` and `team_members`**
+  via `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, same migration pattern as `products.category`
+  before it. Defaulting to `true` means every existing team/member kept showing on home exactly
+  as before this feature landed — non-breaking by construction, not just by accident.
+- ✅ **Two-level gate, both must be true for a member to reach the home page**: the member's own
+  `show_on_home`, AND their parent team's `show_on_home`, AND the member must be `active`.
+  `lib/teamMembers.js` now has two distinct grouped-query functions instead of one:
+  `getActiveTeamsWithMembers()` (home page — all three conditions) and the new
+  `getAllTeamsWithActiveMembers()` (the full `/team` page — every team regardless of its flag,
+  every active member regardless of theirs). Both share a `groupByTeam()` helper to avoid
+  duplicating the row-to-groups reduction logic.
+- ✅ **New public `/team` page** — own minimal header (`app/team/layout.js`, mirroring
+  `/blog`/`/gallery`/`/news-events`), lists every team and every active member unconditionally.
+  The home page's "Meet our team" section gained a "View full team" link pointing here, and the
+  main nav's "Team" entry switched from the `#team` in-page anchor to this real page — same
+  anchor-to-page handoff Blog/Gallery/News & Events went through when their own full pages were
+  built.
+- ✅ Both `TeamForm` and `TeamMemberForm` gained a "Show on home page" checkbox with explanatory
+  copy about the two-level requirement; the admin list pages show a green "Home" badge next to
+  anything currently eligible. `Active`'s label was also reworded from "shown on the public
+  site" to "shown on the /team page," since that's now the more precise scope of what it gates.
+- Verified end-to-end: toggling a single member's "Show on home" off removes just that member
+  from the home section while they remain on `/team`; toggling the team's own "Show on home"
+  off removes the entire team (and the whole "Meet our team" section disappears from home when
+  no team is left eligible) while `/team` is completely unaffected; existing pre-migration rows
+  kept their default-true behavior; and the full access-control regression passes.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

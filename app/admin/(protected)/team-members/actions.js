@@ -15,6 +15,7 @@ function readForm(formData) {
     serviceEndDate: formData.get("serviceEndDate")?.toString().trim() || "",
     teamId: formData.get("teamId") ? parseInt(formData.get("teamId"), 10) : null,
     active: formData.get("active") === "on",
+    showOnHome: formData.get("showOnHome") === "on",
   };
 }
 
@@ -25,6 +26,7 @@ export async function createTeamMemberAction(formData) {
   await createTeamMember(data);
 
   revalidatePath("/");
+  revalidatePath("/team");
   revalidatePath("/admin/team-members");
   revalidatePath("/admin/team");
   redirect("/admin/team-members");
@@ -37,6 +39,7 @@ export async function updateTeamMemberAction(id, formData) {
   await updateTeamMember(id, data);
 
   revalidatePath("/");
+  revalidatePath("/team");
   revalidatePath("/admin/team-members");
   revalidatePath("/admin/team");
   redirect("/admin/team-members");
@@ -49,6 +52,7 @@ export async function deleteTeamMemberAction(formData) {
   await deleteTeamMember(id);
 
   revalidatePath("/");
+  revalidatePath("/team");
   revalidatePath("/admin/team-members");
   revalidatePath("/admin/team");
   redirect("/admin/team-members");

@@ -113,8 +113,26 @@ export default function TeamMemberForm({ action, member, teams, submitLabel }) {
           defaultChecked={member?.active ?? true}
           className="h-4 w-4 rounded border-border"
         />
-        Active (shown on the public site)
+        Active (shown on the /team page)
       </label>
+
+      <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <input
+          type="checkbox"
+          name="showOnHome"
+          defaultChecked={member?.show_on_home ?? true}
+          className="h-4 w-4 rounded border-border"
+        />
+        Show on home page
+      </label>
+      <p className="-mt-3 text-xs text-muted">
+        Requires both this and Active, and the parent team&apos;s own &quot;Show on home&quot;.
+        Otherwise this member only appears on the full{" "}
+        <a href="/team" className="underline">
+          /team
+        </a>{" "}
+        page.
+      </p>
 
       <div className="flex gap-3">
         <button

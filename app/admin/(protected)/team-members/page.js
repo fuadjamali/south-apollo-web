@@ -14,8 +14,12 @@ export default async function AdminTeamMembersPage() {
           <div>
             <h1 className="text-xl font-bold text-foreground">Team members</h1>
             <p className="mt-1 text-sm text-muted">
-              Shown on the home page&apos;s &quot;Meet our team&quot; section, grouped by team.
-              Only active members are shown publicly.
+              Active members appear on the full{" "}
+              <a href="/team" className="underline">
+                /team
+              </a>{" "}
+              page; those with &quot;Show on home&quot; also enabled (and whose team has it
+              enabled) additionally appear on the home page.
             </p>
           </div>
           <a
@@ -41,6 +45,11 @@ export default async function AdminTeamMembersPage() {
                     {!member.active && (
                       <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                         Inactive
+                      </span>
+                    )}
+                    {member.active && member.show_on_home && (
+                      <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/40 dark:text-green-400">
+                        Home
                       </span>
                     )}
                   </p>

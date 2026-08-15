@@ -9,6 +9,7 @@ function readForm(formData) {
     name: formData.get("name")?.toString().trim() || "",
     description: formData.get("description")?.toString().trim() || "",
     displayOrder: parseInt(formData.get("displayOrder"), 10) || 0,
+    showOnHome: formData.get("showOnHome") === "on",
   };
 }
 
@@ -19,6 +20,7 @@ export async function createTeamAction(formData) {
   await createTeam(data);
 
   revalidatePath("/");
+  revalidatePath("/team");
   revalidatePath("/admin/team");
   redirect("/admin/team");
 }
@@ -30,6 +32,7 @@ export async function updateTeamAction(id, formData) {
   await updateTeam(id, data);
 
   revalidatePath("/");
+  revalidatePath("/team");
   revalidatePath("/admin/team");
   redirect("/admin/team");
 }
@@ -43,6 +46,7 @@ export async function deleteTeamAction(formData) {
   await deleteTeam(id);
 
   revalidatePath("/");
+  revalidatePath("/team");
   revalidatePath("/admin/team");
   revalidatePath("/admin/team-members");
   redirect("/admin/team");

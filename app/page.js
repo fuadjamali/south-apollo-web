@@ -462,7 +462,8 @@ export default async function Home({ searchParams }) {
       </section>
 
       {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and
-          /admin/team-members; only active members shown, grouped by team) */}
+          /admin/team-members; only active members from teams/members with "Show on home"
+          enabled are shown here, grouped by team — the full roster lives at /team) */}
       {team && teamGroups.length > 0 && (
         <section id="team" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-6xl px-6">
@@ -490,6 +491,15 @@ export default async function Home({ searchParams }) {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <a
+                href="/team"
+                className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
+              >
+                View full team
+              </a>
             </div>
           </div>
         </section>

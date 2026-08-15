@@ -26,7 +26,7 @@ const siteConfig = {
     { label: "Portfolio", href: "#portfolio" },
     { label: "Reviews", href: "#reviews" },
     { label: "About", href: "#about" },
-    { label: "Team", href: "#team" },
+    { label: "Team", href: "/team" },
     { label: "Blog", href: "/blog" },
     { label: "News & Events", href: "/news-events" },
     { label: "Gallery", href: "/gallery" },
@@ -108,10 +108,12 @@ const siteConfig = {
     ],
   },
 
-  // Optional — set to null to remove the section from the home page. Team/member data lives
-  // in Postgres (lib/teams.js / lib/teamMembers.js), editable via /admin/team and
-  // /admin/team-members — this just holds the section's static heading/subheading, same
-  // pattern as products/blog/reviews. Only active members are shown, grouped by team.
+  // Optional — set to null to remove the section from the home page and disable /team
+  // entirely. Team/member data lives in Postgres (lib/teams.js / lib/teamMembers.js), editable
+  // via /admin/team and /admin/team-members — this just holds the shared heading/subheading
+  // used by both the home page section and the /team page. The home section only shows teams
+  // and members with "Show on home" enabled (and active members); /team shows every active
+  // member regardless of that flag.
   team: {
     heading: "Meet our team",
     subheading: "The people behind the work.",

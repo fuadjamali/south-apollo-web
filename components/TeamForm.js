@@ -37,6 +37,23 @@ export default function TeamForm({ action, team, submitLabel }) {
         />
       </div>
 
+      <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <input
+          type="checkbox"
+          name="showOnHome"
+          defaultChecked={team?.show_on_home ?? true}
+          className="h-4 w-4 rounded border-border"
+        />
+        Show on home page
+      </label>
+      <p className="-mt-3 text-xs text-muted">
+        If off, this team (and its members) only appears on the full{" "}
+        <a href="/team" className="underline">
+          /team
+        </a>{" "}
+        page, not the home page.
+      </p>
+
       <div className="flex gap-3">
         <button
           type="submit"

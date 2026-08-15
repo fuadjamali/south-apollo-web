@@ -20,8 +20,16 @@ export default async function AdminTeamPage() {
           <div>
             <h1 className="text-xl font-bold text-foreground">Teams</h1>
             <p className="mt-1 text-sm text-muted">
-              Grouped on the home page&apos;s &quot;Meet our team&quot; section. Manage members
-              at <a href="/admin/team-members" className="underline">Team Members</a>.
+              Teams with &quot;Show on home&quot; enabled appear in the home page&apos;s
+              &quot;Meet our team&quot; section; every team appears on the full{" "}
+              <a href="/team" className="underline">
+                /team
+              </a>{" "}
+              page. Manage members at{" "}
+              <a href="/admin/team-members" className="underline">
+                Team Members
+              </a>
+              .
             </p>
           </div>
           <a
@@ -44,7 +52,14 @@ export default async function AdminTeamPage() {
                   className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border p-4"
                 >
                   <div>
-                    <p className="font-semibold text-foreground">{team.name}</p>
+                    <p className="font-semibold text-foreground">
+                      {team.name}
+                      {team.show_on_home && (
+                        <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/40 dark:text-green-400">
+                          Home
+                        </span>
+                      )}
+                    </p>
                     <p className="text-sm text-muted">
                       {count} {count === 1 ? "member" : "members"} · order {team.display_order}
                     </p>

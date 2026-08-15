@@ -11,6 +11,7 @@ const PUBLIC_PREFIXES = [
   "/products",
   "/news-events",
   "/gallery",
+  "/team",
 ];
 
 // Explicit allowlist, not a "/admin" prefix match — a path here means a real
