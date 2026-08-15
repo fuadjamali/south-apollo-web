@@ -28,6 +28,7 @@ const siteConfig = {
     { label: "About", href: "#about" },
     { label: "Team", href: "#team" },
     { label: "Blog", href: "/blog" },
+    { label: "News & Events", href: "/news-events" },
     { label: "Membership", href: "/membership" },
     { label: "Enquiry", href: "#enquiry" },
     { label: "Contact", href: "#contact" },
@@ -162,6 +163,7 @@ const siteConfig = {
       { label: "Enquiries", href: "/admin/enquiries" },
       { label: "Analytics", href: "/admin/analytics" },
       { label: "Blog", href: "/admin/blog" },
+      { label: "News & Events", href: "/admin/news-events" },
       { label: "Account", href: "/admin/account" },
     ],
   },
@@ -172,6 +174,14 @@ const siteConfig = {
   blog: {
     heading: "From the blog",
     subheading: "News, updates, and stories from the team.",
+  },
+
+  // Optional — set to null to remove News & Events from the nav and disable /news-events
+  // entirely. The item list itself lives in Postgres (lib/newsEvents.js), editable via
+  // /admin/news-events — this just holds the section's static heading/subheading.
+  newsEvents: {
+    heading: "News & Events",
+    subheading: "Company announcements and upcoming events.",
   },
 
   siteUnavailable: {

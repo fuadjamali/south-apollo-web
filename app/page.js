@@ -17,6 +17,7 @@ import { getAboutInfo } from "@/lib/aboutInfo";
 import { getRecentPosts } from "@/lib/blog";
 import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
 import { getActivePartners } from "@/lib/partners";
+import { getRecentItems } from "@/lib/newsEvents";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -71,6 +72,7 @@ export default async function Home({ searchParams }) {
     recentPosts,
     teamGroups,
     partnerItems,
+    recentNewsEvents,
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
@@ -80,6 +82,7 @@ export default async function Home({ searchParams }) {
     siteConfig.blog ? getRecentPosts(3) : Promise.resolve([]),
     getActiveTeamsWithMembers(),
     getActivePartners(),
+    siteConfig.newsEvents ? getRecentItems(3) : Promise.resolve([]),
   ]);
 
   const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
@@ -333,6 +336,69 @@ export default async function Home({ searchParams }) {
                 className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
               >
                 View all posts
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPONENT: news-events (optional — latest 3 news/event items, live from Postgres,
+          editable at /admin/news-events) */}
+      {siteConfig.newsEvents && recentNewsEvents.length > 0 && (
+        <section id="news-events" className="py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2 className="text-3xl font-bold">{siteConfig.newsEvents.heading}</h2>
+            <p className="mt-2 text-muted">{siteConfig.newsEvents.subheading}</p>
+
+            <div className="mt-10 grid gap-8 sm:grid-cols-3">
+              {recentNewsEvents.map((item) => (
+                <a
+                  key={item.slug}
+                  href={`/news-events/${item.slug}`}
+                  className="overflow-hidden rounded-xl border border-border shadow-sm transition hover:shadow-md"
+                >
+                  <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
+                    {item.image && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="h-full w-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 text-xs text-muted">
+                      <span
+                        className={`rounded-full px-2 py-0.5 font-medium ${
+                          item.type === "Event"
+                            ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400"
+                            : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400"
+                        }`}
+                      >
+                        {item.type}
+                      </span>
+                      <span>
+                        {new Date(item.published_date).toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    <h3 className="mt-2 text-lg font-semibold">{item.title}</h3>
+                    <p className="mt-1 text-sm text-muted">{item.summary}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <a
+                href="/news-events"
+                className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
+              >
+                View all news &amp; events
               </a>
             </div>
           </div>

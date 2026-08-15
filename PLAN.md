@@ -530,6 +530,30 @@ updated to match.
   Verified: toggling a partner to Inactive removes its logo from the live strip immediately,
   and the seeded placeholder partner's logo renders correctly by default.
 
+## News & Events (admin CRUD + public listing/detail pages)
+
+- ✅ **One `news_events` table with a `type` discriminator (`News`/`Event`, DB `CHECK`
+  constraint), not two near-duplicate tables.** News and Events share almost every field
+  (title, summary, description, image, published date) — only `event_date`/`event_location`
+  are Event-specific and stay `NULL` on News rows. This also avoids building something that
+  would look confusingly similar to the existing Blog feature (title/excerpt/body/image/date)
+  — flagged this design choice rather than silently duplicating Blog's shape. Full admin CRUD
+  at `/admin/news-events` (list/new/edit + `DeleteButton` confirmation), same Server-Actions
+  pattern as Blog.
+- ✅ **Public listing + detail pages at `/news-events` and `/news-events/[slug]`**, mirroring
+  `/blog`'s architecture exactly (own minimal header via `app/news-events/layout.js`,
+  slug auto-generated from title via the same `slugify()`/`uniqueSlug()` approach, edit-time
+  slug regeneration revalidates both the old and new URL paths). Event items additionally show
+  a highlighted event-date/location box on the detail page and listing cards; News items don't.
+  Also added a "News & Events" home page section (latest 3, mixed types with a colored badge
+  per type) mirroring the existing "recent posts" section, and a `/admin/news-events` +
+  `/news-events` + admin/main nav entries.
+- Verified end-to-end: creating an Event with all fields (including event date/location)
+  persisted correctly, editing a title regenerated the slug and made the old URL 404 while the
+  new one served the updated content (same edge case verified for Blog), delete-confirm
+  cancel/confirm both behave correctly, sitemap includes all news/event URLs, and the full
+  access-control regression passes.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.

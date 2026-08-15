@@ -9,6 +9,7 @@ const PUBLIC_PREFIXES = [
   "/api/verify-membership",
   "/blog",
   "/products",
+  "/news-events",
 ];
 
 // Explicit allowlist, not a "/admin" prefix match — a path here means a real
@@ -34,6 +35,7 @@ const PROTECTED_PREFIXES = [
   "/admin/team",
   "/admin/members",
   "/admin/partners",
+  "/admin/news-events",
 ];
 
 export async function proxy(request) {

@@ -169,3 +169,22 @@ CREATE TABLE IF NOT EXISTS partners (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Admin-editable via /admin/news-events. A single table for both News and Event items
+-- (`type` discriminator) rather than two near-duplicate tables, since they share almost every
+-- field — only `event_date`/`event_location` are Event-specific and stay NULL for News rows.
+-- Public listing/detail at /news-events and /news-events/[slug], same slug pattern as blog_posts.
+CREATE TABLE IF NOT EXISTS news_events (
+  id SERIAL PRIMARY KEY,
+  slug VARCHAR(255) UNIQUE NOT NULL,
+  type VARCHAR(10) NOT NULL DEFAULT 'News' CHECK (type IN ('News', 'Event')),
+  title VARCHAR(255) NOT NULL,
+  summary TEXT,
+  description TEXT,
+  image VARCHAR(500),
+  published_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  event_date DATE,
+  event_location VARCHAR(255),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
