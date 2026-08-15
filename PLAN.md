@@ -665,6 +665,24 @@ updated to match.
   no team is left eligible) while `/team` is completely unaffected; existing pre-migration rows
   kept their default-true behavior; and the full access-control regression passes.
 
+## Team demo seed data (3 teams × 10 members)
+
+- ✅ New `scripts/seed-team-demo.js` — a one-off, manually-run script (not part of the
+  self-healing `seedIfEmpty()` auto-seed path) that replaces whatever's in `teams`/
+  `team_members` with 3 realistic demo teams (Leadership, Engineering, Customer Success), 10
+  members each, exactly 3 per team with `show_on_home = true`. Real-sounding names/titles
+  rather than `UPPER_SNAKE_CASE` placeholders, matching the earlier "looks finished for a pitch
+  demo" choices (real stock photos, real review badges) rather than the raw-template look.
+  Run with `node --env-file=.env.local scripts/seed-team-demo.js`.
+- Deliberately a separate script from `lib/teams.js`'s `DEFAULT_TEAMS`/`lib/teamMembers.js`'s
+  `DEFAULT_MEMBERS` — those stay the minimal 1-team/2-member placeholders used to auto-seed a
+  genuinely empty database (e.g. a fresh clone of the template), so this demo dataset doesn't
+  become the permanent default for every new project built from this template.
+- Verified via direct DB query (3 teams × 10 members, 3 `show_on_home = true` each) and in the
+  browser: home page's "Meet our team" section shows exactly 9 members across all 3 team
+  groups, `/team` shows all 30, and the admin `/admin/team` list shows all 3 teams with the
+  green "Home" badge and correct 10-member counts.
+
 ## Template conventions
 
 - All customizable copy uses `UPPER_SNAKE_CASE` placeholders (e.g. `YOUR_HERO_HEADLINE`, `PRODUCT_1_NAME`) — find-and-replace these when starting a real project.
