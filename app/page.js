@@ -599,8 +599,14 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: contact-footer (required) */}
-      <footer id="contact" className="bg-gray-900 dark:bg-black py-16 text-center text-white">
+      {/* COMPONENT: contact-footer (required). min-h + flex centering ensures this last
+          section has enough room below it to scroll fully under the sticky header when
+          jumped to via #contact — otherwise, being the final element on the page, the
+          browser can't scroll far enough and the Enquiry section above it stays in view. */}
+      <footer
+        id="contact"
+        className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center bg-gray-900 dark:bg-black py-16 text-center text-white"
+      >
         <h2 className="text-2xl font-bold">{footer.heading}</h2>
         <p className="mt-2 text-gray-300">{footer.subheading}</p>
         <a

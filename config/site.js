@@ -32,14 +32,14 @@ const siteConfig = {
     { label: "Gallery", href: "/gallery" },
     { label: "Membership", href: "/membership" },
     { label: "Enquiry", href: "#enquiry" },
-    { label: "Contact", href: "#contact" },
+    { label: "Contact", href: "#contact-info" },
   ],
 
   hero: {
     heading: "YOUR_HERO_HEADLINE",
     subheading: "A short supporting line that explains the value proposition.",
     primaryCta: { label: "View Products", href: "#products" },
-    secondaryCta: { label: "Contact Us", href: "#contact" },
+    secondaryCta: { label: "Contact Us", href: "#contact-info" },
   },
 
   // Optional — set to null to remove the section from the home page. The stat list itself

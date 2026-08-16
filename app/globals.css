@@ -299,3 +299,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Compensates for SiteHeader's sticky ~69px header: without this, every #anchor jump
+   (nav links, hero buttons, "View full ___" links) lands the target section exactly
+   under the header, hiding its heading. */
+html {
+  scroll-padding-top: 88px;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
