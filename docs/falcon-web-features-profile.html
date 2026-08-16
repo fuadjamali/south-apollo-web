@@ -1,0 +1,482 @@
+<title>Falcon Web</title>
+<style>
+  :root {
+    --bg: #f0f9ff;
+    --ink: #0c2d48;
+    --primary: #0284c7;
+    --primary-deep: #0369a1;
+    --accent: #06b6d4;
+    --surface: #ffffff;
+    --surface-alt: #e0f2fe;
+    --border: #bae6fd;
+    --muted: #475569;
+    --hero-a: #0c2d48;
+    --hero-b: #0369a1;
+    --hero-c: #0284c7;
+    --hero-ink: #f0f9ff;
+    --shadow: 220 90% 20%;
+
+    --font-display: "Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #01121f;
+      --ink: #e0f2fe;
+      --primary: #38bdf8;
+      --primary-deep: #7dd3fc;
+      --accent: #22d3ee;
+      --surface: #0c2d48;
+      --surface-alt: #123a5c;
+      --border: #1e4a70;
+      --muted: #94a3b8;
+      --hero-a: #01121f;
+      --hero-b: #0c2d48;
+      --hero-c: #0369a1;
+      --hero-ink: #e0f2fe;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #01121f;
+    --ink: #e0f2fe;
+    --primary: #38bdf8;
+    --primary-deep: #7dd3fc;
+    --accent: #22d3ee;
+    --surface: #0c2d48;
+    --surface-alt: #123a5c;
+    --border: #1e4a70;
+    --muted: #94a3b8;
+    --hero-a: #01121f;
+    --hero-b: #0c2d48;
+    --hero-c: #0369a1;
+    --hero-ink: #e0f2fe;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 28px 96px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    background:
+      repeating-linear-gradient(
+        180deg,
+        hsla(200, 90%, 90%, 0.05) 0px,
+        hsla(200, 90%, 90%, 0.05) 1px,
+        transparent 1px,
+        transparent 34px
+      ),
+      linear-gradient(160deg, var(--hero-a) 0%, var(--hero-b) 52%, var(--hero-c) 100%);
+    color: var(--hero-ink);
+    padding: 76px 28px 64px;
+    margin-bottom: 64px;
+  }
+
+  .hero-inner {
+    max-width: 824px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(40px, 7vw, 64px);
+    letter-spacing: -0.01em;
+    margin: 22px 0 0;
+    text-wrap: balance;
+  }
+
+  .hero .tagline {
+    font-size: 19px;
+    max-width: 56ch;
+    margin: 18px 0 0;
+    color: hsla(200, 60%, 92%, 0.88);
+    text-wrap: pretty;
+  }
+
+  .stat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    margin-top: 44px;
+    padding-top: 28px;
+    border-top: 1px solid hsla(200, 60%, 92%, 0.22);
+  }
+
+  .stat-strip .stat {
+    min-width: 140px;
+  }
+
+  .stat .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 28px;
+    color: var(--hero-ink);
+  }
+
+  .stat .label {
+    font-size: 13px;
+    color: hsla(200, 60%, 92%, 0.7);
+    margin-top: 2px;
+  }
+
+  /* ---------- Section scaffolding ---------- */
+  section.block {
+    margin-bottom: 60px;
+  }
+
+  .block-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 14px;
+  }
+
+  .block-head h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 28px;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .block-head .tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .block-intro {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 62ch;
+    margin: 16px 0 28px;
+    text-wrap: pretty;
+  }
+
+  /* ---------- Feature tiles ---------- */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .tile {
+    background: var(--surface);
+    padding: 22px 24px;
+  }
+
+  .tile h3 {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+
+  .tile p {
+    font-size: 14.5px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .tiles { grid-template-columns: 1fr; }
+    .hero { padding: 56px 20px 48px; }
+  }
+
+  /* ---------- Theme chip row ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    padding: 7px 13px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--ink);
+  }
+
+  /* ---------- Closing band ---------- */
+  .closing {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    padding: 48px 36px;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .closing h2 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+
+  .closing p {
+    color: var(--muted);
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .closing .brand {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-top: 22px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+  }
+</style>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">Platform Profile</span>
+    <h1>Falcon Web</h1>
+    <p class="tagline">
+      A ready-to-launch business website: a polished public site and a full content
+      command center, built together from day one — not bolted on afterward.
+    </p>
+    <div class="stat-strip">
+      <div class="stat"><div class="num">16</div><div class="label">Admin-managed modules</div></div>
+      <div class="stat"><div class="num">8</div><div class="label">Built-in color themes</div></div>
+      <div class="stat"><div class="num">1</div><div class="label">Login to run all of it</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="block">
+    <div class="block-head">
+      <h2>The Public Site</h2>
+      <span class="tag">What visitors see</span>
+    </div>
+    <p class="block-intro">
+      Every section on the home page can be shown or hidden independently — and every
+      word on it is editable from the admin panel, live, with no redeploy.
+    </p>
+    <div class="tiles">
+      <div class="tile">
+        <h3>Modular home page</h3>
+        <p>Hero, stats, trusted partners, process steps, products, portfolio, gallery,
+          testimonials, latest articles, news, about, team, certifications, map, and
+          contact — assembled from independent sections.</p>
+      </div>
+      <div class="tile">
+        <h3>Product catalog</h3>
+        <p>Filterable by category on the home page, with a dedicated page per product
+          for sharing and direct enquiries.</p>
+      </div>
+      <div class="tile">
+        <h3>Blog, News &amp; Events</h3>
+        <p>Full articles with automatic URLs. Announcements and events share one system,
+          each clearly badged by type.</p>
+      </div>
+      <div class="tile">
+        <h3>Photo gallery</h3>
+        <p>The latest shots surface on the home page; the full archive is one click
+          away on its own page.</p>
+      </div>
+      <div class="tile">
+        <h3>Team directory</h3>
+        <p>Members are grouped by department, with independent control over who
+          appears on the home page versus the full roster.</p>
+      </div>
+      <div class="tile">
+        <h3>Membership lookup</h3>
+        <p>Visitors confirm their own status by name and postcode — no account
+          required, and no one else's details are ever exposed.</p>
+      </div>
+      <div class="tile">
+        <h3>Direct-to-WhatsApp</h3>
+        <p>Every chat button opens with a message written for that exact spot on the
+          page, not one generic greeting.</p>
+      </div>
+      <div class="tile">
+        <h3>Privacy-first analytics</h3>
+        <p>Visits are only ever counted after a visitor opts in via the consent
+          banner — never before.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>The Admin Command Center</h2>
+      <span class="tag">What you control</span>
+    </div>
+    <p class="block-intro">
+      One login. Every piece of content the public site shows lives in one organized
+      place, grouped so nothing gets lost in a long menu.
+    </p>
+    <div class="tiles">
+      <div class="tile">
+        <h3>Full content control</h3>
+        <p>Products, Blog, Reviews, About, Team &amp; Members, Partners, News &amp;
+          Events, Gallery, Stats, process steps, and contact details — all editable,
+          all live the moment you save.</p>
+      </div>
+      <div class="tile">
+        <h3>Organized navigation</h3>
+        <p>Related tools are grouped into clear menus — Content, People, Insights —
+          instead of one long unsorted list.</p>
+      </div>
+      <div class="tile">
+        <h3>Enquiry inbox</h3>
+        <p>Every form submission from the public site lands in one reviewable list,
+          no email inbox required.</p>
+      </div>
+      <div class="tile">
+        <h3>Visitor analytics</h3>
+        <p>Daily visit counts, top countries and cities, and an interactive world map
+          of exactly where traffic is coming from.</p>
+      </div>
+      <div class="tile">
+        <h3>Account controls</h3>
+        <p>Admins change their own password from inside the panel — no re-seeding,
+          no developer required.</p>
+      </div>
+      <div class="tile">
+        <h3>Safeguards by default</h3>
+        <p>Deleting anything asks first — and if it would take other records with it,
+          the confirmation says exactly how many.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Design, Yours to Choose</h2>
+      <span class="tag">How it looks</span>
+    </div>
+    <p class="block-intro">
+      Change the entire look of the site in one click — no redesign, no developer,
+      no waiting for a new build.
+    </p>
+    <div class="tiles">
+      <div class="tile" style="grid-column: 1 / -1;">
+        <h3>Eight built-in themes</h3>
+        <p style="margin-bottom:14px;">Six with independent light and dark modes; two
+          committed dark-only looks for a bolder pitch.</p>
+        <div class="chip-row">
+          <span class="chip">Ocean Blue</span>
+          <span class="chip">Forest Green</span>
+          <span class="chip">Desert Orange</span>
+          <span class="chip">Royal Purple</span>
+          <span class="chip">Ferrari Red</span>
+          <span class="chip">Golden</span>
+          <span class="chip">Burgundy</span>
+          <span class="chip">Onyx Gold</span>
+        </div>
+      </div>
+      <div class="tile">
+        <h3>Light &amp; dark, independently</h3>
+        <p>Visitors pick whichever's comfortable; their choice is remembered on
+          return visits.</p>
+      </div>
+      <div class="tile">
+        <h3>One consistent system</h3>
+        <p>Every page and every component draws from the same palette — recolor once,
+          it updates everywhere at once.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Built to Last</h2>
+      <span class="tag">What you never see</span>
+    </div>
+    <p class="block-intro">
+      The parts a visitor never notices, working exactly as carefully as the parts
+      they do.
+    </p>
+    <div class="tiles">
+      <div class="tile">
+        <h3>Self-repairing database</h3>
+        <p>Every table checks and updates its own structure automatically — no
+          separate migration step to remember.</p>
+      </div>
+      <div class="tile">
+        <h3>Locked down by default</h3>
+        <p>Every route is explicitly marked public or protected; anything
+          unrecognized is refused outright, never silently exposed.</p>
+      </div>
+      <div class="tile">
+        <h3>Found by search engines</h3>
+        <p>Structured business data, sharable link previews, and an always-current
+          sitemap — all generated automatically.</p>
+      </div>
+      <div class="tile">
+        <h3>Never a blank crash screen</h3>
+        <p>Errors and unavailable pages are branded and on-theme, not a raw stack
+          trace or a default 404.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="closing">
+    <h2>Sixteen modules. One login. Zero redesign to change the look.</h2>
+    <p>Everything above ships together, works together, and is already live.</p>
+    <div class="brand">Falcon Web</div>
+  </div>
+
+</div>
