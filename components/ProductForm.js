@@ -1,3 +1,5 @@
+import ImageFileInput from "@/components/ImageFileInput";
+
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
@@ -60,20 +62,7 @@ export default function ProductForm({ action, product, submitLabel }) {
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-foreground">Image path or URL</label>
-        <input
-          type="text"
-          name="image"
-          defaultValue={product?.image}
-          placeholder="/images/product-1.jpg"
-          className={fieldClass}
-        />
-        <p className="mt-1 text-xs text-muted">
-          A local path under <code>public/</code> (e.g. <code>/images/product-4.jpg</code> — upload
-          the file yourself first) or a full external image URL.
-        </p>
-      </div>
+      <ImageFileInput name="imageFile" label="Image" currentImage={product?.image} />
 
       <div className="flex gap-3">
         <button

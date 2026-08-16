@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createTeamMember, updateTeamMember, deleteTeamMember } from "@/lib/teamMembers";
+import { createTeamMember, updateTeamMember, deleteTeamMember, getTeamMember } from "@/lib/teamMembers";
+import { uploadImage, deleteImage } from "@/lib/blob";
 
 function readForm(formData) {
   return {
@@ -23,6 +24,8 @@ export async function createTeamMemberAction(formData) {
   const data = readForm(formData);
   if (!data.name || !data.teamId) return;
 
+  data.photo = await uploadImage(formData.get("photoFile"), "team");
+
   await createTeamMember(data);
 
   revalidatePath("/");
@@ -35,6 +38,15 @@ export async function createTeamMemberAction(formData) {
 export async function updateTeamMemberAction(id, formData) {
   const data = readForm(formData);
   if (!data.name || !data.teamId) return;
+
+  const existing = await getTeamMember(id);
+  const uploaded = await uploadImage(formData.get("photoFile"), "team");
+  if (uploaded) {
+    await deleteImage(existing?.photo);
+    data.photo = uploaded;
+  } else {
+    data.photo = existing?.photo || null;
+  }
 
   await updateTeamMember(id, data);
 
@@ -49,6 +61,8 @@ export async function deleteTeamMemberAction(formData) {
   const id = formData.get("id");
   if (!id) return;
 
+  const existing = await getTeamMember(id);
+  await deleteImage(existing?.photo);
   await deleteTeamMember(id);
 
   revalidatePath("/");

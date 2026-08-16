@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createPartner, updatePartner, deletePartner } from "@/lib/partners";
+import { createPartner, updatePartner, deletePartner, getPartner } from "@/lib/partners";
+import { uploadImage, deleteImage } from "@/lib/blob";
 
 const VALID_STATUSES = ["Active", "Inactive"];
 
@@ -10,7 +11,6 @@ function readForm(formData) {
   const status = formData.get("status")?.toString().trim() || "";
   return {
     name: formData.get("name")?.toString().trim() || "",
-    logo: formData.get("logo")?.toString().trim() || "",
     description: formData.get("description")?.toString().trim() || "",
     status: VALID_STATUSES.includes(status) ? status : "Active",
     partnershipFrom: formData.get("partnershipFrom")?.toString().trim() || "",
@@ -21,6 +21,8 @@ function readForm(formData) {
 export async function createPartnerAction(formData) {
   const data = readForm(formData);
   if (!data.name) return;
+
+  data.logo = await uploadImage(formData.get("logoFile"), "partners");
 
   await createPartner(data);
 
@@ -33,6 +35,15 @@ export async function updatePartnerAction(id, formData) {
   const data = readForm(formData);
   if (!data.name) return;
 
+  const existing = await getPartner(id);
+  const uploaded = await uploadImage(formData.get("logoFile"), "partners");
+  if (uploaded) {
+    await deleteImage(existing?.logo);
+    data.logo = uploaded;
+  } else {
+    data.logo = existing?.logo || null;
+  }
+
   await updatePartner(id, data);
 
   revalidatePath("/");
@@ -44,6 +55,8 @@ export async function deletePartnerAction(formData) {
   const id = formData.get("id");
   if (!id) return;
 
+  const existing = await getPartner(id);
+  await deleteImage(existing?.logo);
   await deletePartner(id);
 
   revalidatePath("/");

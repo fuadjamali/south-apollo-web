@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createItem, updateItem, deleteItem, getItemById } from "@/lib/newsEvents";
+import { uploadImage, deleteImage } from "@/lib/blob";
 
 const VALID_TYPES = ["News", "Event"];
 
@@ -13,7 +14,6 @@ function readForm(formData) {
     title: formData.get("title")?.toString().trim() || "",
     summary: formData.get("summary")?.toString().trim() || "",
     description: formData.get("description")?.toString().trim() || "",
-    image: formData.get("image")?.toString().trim() || "",
     publishedDate: formData.get("publishedDate")?.toString().trim() || undefined,
     eventDate: formData.get("eventDate")?.toString().trim() || "",
     eventLocation: formData.get("eventLocation")?.toString().trim() || "",
@@ -23,6 +23,8 @@ function readForm(formData) {
 export async function createItemAction(formData) {
   const data = readForm(formData);
   if (!data.title) return;
+
+  data.image = await uploadImage(formData.get("imageFile"), "news-events");
 
   const slug = await createItem(data);
 
@@ -38,6 +40,14 @@ export async function updateItemAction(id, formData) {
   if (!data.title) return;
 
   const oldItem = await getItemById(id);
+  const uploaded = await uploadImage(formData.get("imageFile"), "news-events");
+  if (uploaded) {
+    await deleteImage(oldItem?.image);
+    data.image = uploaded;
+  } else {
+    data.image = oldItem?.image || null;
+  }
+
   const newSlug = await updateItem(id, data);
 
   revalidatePath("/");
@@ -54,6 +64,8 @@ export async function deleteItemAction(formData) {
   const id = formData.get("id");
   if (!id) return;
 
+  const existing = await getItemById(id);
+  await deleteImage(existing?.image);
   const slug = await deleteItem(id);
 
   revalidatePath("/");

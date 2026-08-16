@@ -1,3 +1,5 @@
+import ImageFileInput from "@/components/ImageFileInput";
+
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
@@ -50,26 +52,21 @@ export default function ReviewForm({ action, review, submitLabel }) {
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-foreground">Logo path or URL</label>
-          <input
-            type="text"
-            name="logo"
-            defaultValue={review?.logo}
-            placeholder="/logos/trustpilot.svg"
-            className={fieldClass}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground">Display order</label>
-          <input
-            type="number"
-            name="displayOrder"
-            defaultValue={review?.display_order ?? 0}
-            className={fieldClass}
-          />
-        </div>
+      <ImageFileInput
+        name="logoFile"
+        label="Logo"
+        currentImage={review?.logo}
+        previewClassName="mt-2 h-16 w-16 rounded-lg border border-border object-contain bg-surface-alt p-2"
+      />
+
+      <div>
+        <label className="block text-sm font-medium text-foreground">Display order</label>
+        <input
+          type="number"
+          name="displayOrder"
+          defaultValue={review?.display_order ?? 0}
+          className={fieldClass}
+        />
       </div>
 
       <div className="flex gap-3">

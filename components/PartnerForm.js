@@ -1,3 +1,5 @@
+import ImageFileInput from "@/components/ImageFileInput";
+
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
@@ -23,19 +25,12 @@ export default function PartnerForm({ action, partner, submitLabel }) {
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-foreground">Logo image</label>
-        <input
-          type="text"
-          name="logo"
-          defaultValue={partner?.logo}
-          placeholder="/logos/partner-1.svg"
-          className={fieldClass}
-        />
-        <p className="mt-1 text-xs text-muted">
-          A local path under <code>public/</code> or a full external image URL.
-        </p>
-      </div>
+      <ImageFileInput
+        name="logoFile"
+        label="Logo image"
+        currentImage={partner?.logo}
+        previewClassName="mt-2 h-24 w-24 rounded-lg border border-border object-contain bg-surface-alt p-2"
+      />
 
       <div>
         <label className="block text-sm font-medium text-foreground">Description</label>

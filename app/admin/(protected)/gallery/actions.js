@@ -2,18 +2,21 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createPhoto, updatePhoto, deletePhoto } from "@/lib/gallery";
+import { createPhoto, updatePhoto, deletePhoto, getPhoto } from "@/lib/gallery";
+import { uploadImage, deleteImage } from "@/lib/blob";
 
 function readForm(formData) {
   return {
-    image: formData.get("image")?.toString().trim() || "",
     caption: formData.get("caption")?.toString().trim() || "",
   };
 }
 
 export async function createPhotoAction(formData) {
   const data = readForm(formData);
-  if (!data.image) return;
+
+  const image = await uploadImage(formData.get("imageFile"), "gallery");
+  if (!image) return;
+  data.image = image;
 
   await createPhoto(data);
 
@@ -25,6 +28,15 @@ export async function createPhotoAction(formData) {
 
 export async function updatePhotoAction(id, formData) {
   const data = readForm(formData);
+
+  const existing = await getPhoto(id);
+  const uploaded = await uploadImage(formData.get("imageFile"), "gallery");
+  if (uploaded) {
+    await deleteImage(existing?.image);
+    data.image = uploaded;
+  } else {
+    data.image = existing?.image;
+  }
   if (!data.image) return;
 
   await updatePhoto(id, data);
@@ -39,6 +51,8 @@ export async function deletePhotoAction(formData) {
   const id = formData.get("id");
   if (!id) return;
 
+  const existing = await getPhoto(id);
+  await deleteImage(existing?.image);
   await deletePhoto(id);
 
   revalidatePath("/");

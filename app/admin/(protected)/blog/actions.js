@@ -3,13 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createPost, updatePost, deletePost, getPostById } from "@/lib/blog";
+import { uploadImage, deleteImage } from "@/lib/blob";
 
 function readForm(formData) {
   return {
     title: formData.get("title")?.toString().trim() || "",
     excerpt: formData.get("excerpt")?.toString().trim() || "",
     body: formData.get("body")?.toString().trim() || "",
-    image: formData.get("image")?.toString().trim() || "",
     publishedDate: formData.get("publishedDate")?.toString().trim() || undefined,
   };
 }
@@ -17,6 +17,8 @@ function readForm(formData) {
 export async function createPostAction(formData) {
   const data = readForm(formData);
   if (!data.title) return;
+
+  data.image = await uploadImage(formData.get("imageFile"), "blog");
 
   const slug = await createPost(data);
 
@@ -32,6 +34,14 @@ export async function updatePostAction(id, formData) {
   if (!data.title) return;
 
   const oldPost = await getPostById(id);
+  const uploaded = await uploadImage(formData.get("imageFile"), "blog");
+  if (uploaded) {
+    await deleteImage(oldPost?.image);
+    data.image = uploaded;
+  } else {
+    data.image = oldPost?.image || null;
+  }
+
   const newSlug = await updatePost(id, data);
 
   revalidatePath("/blog");
@@ -49,6 +59,8 @@ export async function deletePostAction(formData) {
   const id = formData.get("id");
   if (!id) return;
 
+  const existing = await getPostById(id);
+  await deleteImage(existing?.image);
   const slug = await deletePost(id);
 
   revalidatePath("/blog");

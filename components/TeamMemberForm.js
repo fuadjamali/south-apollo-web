@@ -1,3 +1,5 @@
+import ImageFileInput from "@/components/ImageFileInput";
+
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
@@ -40,6 +42,13 @@ export default function TeamMemberForm({ action, member, teams, submitLabel }) {
           </select>
         </div>
       </div>
+
+      <ImageFileInput
+        name="photoFile"
+        label="Photo"
+        currentImage={member?.photo}
+        previewClassName="mt-2 h-24 w-24 rounded-full border border-border object-cover"
+      />
 
       <div>
         <label className="block text-sm font-medium text-foreground">Name</label>

@@ -39,7 +39,15 @@ export default async function AdminTeamMembersPage() {
                 key={member.id}
                 className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border p-4"
               >
-                <div>
+                <div className="flex items-center gap-3">
+                  {member.photo && (
+                    <img
+                      src={member.photo}
+                      alt=""
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  )}
+                  <div>
                   <p className="font-semibold text-foreground">
                     {member.name}
                     {!member.active && (
@@ -57,6 +65,7 @@ export default async function AdminTeamMembersPage() {
                     {member.title || "—"} · {member.team_name || "No team"}
                     {member.id_no ? ` · ${member.id_no}` : ""}
                   </p>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <a

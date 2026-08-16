@@ -482,6 +482,13 @@ export default async function Home({ searchParams }) {
                         key={member.id}
                         className="rounded-xl border border-border bg-background p-4"
                       >
+                        {member.photo && (
+                          <img
+                            src={member.photo}
+                            alt=""
+                            className="mb-3 h-16 w-16 rounded-full object-cover"
+                          />
+                        )}
                         <p className="font-semibold text-foreground">{member.name}</p>
                         {member.title && (
                           <p className="mt-1 text-sm text-muted">{member.title}</p>

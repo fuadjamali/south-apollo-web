@@ -1,3 +1,5 @@
+import ImageFileInput from "@/components/ImageFileInput";
+
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
@@ -59,17 +61,9 @@ export default function BlogPostForm({ action, post, submitLabel }) {
             className={fieldClass}
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-foreground">Image path or URL</label>
-          <input
-            type="text"
-            name="image"
-            defaultValue={post?.image}
-            placeholder="/images/blog-1.jpg"
-            className={fieldClass}
-          />
-        </div>
       </div>
+
+      <ImageFileInput name="imageFile" label="Cover image" currentImage={post?.image} />
 
       <div className="flex gap-3">
         <button
