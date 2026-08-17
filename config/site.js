@@ -1,11 +1,17 @@
 const siteConfig = {
+  // Optional — set to null to remove the banner entirely. Shown at the very top of every
+  // page (see app/layout.js). Only meaningful for Falcon Web Suite's own demo instance —
+  // set this to `null` for every real client deployment.
+  demoDisclaimer:
+    "This is a demo site showcasing Falcon Web Suite's features — it does not represent a real business.",
+
   business: {
-    name: "YOUR_BUSINESS_NAME",
-    tagline: "YOUR_TAGLINE_HERE",
+    name: "Falcon Web Suite",
+    tagline: "Simple to start. Built to grow.",
     description:
-      "One or two sentences describing what the business does and who it's for.",
-    address: "YOUR_BUSINESS_ADDRESS",
-    domain: "YOUR_DOMAIN",
+      "A modular website platform for small businesses — content, booking, online sales, and an AI content assistant, all in one suite. Start on Basic and upgrade whenever you're ready.",
+    address: "Portsmouth, United Kingdom",
+    domain: "falconwebsuite.com",
   },
 
   cookieConsent: {
@@ -17,7 +23,7 @@ const siteConfig = {
 
   contact: {
     email: "hello@example.com",
-    whatsappNumber: "10000000000",
+    whatsappNumber: "447488382205",
     whatsappMessage: "Hi, I'd like to get in touch",
   },
 
@@ -58,12 +64,19 @@ const siteConfig = {
         { label: "Contact Info", href: "#contact-info" },
       ],
     },
+    { label: "Plans", href: "#plans", highlight: true },
     { label: "Book Now", href: "/booking", cta: true },
   ],
 
   hero: {
-    heading: "YOUR_HERO_HEADLINE",
-    subheading: "A short supporting line that explains the value proposition.",
+    heading: "Today: a website. Tomorrow: a business platform.",
+    subheading:
+      "Upgrade to booking and online sales whenever you're ready — same site, same login.",
+    // Optional — set to null to remove the background image and fall back to a plain
+    // background. Rendered behind the heading with a theme-color overlay (see app/page.js)
+    // so text stays legible in every color theme and in dark mode.
+    backgroundImage:
+      "https://k91nyg7zo3nulbdm.public.blob.vercel-storage.com/hero/hero-background-v3-animated-dceMYnDNQEhn3L5TgwA6W4K8EP5QIr.svg",
     primaryCta: { label: "View Products", href: "#products" },
     secondaryCta: { label: "Contact Us", href: "#contact-info" },
   },
@@ -92,8 +105,18 @@ const siteConfig = {
   // The product list itself now lives in Postgres (lib/products.js), editable via
   // /admin/products — this just holds the section's static heading/subheading.
   products: {
-    heading: "Our Products",
-    subheading: "A few things we're proud of.",
+    heading: "Add-on Services",
+    subheading: "Optional extras for your new site, on top of any plan.",
+  },
+
+  // Optional — set to null to remove the section from the home page. Static (not admin-
+  // editable) since it's the site's own pricing tiers, defined in lib/planFeatures.js — only
+  // meaningful for Falcon Web Suite's own marketing site. A deployed client site has no
+  // reason to show its own Basic/Plus/Premium tiers to its visitors, so leave this `null` for
+  // every client deployment.
+  plans: {
+    heading: "Plans that grow with you",
+    subheading: "Start on Basic, upgrade to Plus or Premium whenever you're ready — no rebuild.",
   },
 
   // Optional — set to null to remove the section from the home page. The project list itself
@@ -146,8 +169,8 @@ const siteConfig = {
 
   // Optional — set to null to remove the section from the home page.
   enquiryForm: {
-    heading: "ENQUIRY_HEADING",
-    subheading: "ENQUIRY_SUBHEADING",
+    heading: "Have a question?",
+    subheading: "Tell us about your business and we'll help you pick the right plan.",
   },
 
   footer: {

@@ -25,6 +25,7 @@ import { getRecentPhotos } from "@/lib/gallery";
 import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
 import { getEffectiveSiteConfig, isModuleEnabled, isPublicPathEnabled } from "@/lib/plan";
+import { TIERS } from "@/lib/planFeatures";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -58,6 +59,7 @@ export default async function Home({ searchParams }) {
     stats,
     partners,
     howItWorks,
+    plans,
     products,
     portfolio,
     gallery,
@@ -145,26 +147,67 @@ export default async function Home({ searchParams }) {
 
       <main>
       {/* COMPONENT: hero (required) */}
-      <section className="mx-auto max-w-6xl px-6 py-24 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
-          {hero.heading}
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
-          {hero.subheading}
-        </p>
-        <div className="mt-8 flex justify-center gap-4">
-          <a
-            href={hero.primaryCta.href}
-            className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
-          >
-            {hero.primaryCta.label}
-          </a>
-          <a
-            href={hero.secondaryCta.href}
-            className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
-          >
-            {hero.secondaryCta.label}
-          </a>
+      <section className="relative isolate overflow-hidden">
+        {hero.backgroundImage && (
+          // No z-index here, deliberately — `isolate` on the section already gives this
+          // whole hero its own stacking context, so plain DOM order (image div first, text
+          // content div second) is enough to paint the image behind the text. A `-z-10`
+          // here previously pushed the image behind the *page's* base background instead of
+          // just behind this section's text, since `position: relative` alone (no z-index)
+          // doesn't establish a stacking context — the negative z-index escaped upward past
+          // the section entirely and rendered invisible under the body background.
+          <div className="absolute inset-0 bg-gradient-to-br from-[#c7dcff] to-[#93b8f5]">
+            {/* Admin-editable image source — plain <img>, same reasoning as products/blog.
+                object-contain below sm: the source image is a wide ~2.3:1 scene with distinct
+                content near both edges, so object-cover on a tall mobile viewport crops down to
+                a thin center strip and cuts both side illustrations entirely. object-contain
+                keeps the whole scene visible instead; the gradient behind it (matching the
+                image's own background) fills the letterboxed gap seamlessly. From sm: up, the
+                viewport is wide enough that object-cover no longer loses the side content. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={hero.backgroundImage}
+              alt=""
+              className="h-full w-full object-contain sm:object-cover"
+            />
+            {/* Theme-color overlay (not a fixed white/black) so the image stays legible —
+                and readable as the *same* background color — across all 8 color themes and
+                dark mode, rather than only looking right in the one theme it was tuned for. */}
+            <div className="absolute inset-0 bg-background/25" />
+          </div>
+        )}
+        <div className="relative mx-auto max-w-6xl px-6 py-24 text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
+            {/* A heading written as two short statements ("X. Y.") reads better as two
+                lines than left to the browser's natural wrap, which can break mid-phrase
+                depending on viewport width. Falls back to one line if there's no ". " split. */}
+            {hero.heading.includes(". ") ? (
+              <>
+                {hero.heading.slice(0, hero.heading.indexOf(". ") + 1)}
+                <br />
+                {hero.heading.slice(hero.heading.indexOf(". ") + 2)}
+              </>
+            ) : (
+              hero.heading
+            )}
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
+            {hero.subheading}
+          </p>
+          <div className="mt-8 flex justify-center gap-4">
+            <a
+              href={hero.primaryCta.href}
+              className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+            >
+              {hero.primaryCta.label}
+            </a>
+            <a
+              href={hero.secondaryCta.href}
+              className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
+            >
+              {hero.secondaryCta.label}
+            </a>
+          </div>
         </div>
       </section>
 
@@ -280,6 +323,85 @@ export default async function Home({ searchParams }) {
           </div>
         )}
       </section>
+
+      {/* COMPONENT: plans (optional — static, not admin-editable. Only meaningful for Falcon
+          Web Suite's own marketing site; a deployed client site has no reason to show its own
+          Basic/Plus/Premium tiers to its visitors, so this should be `null` in config/site.js
+          for every client deployment — see lib/planFeatures.js for the shared tier data. */}
+      {plans && (
+        <section id="plans" className="bg-surface-alt py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2 className="text-center text-3xl font-bold">{plans.heading}</h2>
+            <p className="mt-2 text-center text-muted">{plans.subheading}</p>
+
+            <div className="mt-10 grid gap-6 lg:grid-cols-3">
+              {TIERS.map((tier) => (
+                <div
+                  key={tier.key}
+                  className={`relative rounded-2xl border p-8 ${
+                    tier.popular
+                      ? "border-primary shadow-lg"
+                      : "border-border shadow-sm"
+                  }`}
+                >
+                  {tier.popular && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                      Most popular
+                    </span>
+                  )}
+                  <h3 className="text-xl font-bold">{tier.label}</h3>
+                  <p className="mt-1 text-sm text-muted">{tier.blurb}</p>
+
+                  <div className="mt-5">
+                    <p className="text-3xl font-extrabold">
+                      {tier.setupPrice}
+                      <span className="text-sm font-normal text-muted"> setup</span>
+                    </p>
+                    <p className="text-sm text-muted">{tier.monthlyPrice} / month</p>
+                  </div>
+
+                  <ul className="mt-6 space-y-2 text-sm">
+                    {tier.highlights.map((item) =>
+                      item.endsWith(":") ? (
+                        <li key={item} className="pt-1 font-semibold text-foreground">
+                          {item}
+                        </li>
+                      ) : (
+                        <li key={item} className="flex items-start gap-2">
+                          <span className="mt-0.5 text-green-600 dark:text-green-400">
+                            &#10003;
+                          </span>
+                          <span className="text-foreground">{item}</span>
+                        </li>
+                      )
+                    )}
+                  </ul>
+
+                  <a
+                    href="#enquiry"
+                    className={`mt-8 block rounded-full py-3 text-center text-sm font-semibold ${
+                      tier.popular
+                        ? "bg-primary text-primary-foreground hover:bg-primary-hover"
+                        : "border border-border text-foreground hover:bg-surface-alt"
+                    }`}
+                  >
+                    Get started
+                  </a>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-8 text-center">
+              <a
+                href="/compare-plans"
+                className="text-sm font-medium text-accent hover:underline"
+              >
+                Explore full features comparison &rarr;
+              </a>
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* COMPONENT: portfolio (optional — live from Postgres, editable at /admin/portfolio) */}
       {portfolio && portfolioItems.length > 0 && (

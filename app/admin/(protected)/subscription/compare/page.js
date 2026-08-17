@@ -1,40 +1,7 @@
 import { PLAN } from "@/lib/plan";
+import { FEATURES, TIERS } from "@/lib/planFeatures";
 
 export const dynamic = "force-dynamic";
-
-// Mirrors docs/package-plans.md's "Feature comparison" table — keep both in sync if the
-// tier/module mapping changes. Deliberately static (not derived from lib/plan.js's module
-// list) since it's meant to read like a sales comparison, not a literal dump of internal
-// module names.
-const FEATURES = [
-  { label: "Home page (hero, stats, how it works, about, map)", basic: true, plus: true, premium: true },
-  { label: "Contact info block + enquiry form", basic: true, plus: true, premium: true },
-  { label: "WhatsApp CTA + social links", basic: true, plus: true, premium: true },
-  { label: "Products or Portfolio showcase", basic: true, plus: true, premium: true },
-  { label: "Both Products and Portfolio", basic: false, plus: true, premium: true },
-  { label: "Full 8-theme switcher + dark mode", basic: false, plus: true, premium: true },
-  { label: "Basic analytics (visit counter)", basic: true, plus: true, premium: true },
-  { label: "Blog", basic: false, plus: true, premium: true },
-  { label: "Gallery", basic: false, plus: true, premium: true },
-  { label: "News & Events", basic: false, plus: true, premium: true },
-  { label: "Reviews (third-party ratings) + Partners strip", basic: false, plus: true, premium: true },
-  { label: "Customer-submitted reviews (moderated)", basic: false, plus: true, premium: true },
-  { label: "Team & Team Members", basic: false, plus: true, premium: true },
-  { label: "Certifications", basic: false, plus: true, premium: true },
-  { label: "“Write with AI” content assistant", basic: false, plus: true, premium: true },
-  { label: "Online booking / appointment scheduling", basic: false, plus: true, premium: true },
-  { label: "Booking waitlist for fully-booked dates", basic: false, plus: true, premium: true },
-  { label: "Shopping cart + checkout + order management", basic: false, plus: false, premium: true },
-  { label: "Discount / promo codes at checkout", basic: false, plus: false, premium: true },
-  { label: "Member login portal + order history", basic: false, plus: false, premium: true },
-  { label: "Membership verification lookup", basic: false, plus: false, premium: true },
-];
-
-const TIERS = [
-  { key: "basic", label: "Basic" },
-  { key: "plus", label: "Plus" },
-  { key: "premium", label: "Premium" },
-];
 
 function Check({ included }) {
   return included ? (

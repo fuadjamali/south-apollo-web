@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { isAdminPathEnabled, isPublicPathEnabled } from "@/lib/plan";
 
-const PUBLIC_ROUTES = ["/", "/admin/login", "/robots.txt", "/sitemap.xml", "/membership"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/admin/login",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/membership",
+  "/compare-plans",
+];
 const PUBLIC_PREFIXES = [
   "/api/auth",
   "/api/enquiries",

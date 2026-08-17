@@ -26,7 +26,7 @@ export default function AdminHeader({ nav, themesEnabled = true, plan = "premium
   return (
     <header className="border-b border-border bg-surface">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <span className="flex items-center gap-2 text-lg font-bold text-foreground">
+        <span className="flex shrink-0 items-center gap-2 whitespace-nowrap text-lg font-bold text-foreground">
           <Logo className="h-6 w-6" />
           {business.name} <span className="font-normal text-muted">Admin</span>
           <span

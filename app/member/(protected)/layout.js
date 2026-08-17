@@ -28,7 +28,7 @@ export default async function MemberProtectedLayout({ children }) {
     <div className="flex min-h-screen flex-col bg-surface-alt">
       <header className="border-b border-border bg-surface">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <span className="flex items-center gap-2 text-lg font-bold text-foreground">
+          <span className="flex items-center gap-2 whitespace-nowrap text-lg font-bold text-foreground">
             <Logo className="h-6 w-6" />
             {siteConfig.business.name} <span className="font-normal text-muted">Member</span>
           </span>

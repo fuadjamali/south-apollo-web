@@ -9,8 +9,8 @@ locked, not just a sales description.
 | | **Basic** | **Plus** | **Premium** |
 |---|:---:|:---:|:---:|
 | Positioning | Brochure site | Content, credibility & booking | Commerce & accounts |
-| Setup fee | £300–£350 | £500–£600 | £750–£900 |
-| Monthly | £19–£25 | £35–£45 | £55–£75 |
+| Setup fee | £270–£315 | £450–£540 | £675–£810 |
+| Monthly | £17–£23 | £32–£41 | £50–£68 |
 
 Ranges, not fixed prices — land nearer the top for clients wanting a lot of initial content
 migrated/written for them, nearer the bottom for a lighter, mostly-self-serve setup.

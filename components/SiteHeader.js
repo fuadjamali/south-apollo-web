@@ -26,7 +26,7 @@ export default function SiteHeader({
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="flex cursor-pointer items-center gap-2 text-xl font-bold"
+          className="flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap text-xl font-bold"
         >
           <Logo className="h-7 w-7 text-foreground" />
           {business.name}
@@ -41,6 +41,14 @@ export default function SiteHeader({
                 key={item.href}
                 href={item.href}
                 className="whitespace-nowrap rounded-full bg-primary px-4 py-1.5 text-primary-foreground hover:bg-primary-hover"
+              >
+                {item.label}
+              </a>
+            ) : item.highlight ? (
+              <a
+                key={item.href}
+                href={item.href}
+                className="whitespace-nowrap rounded-full border border-accent px-4 py-1.5 text-accent hover:bg-accent hover:text-white"
               >
                 {item.label}
               </a>
@@ -125,7 +133,9 @@ export default function SiteHeader({
                   className={
                     item.cta
                       ? "mt-2 rounded-lg bg-primary px-3 py-2 text-center font-semibold text-primary-foreground hover:bg-primary-hover"
-                      : "rounded-lg px-3 py-2 hover:bg-surface-alt"
+                      : item.highlight
+                        ? "rounded-lg border border-accent px-3 py-2 font-semibold text-accent hover:bg-accent hover:text-white"
+                        : "rounded-lg px-3 py-2 hover:bg-surface-alt"
                   }
                 >
                   {item.label}
