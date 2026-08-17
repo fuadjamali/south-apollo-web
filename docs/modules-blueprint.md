@@ -253,8 +253,8 @@ no automatic slot-matching or notification; an admin follows up directly if some
 ## 6. AI content assistant
 
 "Write with AI" (`components/AIAssistantButton.js`), gated Plus/Premium
-(`isModuleEnabled("ai")`) — needs `ANTHROPIC_API_KEY` set, or the feature shows a clear inline
-error instead of crashing.
+(`isModuleEnabled("ai")`) **and** an admin-controlled on/off switch — whichever's off, the
+button doesn't render.
 
 - Appears next to long-text fields across the admin panel: Products, Portfolio, Blog, News &
   Events description, About Us body, Booking service description
@@ -263,6 +263,9 @@ error instead of crashing.
 - Calls the Anthropic Messages API directly via `fetch()` in `lib/ai.js` (no SDK dependency)
 - Always called as a plain async function from inside its host form, never its own nested
   `<form>` — every usage site embeds it inside another form, and HTML doesn't allow nested forms
+- **`/admin/ai-settings`** (under Settings): self-serve API key + an "Enable AI Assist" toggle,
+  stored in Postgres — no env var edit or redeploy needed to turn the feature on/off or swap
+  keys. `ANTHROPIC_API_KEY` still works as a fallback if no key is saved here.
 
 ---
 

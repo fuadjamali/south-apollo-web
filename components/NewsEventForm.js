@@ -12,7 +12,7 @@ function toDateInputValue(date) {
   return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
 }
 
-export default function NewsEventForm({ action, item, submitLabel }) {
+export default function NewsEventForm({ action, item, submitLabel, aiEnabled = false }) {
   return (
     <form action={action} className="mt-6 space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -69,7 +69,9 @@ export default function NewsEventForm({ action, item, submitLabel }) {
           placeholder="Short summary shown on the listing page"
           className={fieldClass}
         />
-        <AIAssistantButton targetId="newsevent-summary" fieldLabel="news/event summary" />
+        {aiEnabled && (
+          <AIAssistantButton targetId="newsevent-summary" fieldLabel="news/event summary" />
+        )}
       </div>
 
       <div>
@@ -82,7 +84,12 @@ export default function NewsEventForm({ action, item, submitLabel }) {
           placeholder="Full details. Leave a blank line between paragraphs."
           className={fieldClass}
         />
-        <AIAssistantButton targetId="newsevent-description" fieldLabel="news/event description" />
+        {aiEnabled && (
+          <AIAssistantButton
+            targetId="newsevent-description"
+            fieldLabel="news/event description"
+          />
+        )}
       </div>
 
       <ImageFileInput name="imageFile" label="Image" currentImage={item?.image} />

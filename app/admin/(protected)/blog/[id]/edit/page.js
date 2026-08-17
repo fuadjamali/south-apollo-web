@@ -3,12 +3,13 @@ import { getPostById } from "@/lib/blog";
 import BlogPostForm from "@/components/BlogPostForm";
 import DeleteButton from "@/components/DeleteButton";
 import { updatePostAction, deletePostAction } from "../../actions";
+import { isAIAssistantEnabled } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditBlogPostPage({ params }) {
   const { id } = await params;
-  const post = await getPostById(id);
+  const [post, aiEnabled] = await Promise.all([getPostById(id), isAIAssistantEnabled()]);
 
   if (!post) {
     notFound();
@@ -20,7 +21,12 @@ export default async function EditBlogPostPage({ params }) {
     <div className="w-full max-w-lg px-6">
       <div className="rounded-xl border border-border bg-surface p-8 shadow-sm">
         <h1 className="text-xl font-bold text-foreground">Edit blog post</h1>
-        <BlogPostForm action={boundUpdate} post={post} submitLabel="Save changes" />
+        <BlogPostForm
+          action={boundUpdate}
+          post={post}
+          submitLabel="Save changes"
+          aiEnabled={aiEnabled}
+        />
 
         <form action={deletePostAction} className="mt-4 border-t border-border pt-4">
           <input type="hidden" name="id" value={post.id} />

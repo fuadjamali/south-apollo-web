@@ -3,13 +3,13 @@ import { getProduct } from "@/lib/products";
 import ProductForm from "@/components/ProductForm";
 import DeleteButton from "@/components/DeleteButton";
 import { updateProductAction, deleteProductAction } from "../../actions";
-import { isModuleEnabled } from "@/lib/plan";
+import { isAIAssistantEnabled } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditProductPage({ params }) {
   const { id } = await params;
-  const product = await getProduct(id);
+  const [product, aiEnabled] = await Promise.all([getProduct(id), isAIAssistantEnabled()]);
 
   if (!product) {
     notFound();
@@ -25,7 +25,7 @@ export default async function EditProductPage({ params }) {
           action={boundUpdate}
           product={product}
           submitLabel="Save changes"
-          aiEnabled={isModuleEnabled("ai")}
+          aiEnabled={aiEnabled}
         />
 
         <form action={deleteProductAction} className="mt-4 border-t border-border pt-4">

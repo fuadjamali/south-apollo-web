@@ -3,13 +3,13 @@ import { getPortfolioItem } from "@/lib/portfolio";
 import PortfolioItemForm from "@/components/PortfolioItemForm";
 import DeleteButton from "@/components/DeleteButton";
 import { updatePortfolioItemAction, deletePortfolioItemAction } from "../../actions";
-import { isModuleEnabled } from "@/lib/plan";
+import { isAIAssistantEnabled } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditPortfolioItemPage({ params }) {
   const { id } = await params;
-  const item = await getPortfolioItem(id);
+  const [item, aiEnabled] = await Promise.all([getPortfolioItem(id), isAIAssistantEnabled()]);
 
   if (!item) {
     notFound();
@@ -25,7 +25,7 @@ export default async function EditPortfolioItemPage({ params }) {
           action={boundUpdate}
           item={item}
           submitLabel="Save changes"
-          aiEnabled={isModuleEnabled("ai")}
+          aiEnabled={aiEnabled}
         />
 
         <form action={deletePortfolioItemAction} className="mt-4 border-t border-border pt-4">

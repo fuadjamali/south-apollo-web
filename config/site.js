@@ -230,6 +230,7 @@ const siteConfig = {
         children: [
           { label: "Account", href: "/admin/account" },
           { label: "Subscription", href: "/admin/subscription" },
+          { label: "AI Assistant", href: "/admin/ai-settings" },
         ],
       },
     ],

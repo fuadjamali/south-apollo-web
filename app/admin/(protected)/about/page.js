@@ -1,6 +1,6 @@
 import { getAboutInfo } from "@/lib/aboutInfo";
 import { updateAboutInfoAction } from "./actions";
-import { isModuleEnabled } from "@/lib/plan";
+import { isAIAssistantEnabled } from "@/lib/ai";
 import AIAssistantButton from "@/components/AIAssistantButton";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +9,7 @@ const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
 export default async function AdminAboutPage() {
-  const about = await getAboutInfo();
+  const [about, aiEnabled] = await Promise.all([getAboutInfo(), isAIAssistantEnabled()]);
 
   return (
     <div className="w-full max-w-lg px-6">
@@ -39,7 +39,7 @@ export default async function AdminAboutPage() {
               defaultValue={about.body}
               className={fieldClass}
             />
-            {isModuleEnabled("ai") && (
+            {aiEnabled && (
               <AIAssistantButton targetId="about-body" fieldLabel="About Us body text" />
             )}
           </div>

@@ -1,8 +1,10 @@
 import BookingServiceForm from "@/components/BookingServiceForm";
 import { createBookingServiceAction } from "../actions";
-import { isModuleEnabled } from "@/lib/plan";
+import { isAIAssistantEnabled } from "@/lib/ai";
 
-export default function NewBookingServicePage() {
+export default async function NewBookingServicePage() {
+  const aiEnabled = await isAIAssistantEnabled();
+
   return (
     <div className="w-full max-w-lg px-6">
       <div className="rounded-xl border border-border bg-surface p-8 shadow-sm">
@@ -10,7 +12,7 @@ export default function NewBookingServicePage() {
         <BookingServiceForm
           action={createBookingServiceAction}
           submitLabel="Create service"
-          aiEnabled={isModuleEnabled("ai")}
+          aiEnabled={aiEnabled}
         />
       </div>
     </div>

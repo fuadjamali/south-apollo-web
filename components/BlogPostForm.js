@@ -10,7 +10,7 @@ function toDateInputValue(date) {
   return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
 }
 
-export default function BlogPostForm({ action, post, submitLabel }) {
+export default function BlogPostForm({ action, post, submitLabel, aiEnabled = false }) {
   return (
     <form action={action} className="mt-6 space-y-4">
       <div>
@@ -40,7 +40,7 @@ export default function BlogPostForm({ action, post, submitLabel }) {
           placeholder="Short summary shown on the blog list page"
           className={fieldClass}
         />
-        <AIAssistantButton targetId="blog-excerpt" fieldLabel="blog post excerpt" />
+        {aiEnabled && <AIAssistantButton targetId="blog-excerpt" fieldLabel="blog post excerpt" />}
       </div>
 
       <div>
@@ -53,7 +53,7 @@ export default function BlogPostForm({ action, post, submitLabel }) {
           placeholder="Write the post here. Leave a blank line between paragraphs."
           className={fieldClass}
         />
-        <AIAssistantButton targetId="blog-body" fieldLabel="blog post body" />
+        {aiEnabled && <AIAssistantButton targetId="blog-body" fieldLabel="blog post body" />}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

@@ -26,7 +26,7 @@ each client's project has its own copy of all of these, not shared.
 | `BLOB_READ_WRITE_TOKEN` | Yes, if any image upload feature is used | Vercel Blob store token — auto-populated once a Blob store is connected to the project |
 | `MEMBER_AUTH_SECRET` | Recommended | Signs member session cookies. Falls back to `NEXTAUTH_SECRET` if unset, but set a distinct value in production for real separation between the two auth systems |
 | `PLAN` | Recommended | `basic` \| `plus` \| `premium` — see below. Unset defaults to `premium` (everything enabled) |
-| `ANTHROPIC_API_KEY` | Only if using the "Write with AI" admin content assistant (Plus/Premium) | Claude API key from [console.anthropic.com](https://console.anthropic.com). Unset disables the feature gracefully (clear error, not a crash) |
+| `ANTHROPIC_API_KEY` | Optional fallback | Claude API key powering "Write with AI" (Plus/Premium) — can be set here, or self-serve by an admin at `/admin/ai-settings` (which takes priority). Neither set: feature shows a clear inline error, not a crash |
 
 `.env.example` and `.env.local.example` at the repo root mirror this table with inline
 comments — keep both in sync if this list changes.
@@ -128,12 +128,13 @@ during evening hours (e.g. a UK user at 00:30 BST). Both `lib/bookings.js` and
 ## AI content assistant
 
 "Write with AI" (`components/AIAssistantButton.js`) appears on long-text fields across the
-admin panel (Products, Portfolio, Blog, News & Events, About) — Blog/News & Events are already
-Plus+ gated at the route level so it shows unconditionally there; Products/Portfolio aren't
-module-gated (see below) so those pages pass an explicit `aiEnabled={isModuleEnabled("ai")}`
-prop instead. Calls `lib/ai.js`'s `generateContent()`, a raw `fetch()` to the Anthropic Messages
-API (no SDK dependency) — needs `ANTHROPIC_API_KEY`; missing key fails with a clear inline
-error rather than crashing.
+admin panel (Products, Portfolio, Blog, News & Events, About, Booking services) — every one of
+those pages passes `aiEnabled={await isAIAssistantEnabled()}` down to its form, so the button's
+visibility always reflects both the tier gate and the admin's own on/off toggle (see "AI
+Assistant settings" below) consistently, not just the tier. Calls `lib/ai.js`'s
+`generateContent()`, a raw `fetch()` to the Anthropic Messages API (no SDK dependency) — a
+missing/invalid key or the feature being toggled off both fail with a clear inline error rather
+than crashing.
 
 **Never nest a `<form>`.** `AIAssistantButton` is always rendered inside another form (e.g. the
 Products form). The first version used `useActionState` + a real `<form>`, and HTML silently
@@ -225,6 +226,26 @@ service+date, `components/BookingFlow.js` swaps its submit form for a waitlist f
   forms can't nest, so the service/date pickers were pulled *out* of any `<form>` entirely
   (plain controlled elements, values passed into whichever form is showing via hidden inputs) —
   the two forms render as siblings, swapped by whether slots exist, never both mounted at once.
+
+## AI Assistant settings (self-serve key + on/off toggle)
+
+`ANTHROPIC_API_KEY` no longer has to be an env var — `/admin/ai-settings` (under Settings)
+lets an admin paste their own key and flip the whole feature on/off, without an env var change
+or redeploy. `lib/aiSettings.js` is a singleton table (`ai_settings`, same pattern as
+`contact_info`/`about_info`) holding `enabled` (default `true`) and `api_key` (nullable).
+
+- `lib/ai.js`'s `generateContent()` reads the DB row first; `api_key` there takes priority over
+  `process.env.ANTHROPIC_API_KEY`, which is now purely a fallback for a deployment that hasn't
+  configured one via the admin UI yet. If `enabled` is false, generation is refused before ever
+  reaching the network, regardless of whether a key is configured.
+- `isAIAssistantEnabled()` (also in `lib/ai.js`) is the single source of truth for whether the
+  "Write with AI" button should render anywhere — it checks *both* the deployment's pricing
+  tier (`isModuleEnabled("ai")`, fixed per client via `PLAN`) and the admin's own toggle
+  (self-serve, meant for turning off API spend without losing the saved key). Every page that
+  passes `aiEnabled` to a form calls this instead of `isModuleEnabled("ai")` directly now.
+- The key is stored in plain Postgres, same trust boundary as everything else in this
+  admin-only table — there's no at-rest encryption layer. Acceptable for this app's scale, but
+  worth knowing if a client asks.
 
 ## Stale member sessions after GDPR closure
 

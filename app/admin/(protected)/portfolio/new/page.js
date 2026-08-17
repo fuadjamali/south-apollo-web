@@ -1,8 +1,10 @@
 import PortfolioItemForm from "@/components/PortfolioItemForm";
 import { createPortfolioItemAction } from "../actions";
-import { isModuleEnabled } from "@/lib/plan";
+import { isAIAssistantEnabled } from "@/lib/ai";
 
-export default function NewPortfolioItemPage() {
+export default async function NewPortfolioItemPage() {
+  const aiEnabled = await isAIAssistantEnabled();
+
   return (
     <div className="w-full max-w-lg px-6">
       <div className="rounded-xl border border-border bg-surface p-8 shadow-sm">
@@ -10,7 +12,7 @@ export default function NewPortfolioItemPage() {
         <PortfolioItemForm
           action={createPortfolioItemAction}
           submitLabel="Create project"
-          aiEnabled={isModuleEnabled("ai")}
+          aiEnabled={aiEnabled}
         />
       </div>
     </div>

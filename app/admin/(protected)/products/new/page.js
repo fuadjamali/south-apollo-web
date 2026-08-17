@@ -1,8 +1,10 @@
 import ProductForm from "@/components/ProductForm";
 import { createProductAction } from "../actions";
-import { isModuleEnabled } from "@/lib/plan";
+import { isAIAssistantEnabled } from "@/lib/ai";
 
-export default function NewProductPage() {
+export default async function NewProductPage() {
+  const aiEnabled = await isAIAssistantEnabled();
+
   return (
     <div className="w-full max-w-lg px-6">
       <div className="rounded-xl border border-border bg-surface p-8 shadow-sm">
@@ -10,7 +12,7 @@ export default function NewProductPage() {
         <ProductForm
           action={createProductAction}
           submitLabel="Create product"
-          aiEnabled={isModuleEnabled("ai")}
+          aiEnabled={aiEnabled}
         />
       </div>
     </div>

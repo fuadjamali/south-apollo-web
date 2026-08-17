@@ -25,6 +25,7 @@ const PLUS_MODULES = [
   "team",
   "certifications",
   "booking",
+  "ai",
 ];
 const PREMIUM_MODULES = [...PLUS_MODULES, "cart", "members"];
 const TIER_MODULES = { basic: [], plus: PLUS_MODULES, premium: PREMIUM_MODULES };
@@ -56,6 +57,7 @@ const GATED_ROUTES = {
   "/admin/member-resets": "members",
   "/admin/account-closures": "members",
   "/admin/booking-waitlist": "booking",
+  "/admin/ai-settings": "ai",
   "/admin/orders": "cart",
   "/admin/members": "members",
   "/booking": "booking",

@@ -3,13 +3,16 @@ import { getBookingService } from "@/lib/bookingServices";
 import BookingServiceForm from "@/components/BookingServiceForm";
 import DeleteButton from "@/components/DeleteButton";
 import { updateBookingServiceAction, deleteBookingServiceAction } from "../../actions";
-import { isModuleEnabled } from "@/lib/plan";
+import { isAIAssistantEnabled } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditBookingServicePage({ params }) {
   const { id } = await params;
-  const service = await getBookingService(id);
+  const [service, aiEnabled] = await Promise.all([
+    getBookingService(id),
+    isAIAssistantEnabled(),
+  ]);
 
   if (!service) {
     notFound();
@@ -25,7 +28,7 @@ export default async function EditBookingServicePage({ params }) {
           action={boundUpdate}
           service={service}
           submitLabel="Save changes"
-          aiEnabled={isModuleEnabled("ai")}
+          aiEnabled={aiEnabled}
         />
 
         <form action={deleteBookingServiceAction} className="mt-4 border-t border-border pt-4">
