@@ -6,10 +6,12 @@ import { createProduct, updateProduct, deleteProduct, getProduct } from "@/lib/p
 import { uploadImage, deleteImage } from "@/lib/blob";
 
 function readForm(formData) {
+  const priceAmountRaw = formData.get("priceAmount")?.toString().trim() || "";
   return {
     name: formData.get("name")?.toString().trim() || "",
     description: formData.get("description")?.toString().trim() || "",
     price: formData.get("price")?.toString().trim() || "",
+    priceAmount: priceAmountRaw ? parseFloat(priceAmountRaw) : null,
     category: formData.get("category")?.toString().trim() || "",
     displayOrder: parseInt(formData.get("displayOrder"), 10) || 0,
   };

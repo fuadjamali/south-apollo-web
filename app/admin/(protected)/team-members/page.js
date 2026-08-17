@@ -69,6 +69,12 @@ export default async function AdminTeamMembersPage() {
                 </div>
                 <div className="flex gap-2">
                   <a
+                    href={`/admin/team-members/${member.id}`}
+                    className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt"
+                  >
+                    View
+                  </a>
+                  <a
                     href={`/admin/team-members/${member.id}/edit`}
                     className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt"
                   >

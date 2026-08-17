@@ -1,4 +1,5 @@
 import ImageFileInput from "@/components/ImageFileInput";
+import AIAssistantButton from "@/components/AIAssistantButton";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -32,23 +33,27 @@ export default function BlogPostForm({ action, post, submitLabel }) {
       <div>
         <label className="block text-sm font-medium text-foreground">Excerpt</label>
         <textarea
+          id="blog-excerpt"
           name="excerpt"
           rows={2}
           defaultValue={post?.excerpt}
           placeholder="Short summary shown on the blog list page"
           className={fieldClass}
         />
+        <AIAssistantButton targetId="blog-excerpt" fieldLabel="blog post excerpt" />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-foreground">Body</label>
         <textarea
+          id="blog-body"
           name="body"
           rows={8}
           defaultValue={post?.body}
           placeholder="Write the post here. Leave a blank line between paragraphs."
           className={fieldClass}
         />
+        <AIAssistantButton targetId="blog-body" fieldLabel="blog post body" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

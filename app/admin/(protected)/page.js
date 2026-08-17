@@ -2,8 +2,79 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/lib/db";
 import siteConfig from "@/config/site";
+import { isModuleEnabled } from "@/lib/plan";
+import { getTestimonials } from "@/lib/testimonials";
+import { getOrders } from "@/lib/orders";
+import { getPendingClosureRequests, getPendingPasswordResets } from "@/lib/members";
+import { getWaitlist } from "@/lib/bookingWaitlist";
 
 export const dynamic = "force-dynamic";
+
+// Pulls every scattered "needs a human" queue this admin panel has grown into one glance,
+// each only counted (and shown) when its module is actually part of this deployment's plan —
+// checking a disabled module's table would either 404 the query against a fresh install or
+// just be noise for a feature this client doesn't have.
+async function getAttentionItems() {
+  const items = [];
+
+  if (isModuleEnabled("reviews")) {
+    const testimonials = await getTestimonials();
+    const pending = testimonials.filter((t) => t.status === "Pending").length;
+    if (pending > 0) {
+      items.push({
+        count: pending,
+        label: pending === 1 ? "review to moderate" : "reviews to moderate",
+        href: "/admin/testimonials",
+      });
+    }
+  }
+
+  if (isModuleEnabled("cart")) {
+    const orders = await getOrders();
+    const pending = orders.filter((o) => o.status === "Pending").length;
+    if (pending > 0) {
+      items.push({
+        count: pending,
+        label: pending === 1 ? "order awaiting confirmation" : "orders awaiting confirmation",
+        href: "/admin/orders",
+      });
+    }
+  }
+
+  if (isModuleEnabled("booking")) {
+    const waitlist = await getWaitlist();
+    if (waitlist.length > 0) {
+      items.push({
+        count: waitlist.length,
+        label: waitlist.length === 1 ? "person on the booking waitlist" : "people on the booking waitlist",
+        href: "/admin/booking-waitlist",
+      });
+    }
+  }
+
+  if (isModuleEnabled("members")) {
+    const [closures, resets] = await Promise.all([
+      getPendingClosureRequests(),
+      getPendingPasswordResets(),
+    ]);
+    if (closures.length > 0) {
+      items.push({
+        count: closures.length,
+        label: closures.length === 1 ? "account closure request" : "account closure requests",
+        href: "/admin/account-closures",
+      });
+    }
+    if (resets.length > 0) {
+      items.push({
+        count: resets.length,
+        label: resets.length === 1 ? "password reset request" : "password reset requests",
+        href: "/admin/member-resets",
+      });
+    }
+  }
+
+  return items;
+}
 
 async function getEnquiryCount() {
   try {
@@ -35,11 +106,12 @@ async function getVisitsThisMonth() {
 }
 
 export default async function AdminPage() {
-  const [session, enquiryCount, dbConnected, visitCount] = await Promise.all([
+  const [session, enquiryCount, dbConnected, visitCount, attentionItems] = await Promise.all([
     getServerSession(authOptions),
     getEnquiryCount(),
     getDbStatus(),
     getVisitsThisMonth(),
+    getAttentionItems(),
   ]);
 
   const loginAt = session?.user?.loginAt ? new Date(session.user.loginAt) : null;
@@ -91,6 +163,30 @@ export default async function AdminPage() {
           </p>
           <p className="mt-1 text-sm text-muted">Database status</p>
         </div>
+      </div>
+
+      <div className="mt-6 rounded-xl border border-border bg-surface p-6 shadow-sm">
+        <h2 className="text-sm font-semibold text-foreground">Needs attention</h2>
+        {attentionItems.length === 0 ? (
+          <p className="mt-2 text-sm text-muted">
+            All caught up — nothing waiting on you right now.
+          </p>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {attentionItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="flex items-center justify-between rounded-lg border border-border px-4 py-2.5 text-sm hover:bg-surface-alt"
+              >
+                <span className="text-foreground">{item.label}</span>
+                <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
+                  {item.count}
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

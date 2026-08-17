@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createMember, updateMember, deleteMember } from "@/lib/members";
+import { createMember, updateMember, deleteMember, updateMemberPassword } from "@/lib/members";
 
 const VALID_STATUSES = ["Active", "Expired", "Suspended"];
 
@@ -43,6 +43,23 @@ export async function updateMemberAction(id, formData) {
 
   revalidatePath("/admin/members");
   redirect("/admin/members");
+}
+
+// Admin-initiated reset — sets the password directly rather than going through the
+// request-a-link flow in lib/members.js's createPasswordResetToken, since the admin is
+// already authenticated and doesn't need to prove they own the member's email.
+export async function setMemberPasswordAction(id, prevState, formData) {
+  const newPassword = formData.get("newPassword")?.toString() || "";
+
+  if (newPassword.length < 8) {
+    return { error: "Password must be at least 8 characters." };
+  }
+
+  await updateMemberPassword(id, newPassword);
+
+  revalidatePath("/admin/members");
+  revalidatePath(`/admin/members/${id}/edit`);
+  return { success: "Password set. Share it with the member securely (not by plain email)." };
 }
 
 export async function deleteMemberAction(formData) {

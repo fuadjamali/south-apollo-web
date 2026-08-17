@@ -11,6 +11,7 @@ const STATUS_STYLE = {
   Active: "text-green-600 dark:text-green-400",
   Expired: "text-yellow-600 dark:text-yellow-400",
   Suspended: "text-red-600 dark:text-red-400",
+  Closed: "text-gray-500 dark:text-gray-400",
 };
 
 export default function MembershipPage() {
@@ -121,6 +122,18 @@ export default function MembershipPage() {
             )}
           </div>
         )}
+
+        <p className="mt-10 text-center text-sm text-muted">
+          Prefer to manage your account online?{" "}
+          <a href="/member/login" className="font-medium text-accent hover:underline">
+            Log in
+          </a>{" "}
+          or{" "}
+          <a href="/member/signup" className="font-medium text-accent hover:underline">
+            create an account
+          </a>
+          .
+        </p>
       </main>
     </div>
   );

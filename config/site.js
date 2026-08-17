@@ -21,18 +21,44 @@ const siteConfig = {
     whatsappMessage: "Hi, I'd like to get in touch",
   },
 
+  // A plain item is { label, href }. A grouped item is { label, children: [...] } and renders
+  // as a dropdown on desktop / an expandable section on mobile — see components/SiteHeader.js.
+  // `cta: true` on a plain item styles it as a highlighted pill instead of a text link.
   nav: [
-    { label: "Products", href: "#products" },
-    { label: "Portfolio", href: "#portfolio" },
-    { label: "Reviews", href: "#reviews" },
-    { label: "About", href: "#about" },
-    { label: "Team", href: "/team" },
-    { label: "Blog", href: "/blog" },
-    { label: "News & Events", href: "/news-events" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "Membership", href: "/membership" },
-    { label: "Enquiry", href: "#enquiry" },
-    { label: "Contact", href: "#contact-info" },
+    {
+      label: "About",
+      children: [
+        { label: "About Us", href: "#about" },
+        { label: "How It Works", href: "#how-it-works" },
+      ],
+    },
+    {
+      label: "Explore",
+      children: [
+        { label: "Products", href: "#products" },
+        { label: "Portfolio", href: "#portfolio" },
+        { label: "Gallery", href: "/gallery" },
+        { label: "Blog", href: "/blog" },
+        { label: "News & Events", href: "/news-events" },
+      ],
+    },
+    {
+      label: "Company",
+      children: [
+        { label: "Team", href: "/team" },
+        { label: "Reviews", href: "#reviews" },
+        { label: "Certifications", href: "#certifications" },
+        { label: "Membership", href: "/membership" },
+      ],
+    },
+    {
+      label: "Contact",
+      children: [
+        { label: "Send an Enquiry", href: "#enquiry" },
+        { label: "Contact Info", href: "#contact-info" },
+      ],
+    },
+    { label: "Book Now", href: "/booking", cta: true },
   ],
 
   hero: {
@@ -70,15 +96,12 @@ const siteConfig = {
     subheading: "A few things we're proud of.",
   },
 
-  // Optional — set to null to remove the section from the home page.
+  // Optional — set to null to remove the section from the home page. The project list itself
+  // lives in Postgres (lib/portfolio.js), editable via /admin/portfolio — this just holds the
+  // section's static heading/subheading, same pattern as gallery/reviews.
   portfolio: {
     heading: "Our Work",
     subheading: "A selection of past projects.",
-    items: [
-      { id: 1, image: "/images/portfolio-1.jpg" },
-      { id: 2, image: "/images/portfolio-2.jpg" },
-      { id: 3, image: "/images/portfolio-3.jpg" },
-    ],
   },
 
   // Optional — set to null to remove the section from the home page and disable /gallery
@@ -98,14 +121,11 @@ const siteConfig = {
     heading: "What people say about us",
   },
 
-  // Optional — set to null to remove the section from the home page.
+  // Optional — set to null to remove the section from the home page. The certification list
+  // itself lives in Postgres (lib/certifications.js), editable via /admin/certifications —
+  // this just holds the section's static heading, same pattern as gallery/reviews.
   certifications: {
     heading: "Certifications",
-    items: [
-      { id: 1, name: "CERTIFICATION_1_NAME" },
-      { id: 2, name: "CERTIFICATION_2_NAME" },
-      { id: 3, name: "CERTIFICATION_3_NAME" },
-    ],
   },
 
   // Optional — set to null to remove the section from the home page and disable /team
@@ -169,7 +189,8 @@ const siteConfig = {
           { label: "Gallery", href: "/admin/gallery" },
           { label: "Blog", href: "/admin/blog" },
           { label: "News & Events", href: "/admin/news-events" },
-          { label: "Reviews", href: "/admin/reviews" },
+          { label: "Reviews (Platforms)", href: "/admin/reviews" },
+          { label: "Reviews (Customer)", href: "/admin/testimonials" },
           { label: "About", href: "/admin/about" },
           { label: "Certifications", href: "/admin/certifications" },
         ],
@@ -180,18 +201,37 @@ const siteConfig = {
           { label: "Team", href: "/admin/team" },
           { label: "Team Members", href: "/admin/team-members" },
           { label: "Members", href: "/admin/members" },
+          { label: "Member Password Resets", href: "/admin/member-resets" },
+          { label: "Account Closure Requests", href: "/admin/account-closures" },
           { label: "Partners", href: "/admin/partners" },
+        ],
+      },
+      {
+        label: "Booking",
+        children: [
+          { label: "Booking Services", href: "/admin/booking-services" },
+          { label: "Availability", href: "/admin/availability" },
+          { label: "Bookings", href: "/admin/bookings" },
+          { label: "Booking Waitlist", href: "/admin/booking-waitlist" },
         ],
       },
       {
         label: "Insights",
         children: [
+          { label: "Orders", href: "/admin/orders" },
+          { label: "Discount Codes", href: "/admin/discount-codes" },
           { label: "Enquiries", href: "/admin/enquiries" },
           { label: "Analytics", href: "/admin/analytics" },
         ],
       },
       { label: "Contact Us", href: "/admin/contact" },
-      { label: "Account", href: "/admin/account" },
+      {
+        label: "Settings",
+        children: [
+          { label: "Account", href: "/admin/account" },
+          { label: "Subscription", href: "/admin/subscription" },
+        ],
+      },
     ],
   },
 

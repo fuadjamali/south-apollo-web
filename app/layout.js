@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import ThemeScript from "@/components/ThemeScript";
+import { CartProvider } from "@/components/CartContext";
 import siteConfig from "@/config/site";
 import "./globals.css";
 
@@ -34,7 +35,9 @@ export default function RootLayout({ children }) {
         <ThemeScript />
       </head>
       <body className="min-h-full flex flex-col">
-        <SessionProviderWrapper>{children}</SessionProviderWrapper>
+        <SessionProviderWrapper>
+          <CartProvider>{children}</CartProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   );

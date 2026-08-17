@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { isAdminPathEnabled, isPublicPathEnabled } from "@/lib/plan";
 
 const PUBLIC_ROUTES = ["/", "/admin/login", "/robots.txt", "/sitemap.xml", "/membership"];
 const PUBLIC_PREFIXES = [
@@ -12,6 +13,16 @@ const PUBLIC_PREFIXES = [
   "/news-events",
   "/gallery",
   "/team",
+  "/cart",
+  "/checkout",
+  "/order-confirmation",
+  "/booking",
+  "/booking-confirmation",
+  "/leave-a-review",
+  // Member auth routes are self-protecting: app/member/(protected)/layout.js does its own
+  // getMemberSession() redirect server-side, so this proxy doesn't need to gate them (member
+  // sessions use a separate signed cookie, not the admin NextAuth token checked below).
+  "/member",
 ];
 
 // Explicit allowlist, not a "/admin" prefix match — a path here means a real
@@ -25,6 +36,10 @@ const PROTECTED_ROUTES = [
   "/admin/contact",
   "/admin/about",
   "/admin/account",
+  "/admin/subscription",
+  "/admin/subscription/compare",
+  "/admin/member-resets",
+  "/admin/account-closures",
 ];
 
 // For admin route trees that legitimately have dynamic children (e.g. /admin/products/[id]/edit),
@@ -41,16 +56,27 @@ const PROTECTED_PREFIXES = [
   "/admin/stats",
   "/admin/how-it-works",
   "/admin/gallery",
+  "/admin/orders",
+  "/admin/portfolio",
+  "/admin/certifications",
+  "/admin/booking-services",
+  "/admin/availability",
+  "/admin/bookings",
+  "/admin/discount-codes",
+  "/admin/testimonials",
+  "/admin/booking-waitlist",
 ];
 
 export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
-  if (PUBLIC_ROUTES.includes(pathname)) {
-    return NextResponse.next();
-  }
-
-  if (PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+  if (PUBLIC_ROUTES.includes(pathname) || PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    // A route can be on the public allowlist and still belong to a module this deployment's
+    // plan doesn't include (e.g. /blog on a Basic-tier site) — treat that the same as an
+    // unrecognized route rather than rendering it.
+    if (!isPublicPathEnabled(pathname)) {
+      return NextResponse.rewrite(new URL("/site-unavailable", request.url), { status: 401 });
+    }
     return NextResponse.next();
   }
 
@@ -58,6 +84,12 @@ export async function proxy(request) {
     PROTECTED_ROUTES.includes(pathname) ||
     PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
   ) {
+    // Same plan check for admin routes — a module outside the plan is unreachable regardless
+    // of auth, not just hidden from the nav.
+    if (!isAdminPathEnabled(pathname)) {
+      return NextResponse.rewrite(new URL("/site-unavailable", request.url), { status: 401 });
+    }
+
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
 
     if (!token) {

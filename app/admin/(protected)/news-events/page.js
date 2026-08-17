@@ -69,9 +69,7 @@ export default async function AdminNewsEventsPage() {
                 </div>
                 <div className="flex gap-2">
                   <a
-                    href={`/news-events/${item.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={`/admin/news-events/${item.id}`}
                     className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt"
                   >
                     View

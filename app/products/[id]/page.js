@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/products";
+import AddToCartButton from "@/components/AddToCartButton";
 import siteConfig from "@/config/site";
+import { isModuleEnabled } from "@/lib/plan";
 
 export const revalidate = 3600;
 
@@ -57,12 +59,16 @@ export default async function ProductDetailPage({ params }) {
               <p className="mt-6 whitespace-pre-line text-muted">{product.description}</p>
             )}
 
-            <a
-              href="/#enquiry"
-              className="mt-8 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
-            >
-              Enquire about this
-            </a>
+            {product.price_amount != null && isModuleEnabled("cart") ? (
+              <AddToCartButton product={product} />
+            ) : (
+              <a
+                href="/#enquiry"
+                className="mt-8 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+              >
+                Enquire about this
+              </a>
+            )}
           </div>
         </div>
       </main>

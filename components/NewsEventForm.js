@@ -1,4 +1,5 @@
 import ImageFileInput from "@/components/ImageFileInput";
+import AIAssistantButton from "@/components/AIAssistantButton";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -61,23 +62,27 @@ export default function NewsEventForm({ action, item, submitLabel }) {
       <div>
         <label className="block text-sm font-medium text-foreground">Summary</label>
         <textarea
+          id="newsevent-summary"
           name="summary"
           rows={2}
           defaultValue={item?.summary}
           placeholder="Short summary shown on the listing page"
           className={fieldClass}
         />
+        <AIAssistantButton targetId="newsevent-summary" fieldLabel="news/event summary" />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-foreground">Description</label>
         <textarea
+          id="newsevent-description"
           name="description"
           rows={6}
           defaultValue={item?.description}
           placeholder="Full details. Leave a blank line between paragraphs."
           className={fieldClass}
         />
+        <AIAssistantButton targetId="newsevent-description" fieldLabel="news/event description" />
       </div>
 
       <ImageFileInput name="imageFile" label="Image" currentImage={item?.image} />

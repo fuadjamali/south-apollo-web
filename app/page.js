@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { IconMapPin, IconPhone, IconMail } from "@tabler/icons-react";
 import SiteHeader from "@/components/SiteHeader";
 import EnquiryForm from "@/components/EnquiryForm";
@@ -14,6 +13,7 @@ import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
 import { getProducts, getProductCategories } from "@/lib/products";
 import { getContactInfo } from "@/lib/contactInfo";
 import { getReviews } from "@/lib/reviews";
+import { getApprovedTestimonials, getTestimonialStats } from "@/lib/testimonials";
 import { getAboutInfo } from "@/lib/aboutInfo";
 import { getRecentPosts } from "@/lib/blog";
 import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
@@ -22,6 +22,9 @@ import { getRecentItems } from "@/lib/newsEvents";
 import { getStats } from "@/lib/stats";
 import { getSteps } from "@/lib/howItWorks";
 import { getRecentPhotos } from "@/lib/gallery";
+import { getPortfolioItems } from "@/lib/portfolio";
+import { getCertifications } from "@/lib/certifications";
+import { getEffectiveSiteConfig, isModuleEnabled, isPublicPathEnabled } from "@/lib/plan";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -47,6 +50,9 @@ export const metadata = {
 };
 
 export default async function Home({ searchParams }) {
+  // Sections belonging to a module outside this deployment's plan are forced to null here,
+  // so every `{section && (...)}` check below "just works" without any further plan checks.
+  const effectiveConfig = getEffectiveSiteConfig(siteConfig);
   const {
     hero,
     stats,
@@ -63,7 +69,21 @@ export default async function Home({ searchParams }) {
     footer,
     business,
     contact,
-  } = siteConfig;
+  } = effectiveConfig;
+
+  const cartEnabled = isModuleEnabled("cart");
+  const membersEnabled = isModuleEnabled("members");
+  const themesEnabled = isModuleEnabled("themes");
+  // Drops any nav item (or child of a group) whose module isn't in this deployment's plan,
+  // and drops a group entirely if every one of its children got filtered out — same pattern
+  // as the admin nav's filterNav in app/admin/(protected)/layout.js.
+  const filteredNav = siteConfig.nav
+    .map((item) => {
+      if (!item.children) return item;
+      const children = item.children.filter((child) => isPublicPathEnabled(child.href));
+      return children.length > 0 ? { ...item, children } : null;
+    })
+    .filter((item) => item && (item.children || isPublicPathEnabled(item.href)));
 
   const params = await searchParams;
   const selectedCategory = params?.category || "";
@@ -73,6 +93,8 @@ export default async function Home({ searchParams }) {
     productCategories,
     contactInfo,
     reviewItems,
+    testimonials,
+    testimonialStats,
     aboutInfo,
     recentPosts,
     teamGroups,
@@ -81,19 +103,25 @@ export default async function Home({ searchParams }) {
     statItems,
     howItWorksSteps,
     recentPhotos,
+    portfolioItems,
+    certificationItems,
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
     getContactInfo(),
     getReviews(),
+    reviews ? getApprovedTestimonials(6) : Promise.resolve([]),
+    reviews ? getTestimonialStats() : Promise.resolve({ count: 0, average: 0 }),
     getAboutInfo(),
-    siteConfig.blog ? getRecentPosts(3) : Promise.resolve([]),
+    effectiveConfig.blog ? getRecentPosts(3) : Promise.resolve([]),
     getActiveTeamsWithMembers(),
     getActivePartners(),
-    siteConfig.newsEvents ? getRecentItems(3) : Promise.resolve([]),
-    siteConfig.stats ? getStats() : Promise.resolve([]),
-    siteConfig.howItWorks ? getSteps() : Promise.resolve([]),
-    siteConfig.gallery ? getRecentPhotos(3) : Promise.resolve([]),
+    effectiveConfig.newsEvents ? getRecentItems(3) : Promise.resolve([]),
+    stats ? getStats() : Promise.resolve([]),
+    howItWorks ? getSteps() : Promise.resolve([]),
+    gallery ? getRecentPhotos(3) : Promise.resolve([]),
+    portfolio ? getPortfolioItems() : Promise.resolve([]),
+    certifications ? getCertifications() : Promise.resolve([]),
   ]);
 
   const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
@@ -108,7 +136,12 @@ export default async function Home({ searchParams }) {
       <VisitTracker />
 
       {/* COMPONENT: header-nav (required) */}
-      <SiteHeader />
+      <SiteHeader
+        nav={filteredNav}
+        cartEnabled={cartEnabled}
+        membersEnabled={membersEnabled}
+        themesEnabled={themesEnabled}
+      />
 
       <main>
       {/* COMPONENT: hero (required) */}
@@ -248,24 +281,35 @@ export default async function Home({ searchParams }) {
         )}
       </section>
 
-      {/* COMPONENT: portfolio (optional) */}
-      {portfolio && (
+      {/* COMPONENT: portfolio (optional — live from Postgres, editable at /admin/portfolio) */}
+      {portfolio && portfolioItems.length > 0 && (
         <section id="portfolio" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-3xl font-bold">{portfolio.heading}</h2>
             <p className="mt-2 text-muted">{portfolio.subheading}</p>
 
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {portfolio.items.map((item) => (
-                <div key={item.id} className="relative aspect-square overflow-hidden rounded-xl bg-gray-200 dark:bg-gray-800">
-                  <Image
-                    src={item.image}
-                    alt={`Portfolio project ${item.id}`}
-                    fill
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
+              {portfolioItems.map((item) => (
+                <figure
+                  key={item.id}
+                  className="overflow-hidden rounded-xl border border-border shadow-sm"
+                >
+                  <div className="relative aspect-square overflow-hidden bg-gray-200 dark:bg-gray-800">
+                    {/* Admin-editable image source (Blob URL or local path) — plain <img>
+                        avoids next/image's hostname allowlist. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.image}
+                      alt={item.name || ""}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  {item.name && (
+                    <figcaption className="p-3 text-sm font-medium text-foreground">
+                      {item.name}
+                    </figcaption>
+                  )}
+                </figure>
               ))}
             </div>
           </div>
@@ -341,12 +385,49 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
+      {/* COMPONENT: testimonials (optional — customer-submitted, admin-moderated; shown
+          alongside third-party ratings when Reviews is enabled) */}
+      {reviews && (
+        <section className="mx-auto max-w-6xl px-6 pb-20">
+          {testimonialStats.count > 0 && (
+            <p className="mb-6 text-center text-sm text-muted">
+              <span className="font-semibold text-foreground">
+                {testimonialStats.average.toFixed(1)} / 5
+              </span>{" "}
+              average from {testimonialStats.count} customer review
+              {testimonialStats.count === 1 ? "" : "s"}
+            </p>
+          )}
+          {testimonials.length > 0 && (
+            <div className="grid gap-6 sm:grid-cols-3">
+              {testimonials.map((t) => (
+                <div key={t.id} className="rounded-xl border border-border p-6">
+                  <p className="text-yellow-500" aria-label={`${t.rating} out of 5 stars`}>
+                    {"★".repeat(t.rating)}
+                    <span className="text-gray-300 dark:text-gray-600">
+                      {"★".repeat(5 - t.rating)}
+                    </span>
+                  </p>
+                  <p className="mt-3 text-sm text-foreground">&ldquo;{t.body}&rdquo;</p>
+                  <p className="mt-4 text-sm font-semibold text-muted">— {t.author_name}</p>
+                </div>
+              ))}
+            </div>
+          )}
+          <p className="mt-8 text-center">
+            <a href="/leave-a-review" className="text-sm font-medium text-accent hover:underline">
+              Leave us a review &rarr;
+            </a>
+          </p>
+        </section>
+      )}
+
       {/* COMPONENT: recent-posts (optional — latest 3 blog posts, only shown if Blog is enabled) */}
-      {siteConfig.blog && recentPosts.length > 0 && (
+      {effectiveConfig.blog && recentPosts.length > 0 && (
         <section id="recent-posts" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-6xl px-6">
-            <h2 className="text-3xl font-bold">{siteConfig.blog.heading}</h2>
-            <p className="mt-2 text-muted">{siteConfig.blog.subheading}</p>
+            <h2 className="text-3xl font-bold">{effectiveConfig.blog.heading}</h2>
+            <p className="mt-2 text-muted">{effectiveConfig.blog.subheading}</p>
 
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
               {recentPosts.map((post) => (
@@ -394,11 +475,11 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: news-events (optional — latest 3 news/event items, live from Postgres,
           editable at /admin/news-events) */}
-      {siteConfig.newsEvents && recentNewsEvents.length > 0 && (
+      {effectiveConfig.newsEvents && recentNewsEvents.length > 0 && (
         <section id="news-events" className="py-20">
           <div className="mx-auto max-w-6xl px-6">
-            <h2 className="text-3xl font-bold">{siteConfig.newsEvents.heading}</h2>
-            <p className="mt-2 text-muted">{siteConfig.newsEvents.subheading}</p>
+            <h2 className="text-3xl font-bold">{effectiveConfig.newsEvents.heading}</h2>
+            <p className="mt-2 text-muted">{effectiveConfig.newsEvents.subheading}</p>
 
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
               {recentNewsEvents.map((item) => (
@@ -512,19 +593,31 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: certifications (optional) */}
-      {certifications && (
-        <section className="bg-surface-alt py-16">
+      {/* COMPONENT: certifications (optional — live from Postgres, editable at
+          /admin/certifications) */}
+      {certifications && certificationItems.length > 0 && (
+        <section id="certifications" className="bg-surface-alt py-16">
           <div className="mx-auto max-w-6xl px-6 text-center">
             <p className="text-sm font-medium text-muted">{certifications.heading}</p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-10">
-              {certifications.items.map((cert) => (
-                <div
-                  key={cert.id}
-                  className="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-800"
-                  title={cert.name}
-                />
-              ))}
+              {certificationItems.map((cert) =>
+                cert.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={cert.id}
+                    src={cert.image}
+                    alt={cert.name}
+                    title={cert.name}
+                    className="h-16 w-16 rounded-full border border-border object-contain p-1"
+                  />
+                ) : (
+                  <div
+                    key={cert.id}
+                    className="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-800"
+                    title={cert.name}
+                  />
+                )
+              )}
             </div>
           </div>
         </section>

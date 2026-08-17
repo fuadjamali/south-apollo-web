@@ -1,15 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { IconMenu2 } from "@tabler/icons-react";
+import { IconChevronDown, IconMenu2, IconUserCircle } from "@tabler/icons-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
+import CartIcon from "@/components/CartIcon";
+import SiteNavDropdown from "@/components/SiteNavDropdown";
 import siteConfig from "@/config/site";
 
-export default function SiteHeader() {
+export default function SiteHeader({
+  nav,
+  cartEnabled = true,
+  membersEnabled = true,
+  themesEnabled = true,
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { business, nav } = siteConfig;
+  const [mobileGroupOpen, setMobileGroupOpen] = useState(null);
+  const { business } = siteConfig;
+  const navItems = nav || siteConfig.nav;
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
@@ -23,21 +32,39 @@ export default function SiteHeader() {
           {business.name}
         </button>
 
-        <div className="hidden gap-6 text-sm font-medium lg:flex">
-          {nav.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="whitespace-nowrap hover:text-muted"
-            >
-              {item.label}
-            </a>
-          ))}
+        <div className="hidden items-center gap-6 text-sm font-medium lg:flex">
+          {navItems.map((item) =>
+            item.children ? (
+              <SiteNavDropdown key={item.label} label={item.label} items={item.children} />
+            ) : item.cta ? (
+              <a
+                key={item.href}
+                href={item.href}
+                className="whitespace-nowrap rounded-full bg-primary px-4 py-1.5 text-primary-foreground hover:bg-primary-hover"
+              >
+                {item.label}
+              </a>
+            ) : (
+              <a key={item.href} href={item.href} className="whitespace-nowrap hover:text-accent">
+                {item.label}
+              </a>
+            )
+          )}
         </div>
 
         <div className="flex items-center gap-3">
-          <ColorThemeSwitcher className="hidden sm:inline-block" />
+          {cartEnabled && <CartIcon />}
+          {themesEnabled && <ColorThemeSwitcher className="hidden sm:inline-block" />}
           <ThemeToggle className="hidden sm:inline-block" />
+          {membersEnabled && (
+            <a
+              href="/member/login"
+              className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-alt lg:inline-flex"
+            >
+              <IconUserCircle size={16} />
+              Member Login
+            </a>
+          )}
           <a
             href="#contact"
             className="hidden whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover lg:inline-block"
@@ -58,18 +85,66 @@ export default function SiteHeader() {
       {menuOpen && (
         <div className="border-t border-border lg:hidden">
           <div className="flex flex-col gap-1 px-6 py-4 text-sm font-medium">
-            {nav.map((item) => (
+            {navItems.map((item) =>
+              item.children ? (
+                <div key={item.label}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setMobileGroupOpen((current) => (current === item.label ? null : item.label))
+                    }
+                    aria-expanded={mobileGroupOpen === item.label}
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left hover:bg-surface-alt"
+                  >
+                    {item.label}
+                    <IconChevronDown
+                      size={16}
+                      className={`transition-transform ${mobileGroupOpen === item.label ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {mobileGroupOpen === item.label && (
+                    <div className="ml-3 flex flex-col gap-1 border-l border-border pl-3">
+                      {item.children.map((child) => (
+                        <a
+                          key={child.href}
+                          href={child.href}
+                          onClick={() => setMenuOpen(false)}
+                          className="rounded-lg px-3 py-2 text-muted hover:bg-surface-alt hover:text-foreground"
+                        >
+                          {child.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={
+                    item.cta
+                      ? "mt-2 rounded-lg bg-primary px-3 py-2 text-center font-semibold text-primary-foreground hover:bg-primary-hover"
+                      : "rounded-lg px-3 py-2 hover:bg-surface-alt"
+                  }
+                >
+                  {item.label}
+                </a>
+              )
+            )}
+            {membersEnabled && (
               <a
-                key={item.href}
-                href={item.href}
+                href="/member/login"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-lg px-3 py-2 hover:bg-surface-alt"
+                className="mt-2 flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 font-medium hover:bg-surface-alt"
               >
-                {item.label}
+                <IconUserCircle size={16} />
+                Member Login
               </a>
-            ))}
+            )}
+
             <div className="mt-2 flex items-center gap-2 sm:hidden">
-              <ColorThemeSwitcher />
+              {themesEnabled && <ColorThemeSwitcher />}
               <ThemeToggle />
             </div>
           </div>

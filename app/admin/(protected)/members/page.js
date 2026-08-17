@@ -8,6 +8,7 @@ const STATUS_BADGE = {
   Active: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400",
   Expired: "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300",
   Suspended: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400",
+  Closed: "bg-gray-300 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
 };
 
 export default async function AdminMembersPage() {
@@ -20,11 +21,15 @@ export default async function AdminMembersPage() {
           <div>
             <h1 className="text-xl font-bold text-foreground">Members</h1>
             <p className="mt-1 text-sm text-muted">
-              Visitors can check their own status at{" "}
+              Members can check their status at{" "}
               <a href="/membership" className="underline">
                 /membership
+              </a>
+              , or sign in at{" "}
+              <a href="/member/login" className="underline">
+                /member/login
               </a>{" "}
-              using their last name and postcode.
+              once they&apos;ve set a password.
             </p>
           </div>
           <a
@@ -52,6 +57,11 @@ export default async function AdminMembersPage() {
                     >
                       {member.membership_status}
                     </span>
+                    {member.password_hash && (
+                      <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">
+                        Login active
+                      </span>
+                    )}
                   </p>
                   <p className="text-sm text-muted">
                     {member.member_id}
@@ -59,6 +69,12 @@ export default async function AdminMembersPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
+                  <a
+                    href={`/admin/members/${member.id}`}
+                    className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt"
+                  >
+                    View
+                  </a>
                   <a
                     href={`/admin/members/${member.id}/edit`}
                     className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt"

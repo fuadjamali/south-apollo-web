@@ -53,9 +53,7 @@ export default async function AdminBlogPage() {
                 </div>
                 <div className="flex gap-2">
                   <a
-                    href={`/blog/${post.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={`/admin/blog/${post.id}`}
                     className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt"
                   >
                     View

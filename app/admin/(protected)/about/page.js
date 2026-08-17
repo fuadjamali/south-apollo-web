@@ -1,5 +1,7 @@
 import { getAboutInfo } from "@/lib/aboutInfo";
 import { updateAboutInfoAction } from "./actions";
+import { isModuleEnabled } from "@/lib/plan";
+import AIAssistantButton from "@/components/AIAssistantButton";
 
 export const dynamic = "force-dynamic";
 
@@ -31,11 +33,15 @@ export default async function AdminAboutPage() {
           <div>
             <label className="block text-sm font-medium text-foreground">Body</label>
             <textarea
+              id="about-body"
               name="body"
               rows={6}
               defaultValue={about.body}
               className={fieldClass}
             />
+            {isModuleEnabled("ai") && (
+              <AIAssistantButton targetId="about-body" fieldLabel="About Us body text" />
+            )}
           </div>
 
           <button
