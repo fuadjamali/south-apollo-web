@@ -116,7 +116,8 @@ const siteConfig = {
   // every client deployment.
   plans: {
     heading: "Plans that grow with you",
-    subheading: "Start on Basic, upgrade to Plus or Premium whenever you're ready — no rebuild.",
+    subheading:
+      "Founding client pricing for our first clients — locked in for as long as you stay with us. Start on Basic, upgrade to Plus or Premium whenever you're ready — no rebuild.",
   },
 
   // Optional — set to null to remove the section from the home page. The project list itself
@@ -254,6 +255,7 @@ const siteConfig = {
           { label: "Account", href: "/admin/account" },
           { label: "Subscription", href: "/admin/subscription" },
           { label: "AI Assistant", href: "/admin/ai-settings" },
+          { label: "Feature Config", href: "/admin/features" },
         ],
       },
     ],

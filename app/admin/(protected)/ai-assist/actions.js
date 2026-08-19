@@ -7,7 +7,7 @@ import siteConfig from "@/config/site";
 export async function generateAIContentAction(prevState, formData) {
   // Server-side check regardless of whether the calling form already hides the button for
   // this deployment's plan — the same defense-in-depth reasoning as every other gated action.
-  if (!isModuleEnabled("ai")) {
+  if (!(await isModuleEnabled("ai"))) {
     return { error: "The AI content assistant isn't included in this site's plan." };
   }
 

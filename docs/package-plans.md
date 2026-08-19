@@ -6,14 +6,40 @@ locked, not just a sales description.
 
 ## At a glance
 
+### Founding Client pricing (first ~10-15 clients)
+
+Flat rates, not ranges — a deliberate launch discount to remove hesitation while there's no
+track record yet. Locked for every client who signs at this rate for as long as they stay a
+customer, even after the founding cohort is full and new clients move to Standard pricing below.
+This is the price shown on the live site's Plans section right now (`lib/planFeatures.js`).
+
 | | **Basic** | **Plus** | **Premium** |
 |---|:---:|:---:|:---:|
 | Positioning | Brochure site | Content, credibility & booking | Commerce & accounts |
-| Setup fee | £270–£315 | £450–£540 | £675–£810 |
-| Monthly | £17–£23 | £32–£41 | £50–£68 |
+| Setup fee | £250 | £400 | £750 |
+| Monthly | £15 | £30 | £50 |
+| Annual (pay upfront, 3 months free) | £135/yr | £270/yr | £450/yr |
 
-Ranges, not fixed prices — land nearer the top for clients wanting a lot of initial content
-migrated/written for them, nearer the bottom for a lighter, mostly-self-serve setup.
+### Standard pricing (switch new clients to this once the founding cohort is full)
+
+| | **Basic** | **Plus** | **Premium** |
+|---|:---:|:---:|:---:|
+| Setup fee | £325 | £550 | £900 |
+| Monthly | £22 | £40 | £65 |
+
+To switch: update the flat prices in `lib/planFeatures.js`'s `TIERS` array. Existing founding
+clients keep their locked rate — only new signups move to Standard.
+
+## Deal terms
+
+- **Deposit**: 50% on signing, 50% on go-live.
+- **Minimum term**: 3 months, then 30 days' notice to cancel. Deliberately short — a long
+  tie-in undermines the "low risk, try us" pitch the founding rate is meant to create.
+- **Payment**: Direct Debit (GoCardless) for the monthly fee once past a couple of manually
+  invoiced clients — chasing payments by hand doesn't scale past a handful of customers.
+- **VAT**: not currently charged (below the UK VAT registration threshold). Revisit whether
+  quotes need to say "+VAT" once registered — decide before it affects an existing contract,
+  not after.
 
 ## Feature comparison
 

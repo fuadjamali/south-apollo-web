@@ -29,11 +29,12 @@ export default function AdminHeader({ nav, themesEnabled = true, plan = "premium
         <span className="flex shrink-0 items-center gap-2 whitespace-nowrap text-lg font-bold text-foreground">
           <Logo className="h-6 w-6" />
           {business.name} <span className="font-normal text-muted">Admin</span>
-          <span
-            className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${PLAN_BADGE[plan] || PLAN_BADGE.premium}`}
+          <a
+            href="/admin/subscription"
+            className={`rounded-full px-2.5 py-0.5 text-xs font-semibold hover:opacity-80 ${PLAN_BADGE[plan] || PLAN_BADGE.premium}`}
           >
             {planLabel} plan
-          </span>
+          </a>
         </span>
 
         {/* Desktop controls — squeezed at narrower widths (same overflow risk the public

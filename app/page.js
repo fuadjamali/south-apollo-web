@@ -24,7 +24,7 @@ import { getSteps } from "@/lib/howItWorks";
 import { getRecentPhotos } from "@/lib/gallery";
 import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
-import { getEffectiveSiteConfig, isModuleEnabled, isPublicPathEnabled } from "@/lib/plan";
+import { getModuleStates, getEffectiveSiteConfig, isEnabled, isPublicPathEnabled } from "@/lib/plan";
 import { TIERS } from "@/lib/planFeatures";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
@@ -51,9 +51,15 @@ export const metadata = {
 };
 
 export default async function Home({ searchParams }) {
-  // Sections belonging to a module outside this deployment's plan are forced to null here,
-  // so every `{section && (...)}` check below "just works" without any further plan checks.
-  const effectiveConfig = getEffectiveSiteConfig(siteConfig);
+  // Sections belonging to a module outside this deployment's plan (or switched off via Feature
+  // Config) are forced to null here, so every `{section && (...)}` check below "just works"
+  // without any further plan checks.
+  // contactInfo is fetched here (not in the big Promise.all below, where it used to live)
+  // because filteredNav needs its `enabled` flag — that section's on/off state lives on the
+  // contact_info row itself (lib/contactInfo.js), not in module_settings like every other
+  // Feature Config toggle, so it can't go through moduleStates/isPublicPathEnabled.
+  const [moduleStates, contactInfo] = await Promise.all([getModuleStates(), getContactInfo()]);
+  const effectiveConfig = getEffectiveSiteConfig(siteConfig, moduleStates);
   const {
     hero,
     stats,
@@ -73,19 +79,22 @@ export default async function Home({ searchParams }) {
     contact,
   } = effectiveConfig;
 
-  const cartEnabled = isModuleEnabled("cart");
-  const membersEnabled = isModuleEnabled("members");
-  const themesEnabled = isModuleEnabled("themes");
+  const cartEnabled = isEnabled("cart", moduleStates);
+  const membersEnabled = isEnabled("members", moduleStates);
+  const themesEnabled = isEnabled("themes", moduleStates);
+  const footerEnabled = isEnabled("footer", moduleStates);
   // Drops any nav item (or child of a group) whose module isn't in this deployment's plan,
   // and drops a group entirely if every one of its children got filtered out — same pattern
   // as the admin nav's filterNav in app/admin/(protected)/layout.js.
+  const isNavHrefEnabled = (href) =>
+    href === "#contact-info" ? contactInfo.enabled : isPublicPathEnabled(href, moduleStates);
   const filteredNav = siteConfig.nav
     .map((item) => {
       if (!item.children) return item;
-      const children = item.children.filter((child) => isPublicPathEnabled(child.href));
+      const children = item.children.filter((child) => isNavHrefEnabled(child.href));
       return children.length > 0 ? { ...item, children } : null;
     })
-    .filter((item) => item && (item.children || isPublicPathEnabled(item.href)));
+    .filter((item) => item && (item.children || isNavHrefEnabled(item.href)));
 
   const params = await searchParams;
   const selectedCategory = params?.category || "";
@@ -93,7 +102,6 @@ export default async function Home({ searchParams }) {
   const [
     productItems,
     productCategories,
-    contactInfo,
     reviewItems,
     testimonials,
     testimonialStats,
@@ -110,7 +118,6 @@ export default async function Home({ searchParams }) {
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
-    getContactInfo(),
     getReviews(),
     reviews ? getApprovedTestimonials(6) : Promise.resolve([]),
     reviews ? getTestimonialStats() : Promise.resolve({ count: 0, average: 0 }),
@@ -126,7 +133,7 @@ export default async function Home({ searchParams }) {
     certifications ? getCertifications() : Promise.resolve([]),
   ]);
 
-  const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer.whatsappMessage || contact.whatsappMessage)}`;
+  const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer?.whatsappMessage || contact.whatsappMessage)}`;
   const jsonLd = buildLocalBusinessJsonLd(siteConfig);
 
   return (
@@ -143,10 +150,12 @@ export default async function Home({ searchParams }) {
         cartEnabled={cartEnabled}
         membersEnabled={membersEnabled}
         themesEnabled={themesEnabled}
+        footerEnabled={footerEnabled}
       />
 
       <main>
-      {/* COMPONENT: hero (required) */}
+      {/* COMPONENT: hero (optional — toggled from Settings → Feature Config) */}
+      {hero && (
       <section className="relative isolate overflow-hidden">
         {hero.backgroundImage && (
           // No z-index here, deliberately — `isolate` on the section already gives this
@@ -210,6 +219,7 @@ export default async function Home({ searchParams }) {
           </div>
         </div>
       </section>
+      )}
 
       {/* COMPONENT: stats (optional — live from Postgres, editable at /admin/stats) */}
       {stats && statItems.length > 0 && (
@@ -277,7 +287,9 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: products (core — live from Postgres, editable at /admin/products) */}
+      {/* COMPONENT: products (optional — toggled from Settings → Feature Config; content
+          itself lives in Postgres, editable at /admin/products) */}
+      {products && (
       <section id="products" className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="text-3xl font-bold">{products.heading}</h2>
         <p className="mt-2 text-muted">{products.subheading}</p>
@@ -323,6 +335,7 @@ export default async function Home({ searchParams }) {
           </div>
         )}
       </section>
+      )}
 
       {/* COMPONENT: plans (optional — static, not admin-editable. Only meaningful for Falcon
           Web Suite's own marketing site; a deployed client site has no reason to show its own
@@ -378,7 +391,7 @@ export default async function Home({ searchParams }) {
                   </ul>
 
                   <a
-                    href="#enquiry"
+                    href={enquiryForm ? "#enquiry" : contactInfo.enabled ? "#contact-info" : "#plans"}
                     className={`mt-8 block rounded-full py-3 text-center text-sm font-semibold ${
                       tier.popular
                         ? "bg-primary text-primary-foreground hover:bg-primary-hover"
@@ -658,11 +671,16 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: about (core — live from Postgres, editable at /admin/about) */}
+      {/* COMPONENT: about (optional — toggled from Settings → Feature Config; content itself
+          lives in Postgres, editable at /admin/about). No config/site.js key for this one, so
+          it's gated directly against moduleStates instead of going through
+          getEffectiveSiteConfig like the other Core sections. */}
+      {isEnabled("about", moduleStates) && (
       <section id="about" className="mx-auto max-w-4xl px-6 py-20 text-center">
         <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
         <p className="mt-4 text-muted">{aboutInfo.body}</p>
       </section>
+      )}
 
       {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and
           /admin/team-members; only active members from teams/members with "Show on home"
@@ -814,10 +832,13 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: contact-footer (required). min-h + flex centering ensures this last
-          section has enough room below it to scroll fully under the sticky header when
-          jumped to via #contact — otherwise, being the final element on the page, the
-          browser can't scroll far enough and the Enquiry section above it stays in view. */}
+      {/* COMPONENT: contact-footer (optional — toggled from Settings → Feature Config; carries
+          the closing WhatsApp CTA, social links, and copyright line, so switching it off removes
+          all three, not just this section's heading/subheading text). min-h + flex centering
+          ensures this last section has enough room below it to scroll fully under the sticky
+          header when jumped to via #contact — otherwise, being the final element on the page,
+          the browser can't scroll far enough and the Enquiry section above it stays in view. */}
+      {footer && (
       <footer
         id="contact"
         className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center bg-gray-900 dark:bg-black py-16 text-center text-white"
@@ -840,6 +861,7 @@ export default async function Home({ searchParams }) {
           <Logo className="h-4 w-4" />© {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
       </footer>
+      )}
       </main>
 
       {/* COMPONENT: floating-whatsapp-button (optional) */}

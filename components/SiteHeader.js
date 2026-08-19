@@ -14,6 +14,7 @@ export default function SiteHeader({
   cartEnabled = true,
   membersEnabled = true,
   themesEnabled = true,
+  footerEnabled = true,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileGroupOpen, setMobileGroupOpen] = useState(null);
@@ -73,12 +74,14 @@ export default function SiteHeader({
               Member Login
             </a>
           )}
-          <a
-            href="#contact"
-            className="hidden whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover lg:inline-block"
-          >
-            Get in touch
-          </a>
+          {footerEnabled && (
+            <a
+              href="#contact"
+              className="hidden whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover lg:inline-block"
+            >
+              Get in touch
+            </a>
+          )}
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}

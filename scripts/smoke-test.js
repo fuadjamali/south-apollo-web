@@ -34,8 +34,13 @@ function moduleEnabled(moduleName) {
   return (TIER_MODULES[TEST_PLAN] ?? TIER_MODULES.premium).includes(moduleName);
 }
 
-// path -> module it belongs to. Routes not listed here are always-on (core: home, products,
-// portfolio, enquiry, about, stats, how-it-works, contact, admin login/dashboard/account).
+// path -> module it belongs to. Routes not listed here are always reachable regardless of tier
+// (home, enquiry, contact, admin login/dashboard/account/contact/enquiries/analytics). Products,
+// Portfolio, Stats, How It Works, and About are also tier-unrestricted (present on every plan,
+// including Basic — see CORE_MODULES in lib/plan.js) but individually switchable from Settings
+// → Feature Config; that's a database-backed override this static script can't see, so those
+// five are covered under CORE_ADMIN_ROUTES below instead — checking only their default-enabled
+// state, not the toggle itself.
 const GATED_ROUTES = {
   "/blog": "blog",
   "/gallery": "gallery",
@@ -70,7 +75,15 @@ const GATED_ROUTES = {
 };
 
 const CORE_PUBLIC_ROUTES = ["/", "/products/1", "/admin/login"];
-const CORE_ADMIN_ROUTES = ["/admin", "/admin/products", "/admin/portfolio"];
+const CORE_ADMIN_ROUTES = [
+  "/admin",
+  "/admin/products",
+  "/admin/portfolio",
+  "/admin/stats",
+  "/admin/how-it-works",
+  "/admin/about",
+  "/admin/subscription",
+];
 const UNKNOWN_ROUTES_EXPECT_401 = ["/this-route-does-not-exist", "/foo/bar/baz"];
 
 let pass = 0;

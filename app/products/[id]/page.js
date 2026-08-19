@@ -15,7 +15,7 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;
-  const product = await getProduct(id);
+  const [product, cartEnabled] = await Promise.all([getProduct(id), isModuleEnabled("cart")]);
 
   if (!product) {
     notFound();
@@ -59,7 +59,7 @@ export default async function ProductDetailPage({ params }) {
               <p className="mt-6 whitespace-pre-line text-muted">{product.description}</p>
             )}
 
-            {product.price_amount != null && isModuleEnabled("cart") ? (
+            {product.price_amount != null && cartEnabled ? (
               <AddToCartButton product={product} />
             ) : (
               <a

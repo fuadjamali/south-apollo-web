@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/lib/db";
 import siteConfig from "@/config/site";
-import { isModuleEnabled } from "@/lib/plan";
+import { getModuleStates, isEnabled } from "@/lib/plan";
 import { getTestimonials } from "@/lib/testimonials";
 import { getOrders } from "@/lib/orders";
 import { getPendingClosureRequests, getPendingPasswordResets } from "@/lib/members";
@@ -16,8 +16,9 @@ export const dynamic = "force-dynamic";
 // just be noise for a feature this client doesn't have.
 async function getAttentionItems() {
   const items = [];
+  const moduleStates = await getModuleStates();
 
-  if (isModuleEnabled("reviews")) {
+  if (isEnabled("reviews", moduleStates)) {
     const testimonials = await getTestimonials();
     const pending = testimonials.filter((t) => t.status === "Pending").length;
     if (pending > 0) {
@@ -29,7 +30,7 @@ async function getAttentionItems() {
     }
   }
 
-  if (isModuleEnabled("cart")) {
+  if (isEnabled("cart", moduleStates)) {
     const orders = await getOrders();
     const pending = orders.filter((o) => o.status === "Pending").length;
     if (pending > 0) {
@@ -41,7 +42,7 @@ async function getAttentionItems() {
     }
   }
 
-  if (isModuleEnabled("booking")) {
+  if (isEnabled("booking", moduleStates)) {
     const waitlist = await getWaitlist();
     if (waitlist.length > 0) {
       items.push({
@@ -52,7 +53,7 @@ async function getAttentionItems() {
     }
   }
 
-  if (isModuleEnabled("members")) {
+  if (isEnabled("members", moduleStates)) {
     const [closures, resets] = await Promise.all([
       getPendingClosureRequests(),
       getPendingPasswordResets(),

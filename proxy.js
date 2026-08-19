@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { isAdminPathEnabled, isPublicPathEnabled } from "@/lib/plan";
+import { getModuleStates, isAdminPathEnabled, isPublicPathEnabled } from "@/lib/plan";
 
 const PUBLIC_ROUTES = [
   "/",
@@ -46,6 +46,7 @@ const PROTECTED_ROUTES = [
   "/admin/subscription",
   "/admin/subscription/compare",
   "/admin/ai-settings",
+  "/admin/features",
   "/admin/member-resets",
   "/admin/account-closures",
 ];
@@ -80,9 +81,11 @@ export async function proxy(request) {
 
   if (PUBLIC_ROUTES.includes(pathname) || PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
     // A route can be on the public allowlist and still belong to a module this deployment's
-    // plan doesn't include (e.g. /blog on a Basic-tier site) — treat that the same as an
-    // unrecognized route rather than rendering it.
-    if (!isPublicPathEnabled(pathname)) {
+    // plan doesn't include (e.g. /blog on a Basic-tier site), or a module the admin has
+    // switched off via Feature Config — treat either the same as an unrecognized route rather
+    // than rendering it.
+    const states = await getModuleStates();
+    if (!isPublicPathEnabled(pathname, states)) {
       return NextResponse.rewrite(new URL("/site-unavailable", request.url), { status: 401 });
     }
     return NextResponse.next();
@@ -92,9 +95,10 @@ export async function proxy(request) {
     PROTECTED_ROUTES.includes(pathname) ||
     PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
   ) {
-    // Same plan check for admin routes — a module outside the plan is unreachable regardless
-    // of auth, not just hidden from the nav.
-    if (!isAdminPathEnabled(pathname)) {
+    // Same plan check for admin routes — a module outside the plan (or switched off via
+    // Feature Config) is unreachable regardless of auth, not just hidden from the nav.
+    const states = await getModuleStates();
+    if (!isAdminPathEnabled(pathname, states)) {
       return NextResponse.rewrite(new URL("/site-unavailable", request.url), { status: 401 });
     }
 
