@@ -9,6 +9,8 @@ const PUBLIC_ROUTES = [
   "/sitemap.xml",
   "/membership",
   "/compare-plans",
+  "/privacy-policy",
+  "/terms-of-service",
 ];
 const PUBLIC_PREFIXES = [
   "/api/auth",
@@ -38,9 +40,20 @@ const PUBLIC_PREFIXES = [
 // (401 Site Unavailable) rather than silently 404ing via Next's default page.
 const PROTECTED_ROUTES = [
   "/admin",
+  "/admin/hero",
+  "/admin/section-text",
+  "/admin/nav",
+  "/admin/site-text",
+  "/admin/root-alert",
+  "/admin/admin-text",
+  "/admin/admin-nav",
   "/admin/enquiries",
   "/admin/analytics",
   "/admin/contact",
+  "/admin/social",
+  "/admin/business",
+  "/admin/logo",
+  "/admin/legal",
   "/admin/about",
   "/admin/account",
   "/admin/subscription",

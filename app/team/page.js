@@ -1,26 +1,19 @@
 import { getAllTeamsWithActiveMembers } from "@/lib/teamMembers";
-import siteConfig from "@/config/site";
+import { getSectionHeadings } from "@/lib/sectionHeadings";
 
 export const revalidate = 3600;
 
-export const metadata = {
-  title: "Team",
-  description: siteConfig.team?.subheading,
-};
+export async function generateMetadata() {
+  const headings = await getSectionHeadings();
+  return { title: "Team", description: headings.team.subheading };
+}
 
 export default async function TeamPage() {
-  const { team } = siteConfig;
-
-  if (!team) {
-    return (
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">Team</h1>
-        <p className="mt-2 text-muted">Nothing here yet.</p>
-      </div>
-    );
-  }
-
-  const teamGroups = await getAllTeamsWithActiveMembers();
+  const [headings, teamGroups] = await Promise.all([
+    getSectionHeadings(),
+    getAllTeamsWithActiveMembers(),
+  ]);
+  const { team } = headings;
 
   return (
     <div>

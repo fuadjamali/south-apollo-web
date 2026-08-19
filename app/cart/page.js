@@ -3,10 +3,11 @@
 import Logo from "@/components/Logo";
 import { useCart } from "@/components/CartContext";
 import { formatCurrency } from "@/lib/currency";
-import siteConfig from "@/config/site";
+import { useBusinessName } from "@/components/BusinessNameContext";
 
 export default function CartPage() {
   const { items, hydrated, updateQuantity, removeItem, subtotal } = useCart();
+  const businessName = useBusinessName();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -14,7 +15,7 @@ export default function CartPage() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <a href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-bold">
             <Logo className="h-7 w-7" />
-            {siteConfig.business.name}
+            {businessName}
           </a>
           <a href="/" className="text-sm font-medium hover:text-muted">
             &larr; Continue shopping

@@ -74,15 +74,32 @@ const GATED_ROUTES = {
   "/admin/testimonials": "reviews",
 };
 
-const CORE_PUBLIC_ROUTES = ["/", "/products/1", "/admin/login"];
+const CORE_PUBLIC_ROUTES = [
+  "/",
+  "/products/1",
+  "/admin/login",
+  "/privacy-policy",
+  "/terms-of-service",
+];
 const CORE_ADMIN_ROUTES = [
   "/admin",
+  "/admin/hero",
+  "/admin/section-text",
+  "/admin/nav",
+  "/admin/site-text",
+  "/admin/root-alert",
+  "/admin/admin-text",
+  "/admin/admin-nav",
   "/admin/products",
   "/admin/portfolio",
   "/admin/stats",
   "/admin/how-it-works",
   "/admin/about",
   "/admin/subscription",
+  "/admin/social",
+  "/admin/business",
+  "/admin/logo",
+  "/admin/legal",
 ];
 const UNKNOWN_ROUTES_EXPECT_401 = ["/this-route-does-not-exist", "/foo/bar/baz"];
 

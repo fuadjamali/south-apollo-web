@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/products";
 import AddToCartButton from "@/components/AddToCartButton";
-import siteConfig from "@/config/site";
 import { isModuleEnabled } from "@/lib/plan";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
 export const revalidate = 3600;
 
@@ -15,7 +15,11 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;
-  const [product, cartEnabled] = await Promise.all([getProduct(id), isModuleEnabled("cart")]);
+  const [product, cartEnabled, business] = await Promise.all([
+    getProduct(id),
+    isModuleEnabled("cart"),
+    getBusinessInfo(),
+  ]);
 
   if (!product) {
     notFound();
@@ -26,7 +30,7 @@ export default async function ProductDetailPage({ params }) {
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <a href="/" className="text-sm font-medium hover:text-muted">
-            &larr; Back to {siteConfig.business.name}
+            &larr; Back to {business.name}
           </a>
           {product.category && (
             <span className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted">

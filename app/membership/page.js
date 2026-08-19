@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Logo from "@/components/Logo";
-import siteConfig from "@/config/site";
+import { useBusinessName } from "@/components/BusinessNameContext";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -15,6 +15,7 @@ const STATUS_STYLE = {
 };
 
 export default function MembershipPage() {
+  const businessName = useBusinessName();
   const [lastName, setLastName] = useState("");
   const [postcode, setPostcode] = useState("");
   const [result, setResult] = useState(null);
@@ -54,7 +55,7 @@ export default function MembershipPage() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <a href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-bold">
             <Logo className="h-7 w-7" />
-            {siteConfig.business.name}
+            {businessName}
           </a>
           <a href="/" className="text-sm font-medium hover:text-muted">
             &larr; Back to home

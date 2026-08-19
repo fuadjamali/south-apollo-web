@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/lib/db";
-import siteConfig from "@/config/site";
+import { getAdminText } from "@/lib/adminText";
 import { getModuleStates, isEnabled } from "@/lib/plan";
 import { getTestimonials } from "@/lib/testimonials";
 import { getOrders } from "@/lib/orders";
@@ -107,13 +107,15 @@ async function getVisitsThisMonth() {
 }
 
 export default async function AdminPage() {
-  const [session, enquiryCount, dbConnected, visitCount, attentionItems] = await Promise.all([
-    getServerSession(authOptions),
-    getEnquiryCount(),
-    getDbStatus(),
-    getVisitsThisMonth(),
-    getAttentionItems(),
-  ]);
+  const [session, enquiryCount, dbConnected, visitCount, attentionItems, adminText] =
+    await Promise.all([
+      getServerSession(authOptions),
+      getEnquiryCount(),
+      getDbStatus(),
+      getVisitsThisMonth(),
+      getAttentionItems(),
+      getAdminText(),
+    ]);
 
   const loginAt = session?.user?.loginAt ? new Date(session.user.loginAt) : null;
 
@@ -121,10 +123,10 @@ export default async function AdminPage() {
     <div className="w-full max-w-2xl px-6">
       <div className="rounded-xl border border-border bg-surface p-8 text-center shadow-sm">
         <h1 className="text-xl font-bold text-foreground">
-          {siteConfig.admin.dashboardHeading}
+          {adminText.dashboard_heading}
         </h1>
         <p className="mt-1 text-sm text-muted">
-          {siteConfig.admin.dashboardSubheading}
+          {adminText.dashboard_subheading}
         </p>
         <p className="mt-4 text-sm text-foreground">{session?.user?.email}</p>
         {loginAt && (

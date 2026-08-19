@@ -7,10 +7,10 @@ import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import CartIcon from "@/components/CartIcon";
 import SiteNavDropdown from "@/components/SiteNavDropdown";
-import siteConfig from "@/config/site";
 
 export default function SiteHeader({
   nav,
+  businessName,
   cartEnabled = true,
   membersEnabled = true,
   themesEnabled = true,
@@ -18,8 +18,7 @@ export default function SiteHeader({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileGroupOpen, setMobileGroupOpen] = useState(null);
-  const { business } = siteConfig;
-  const navItems = nav || siteConfig.nav;
+  const navItems = nav || [];
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
@@ -30,7 +29,7 @@ export default function SiteHeader({
           className="flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap text-xl font-bold"
         >
           <Logo className="h-7 w-7 text-foreground" />
-          {business.name}
+          {businessName}
         </button>
 
         <div className="hidden items-center gap-6 text-sm font-medium lg:flex">

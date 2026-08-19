@@ -1,26 +1,16 @@
 import { getPhotos } from "@/lib/gallery";
-import siteConfig from "@/config/site";
+import { getSectionHeadings } from "@/lib/sectionHeadings";
 
 export const revalidate = 3600;
 
-export const metadata = {
-  title: "Gallery",
-  description: siteConfig.gallery?.subheading,
-};
+export async function generateMetadata() {
+  const headings = await getSectionHeadings();
+  return { title: "Gallery", description: headings.gallery.subheading };
+}
 
 export default async function GalleryPage() {
-  const { gallery } = siteConfig;
-
-  if (!gallery) {
-    return (
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">Gallery</h1>
-        <p className="mt-2 text-muted">Nothing here yet.</p>
-      </div>
-    );
-  }
-
-  const photos = await getPhotos();
+  const [headings, photos] = await Promise.all([getSectionHeadings(), getPhotos()]);
+  const { gallery } = headings;
 
   return (
     <div>

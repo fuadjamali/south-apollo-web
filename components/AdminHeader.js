@@ -7,7 +7,6 @@ import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import SignOutButton from "@/components/SignOutButton";
 import AdminNavDropdown from "@/components/AdminNavDropdown";
-import siteConfig from "@/config/site";
 
 const viewSiteLinkClass =
   "rounded-lg border border-border px-3 py-1.5 text-sm font-semibold text-foreground hover:bg-surface-alt";
@@ -18,9 +17,8 @@ const PLAN_BADGE = {
   premium: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400",
 };
 
-export default function AdminHeader({ nav, themesEnabled = true, plan = "premium" }) {
+export default function AdminHeader({ nav, businessName, themesEnabled = true, plan = "premium" }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { business } = siteConfig;
   const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
 
   return (
@@ -28,7 +26,7 @@ export default function AdminHeader({ nav, themesEnabled = true, plan = "premium
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <span className="flex shrink-0 items-center gap-2 whitespace-nowrap text-lg font-bold text-foreground">
           <Logo className="h-6 w-6" />
-          {business.name} <span className="font-normal text-muted">Admin</span>
+          {businessName} <span className="font-normal text-muted">Admin</span>
           <a
             href="/admin/subscription"
             className={`rounded-full px-2.5 py-0.5 text-xs font-semibold hover:opacity-80 ${PLAN_BADGE[plan] || PLAN_BADGE.premium}`}

@@ -1,9 +1,13 @@
 import { IconBrandWhatsapp } from "@tabler/icons-react";
-import siteConfig from "@/config/site";
+import { getSocialSettings } from "@/lib/socialSettings";
 
-export default function FloatingWhatsApp() {
-  const { whatsappNumber, whatsappMessage } = siteConfig.contact;
-  const href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+// Admin-editable at /admin/social — hidden entirely if no number is configured.
+export default async function FloatingWhatsApp() {
+  const { whatsapp_number: whatsappNumber, whatsapp_message: whatsappMessage } =
+    await getSocialSettings();
+  if (!whatsappNumber) return null;
+
+  const href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage || "")}`;
 
   return (
     <a

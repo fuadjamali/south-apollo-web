@@ -1,26 +1,16 @@
 import { getPosts } from "@/lib/blog";
-import siteConfig from "@/config/site";
+import { getSectionHeadings } from "@/lib/sectionHeadings";
 
 export const revalidate = 3600;
 
-export const metadata = {
-  title: "Blog",
-  description: siteConfig.blog?.subheading,
-};
+export async function generateMetadata() {
+  const headings = await getSectionHeadings();
+  return { title: "Blog", description: headings.blog.subheading };
+}
 
 export default async function BlogIndexPage() {
-  const { blog } = siteConfig;
-
-  if (!blog) {
-    return (
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">Blog</h1>
-        <p className="mt-2 text-muted">No posts yet.</p>
-      </div>
-    );
-  }
-
-  const posts = await getPosts();
+  const [headings, posts] = await Promise.all([getSectionHeadings(), getPosts()]);
+  const { blog } = headings;
 
   return (
     <div>

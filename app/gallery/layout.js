@@ -1,16 +1,17 @@
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
-import siteConfig from "@/config/site";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
-export default function GalleryLayout({ children }) {
+export default async function GalleryLayout({ children }) {
+  const business = await getBusinessInfo();
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="/" className="flex items-center gap-2 text-xl font-bold">
             <Logo className="h-7 w-7" />
-            {siteConfig.business.name}
+            {business.name}
           </a>
           <div className="flex items-center gap-6 text-sm font-medium">
             <a href="/" className="hover:text-muted">
@@ -32,7 +33,7 @@ export default function GalleryLayout({ children }) {
           &larr; Back to home
         </a>
         <p className="mt-4">
-          © {new Date().getFullYear()} {siteConfig.business.name}. All rights reserved.
+          © {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
       </footer>
     </div>

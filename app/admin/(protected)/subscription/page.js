@@ -3,7 +3,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getAdminByEmail } from "@/lib/admins";
 import { PLAN } from "@/lib/plan";
 import MobileNumberForm from "@/components/MobileNumberForm";
-import siteConfig from "@/config/site";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ const PLAN_BADGE = {
 };
 
 export default async function AdminSubscriptionPage() {
-  const session = await getServerSession(authOptions);
+  const [session, business] = await Promise.all([getServerSession(authOptions), getBusinessInfo()]);
   const admin = session?.user?.email ? await getAdminByEmail(session.user.email) : null;
   const planLabel = PLAN.charAt(0).toUpperCase() + PLAN.slice(1);
 
@@ -51,7 +51,12 @@ export default async function AdminSubscriptionPage() {
             <p className="text-xs font-medium uppercase tracking-wide text-muted">
               Business name
             </p>
-            <p className="mt-1 text-sm text-foreground">{siteConfig.business.name}</p>
+            <p className="mt-1 text-sm text-foreground">
+              {business.name}{" "}
+              <a href="/admin/business" className="text-xs font-medium text-accent hover:underline">
+                Edit
+              </a>
+            </p>
           </div>
 
           <div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-foreground";
@@ -24,9 +24,24 @@ export default function ImageFileInput({
   helpText,
 }) {
   const [error, setError] = useState("");
+  // Object URL for the file just picked in this session — distinct from `currentImage` (the
+  // already-saved value), so a chosen replacement shows up immediately instead of only after
+  // Save reloads the page. Revoked on cleanup/replacement so picking several files in a row
+  // doesn't leak blob URLs.
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   function handleChange(e) {
     const file = e.target.files?.[0];
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl("");
+    }
     if (!file) {
       setError("");
       return;
@@ -44,12 +59,22 @@ export default function ImageFileInput({
       return;
     }
     setError("");
+    setPreviewUrl(URL.createObjectURL(file));
   }
+
+  const displayImage = previewUrl || currentImage;
 
   return (
     <div>
       <label className="block text-sm font-medium text-foreground">{label}</label>
-      {currentImage && <img src={currentImage} alt="" className={previewClassName} />}
+      {displayImage && (
+        <>
+          <img src={displayImage} alt="" className={previewClassName} />
+          {previewUrl && (
+            <p className="mt-1 text-xs font-medium text-accent">New file — not saved yet</p>
+          )}
+        </>
+      )}
       <input
         type="file"
         name={name}

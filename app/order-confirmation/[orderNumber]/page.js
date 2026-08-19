@@ -2,13 +2,13 @@ import { notFound } from "next/navigation";
 import Logo from "@/components/Logo";
 import { getOrderByNumber } from "@/lib/orders";
 import { formatCurrency } from "@/lib/currency";
-import siteConfig from "@/config/site";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
 export const dynamic = "force-dynamic";
 
 export default async function OrderConfirmationPage({ params }) {
   const { orderNumber } = await params;
-  const order = await getOrderByNumber(orderNumber);
+  const [order, business] = await Promise.all([getOrderByNumber(orderNumber), getBusinessInfo()]);
 
   if (!order) {
     notFound();
@@ -20,7 +20,7 @@ export default async function OrderConfirmationPage({ params }) {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <a href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-bold">
             <Logo className="h-7 w-7" />
-            {siteConfig.business.name}
+            {business.name}
           </a>
           <a href="/" className="text-sm font-medium hover:text-muted">
             &larr; Back to home

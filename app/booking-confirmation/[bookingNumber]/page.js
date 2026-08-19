@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Logo from "@/components/Logo";
 import { getBookingByNumber } from "@/lib/bookings";
-import siteConfig from "@/config/site";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,10 @@ function formatTime(t) {
 
 export default async function BookingConfirmationPage({ params }) {
   const { bookingNumber } = await params;
-  const booking = await getBookingByNumber(bookingNumber);
+  const [booking, business] = await Promise.all([
+    getBookingByNumber(bookingNumber),
+    getBusinessInfo(),
+  ]);
 
   if (!booking) {
     notFound();
@@ -23,7 +26,7 @@ export default async function BookingConfirmationPage({ params }) {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <a href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-bold">
             <Logo className="h-7 w-7" />
-            {siteConfig.business.name}
+            {business.name}
           </a>
           <a href="/" className="text-sm font-medium hover:text-muted">
             &larr; Back to home

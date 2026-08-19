@@ -12,6 +12,13 @@ import siteConfig from "@/config/site";
 import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
 import { getProducts, getProductCategories } from "@/lib/products";
 import { getContactInfo } from "@/lib/contactInfo";
+import { getSocialSettings } from "@/lib/socialSettings";
+import { getBusinessInfo } from "@/lib/businessInfo";
+import { getHeroInfo } from "@/lib/heroInfo";
+import { getAllLegalPages } from "@/lib/legalPages";
+import { getSectionHeadings } from "@/lib/sectionHeadings";
+import { getNavTree } from "@/lib/navItems";
+import { getSiteText } from "@/lib/siteText";
 import { getReviews } from "@/lib/reviews";
 import { getApprovedTestimonials, getTestimonialStats } from "@/lib/testimonials";
 import { getAboutInfo } from "@/lib/aboutInfo";
@@ -24,7 +31,7 @@ import { getSteps } from "@/lib/howItWorks";
 import { getRecentPhotos } from "@/lib/gallery";
 import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
-import { getModuleStates, getEffectiveSiteConfig, isEnabled, isPublicPathEnabled } from "@/lib/plan";
+import { getModuleStates, isEnabled, isPublicPathEnabled } from "@/lib/plan";
 import { TIERS } from "@/lib/planFeatures";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
@@ -32,23 +39,55 @@ import { TIERS } from "@/lib/planFeatures";
 // just a safety net, not the primary way updates propagate.
 export const revalidate = 3600;
 
-export const metadata = {
-  title: `${siteConfig.business.name} — ${siteConfig.business.tagline}`,
-  description: siteConfig.business.description,
-  openGraph: {
-    type: "website",
-    title: `${siteConfig.business.name} — ${siteConfig.business.tagline}`,
-    description: siteConfig.business.description,
-    images: ["/og-image.svg"],
-    url: `https://${siteConfig.business.domain}`,
+// Overlay opacity and text colors for the hero, keyed by the admin-chosen
+// hero_info.overlay_strength / .text_style (see lib/heroInfo.js). "auto" deliberately leaves
+// text/button colors unset so they inherit the page's normal text-foreground/border-border —
+// the same theme-matched colors used everywhere else on the site, correct in all 8 color
+// themes and dark mode without any per-theme tuning. "light"/"dark" are fixed overrides for
+// when a particular background image needs more contrast than the themed overlay alone gives.
+// Full class strings, not interpolated numbers — Tailwind's build-time scanner only generates
+// CSS for class names it can see literally in the source, so `bg-background/${n}` would
+// silently produce no styles at all for opacity values it never sees as a complete token.
+const HERO_OVERLAY_OPACITY = {
+  light: "bg-background/10",
+  medium: "bg-background/25",
+  dark: "bg-background/45",
+};
+const HERO_TEXT_STYLE = {
+  auto: { heading: "", subheading: "text-muted", secondaryBtn: "border-border hover:bg-surface-alt" },
+  light: {
+    heading: "text-white",
+    subheading: "text-white/85",
+    secondaryBtn: "border-white/40 text-white hover:bg-white/10",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: `${siteConfig.business.name} — ${siteConfig.business.tagline}`,
-    description: siteConfig.business.description,
-    images: ["/og-image.svg"],
+  dark: {
+    heading: "text-gray-900",
+    subheading: "text-gray-700",
+    secondaryBtn: "border-gray-900/30 text-gray-900 hover:bg-gray-900/5",
   },
 };
+
+export async function generateMetadata() {
+  const business = await getBusinessInfo();
+  const title = `${business.name} — ${business.tagline}`;
+  return {
+    title,
+    description: business.description,
+    openGraph: {
+      type: "website",
+      title,
+      description: business.description,
+      images: ["/og-image.svg"],
+      url: business.domain ? `https://${business.domain}` : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: business.description,
+      images: ["/og-image.svg"],
+    },
+  };
+}
 
 export default async function Home({ searchParams }) {
   // Sections belonging to a module outside this deployment's plan (or switched off via Feature
@@ -58,37 +97,58 @@ export default async function Home({ searchParams }) {
   // because filteredNav needs its `enabled` flag — that section's on/off state lives on the
   // contact_info row itself (lib/contactInfo.js), not in module_settings like every other
   // Feature Config toggle, so it can't go through moduleStates/isPublicPathEnabled.
-  const [moduleStates, contactInfo] = await Promise.all([getModuleStates(), getContactInfo()]);
-  const effectiveConfig = getEffectiveSiteConfig(siteConfig, moduleStates);
-  const {
+  const [
+    moduleStates,
+    contactInfo,
+    socialSettings,
+    business,
     hero,
-    stats,
-    partners,
+    legalPages,
+    sectionHeadings,
+    navTree,
+    siteText,
+  ] = await Promise.all([
+    getModuleStates(),
+    getContactInfo(),
+    getSocialSettings(),
+    getBusinessInfo(),
+    getHeroInfo(),
+    getAllLegalPages(),
+    getSectionHeadings(),
+    getNavTree(),
+    getSiteText(),
+  ]);
+  const publishedLegalPages = legalPages.filter((p) => p.enabled);
+  const { plans } = siteConfig;
+  const {
     howItWorks,
-    plans,
-    products,
     portfolio,
     gallery,
     reviews,
-    team,
     certifications,
-    map,
+    team,
+    blog,
+    newsEvents,
     enquiryForm,
+    map,
     footer,
-    business,
-    contact,
-  } = effectiveConfig;
+    products,
+    partners,
+  } = sectionHeadings;
 
   const cartEnabled = isEnabled("cart", moduleStates);
   const membersEnabled = isEnabled("members", moduleStates);
   const themesEnabled = isEnabled("themes", moduleStates);
   const footerEnabled = isEnabled("footer", moduleStates);
+  const productsEnabled = isEnabled("products", moduleStates);
+  const statsEnabled = isEnabled("stats", moduleStates);
+  const partnersEnabled = isEnabled("partners", moduleStates);
   // Drops any nav item (or child of a group) whose module isn't in this deployment's plan,
   // and drops a group entirely if every one of its children got filtered out — same pattern
   // as the admin nav's filterNav in app/admin/(protected)/layout.js.
   const isNavHrefEnabled = (href) =>
     href === "#contact-info" ? contactInfo.enabled : isPublicPathEnabled(href, moduleStates);
-  const filteredNav = siteConfig.nav
+  const filteredNav = navTree
     .map((item) => {
       if (!item.children) return item;
       const children = item.children.filter((child) => isNavHrefEnabled(child.href));
@@ -119,22 +179,26 @@ export default async function Home({ searchParams }) {
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
     getReviews(),
-    reviews ? getApprovedTestimonials(6) : Promise.resolve([]),
-    reviews ? getTestimonialStats() : Promise.resolve({ count: 0, average: 0 }),
+    isEnabled("reviews", moduleStates) ? getApprovedTestimonials(6) : Promise.resolve([]),
+    isEnabled("reviews", moduleStates)
+      ? getTestimonialStats()
+      : Promise.resolve({ count: 0, average: 0 }),
     getAboutInfo(),
-    effectiveConfig.blog ? getRecentPosts(3) : Promise.resolve([]),
+    isEnabled("blog", moduleStates) ? getRecentPosts(3) : Promise.resolve([]),
     getActiveTeamsWithMembers(),
     getActivePartners(),
-    effectiveConfig.newsEvents ? getRecentItems(3) : Promise.resolve([]),
-    stats ? getStats() : Promise.resolve([]),
-    howItWorks ? getSteps() : Promise.resolve([]),
-    gallery ? getRecentPhotos(3) : Promise.resolve([]),
-    portfolio ? getPortfolioItems() : Promise.resolve([]),
-    certifications ? getCertifications() : Promise.resolve([]),
+    isEnabled("newsEvents", moduleStates) ? getRecentItems(3) : Promise.resolve([]),
+    statsEnabled ? getStats() : Promise.resolve([]),
+    isEnabled("howItWorks", moduleStates) ? getSteps() : Promise.resolve([]),
+    isEnabled("gallery", moduleStates) ? getRecentPhotos(3) : Promise.resolve([]),
+    isEnabled("portfolio", moduleStates) ? getPortfolioItems() : Promise.resolve([]),
+    isEnabled("certifications", moduleStates) ? getCertifications() : Promise.resolve([]),
   ]);
 
-  const footerWhatsappHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(footer?.whatsappMessage || contact.whatsappMessage)}`;
-  const jsonLd = buildLocalBusinessJsonLd(siteConfig);
+  const footerWhatsappHref = `https://wa.me/${socialSettings.whatsapp_number}?text=${encodeURIComponent(
+    socialSettings.footer_whatsapp_message || socialSettings.whatsapp_message || ""
+  )}`;
+  const jsonLd = buildLocalBusinessJsonLd({ business, address: contactInfo.address, siteConfig });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -147,6 +211,7 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: header-nav (required) */}
       <SiteHeader
         nav={filteredNav}
+        businessName={business.name}
         cartEnabled={cartEnabled}
         membersEnabled={membersEnabled}
         themesEnabled={themesEnabled}
@@ -154,10 +219,14 @@ export default async function Home({ searchParams }) {
       />
 
       <main>
-      {/* COMPONENT: hero (optional — toggled from Settings → Feature Config) */}
-      {hero && (
+      {/* COMPONENT: hero (optional — toggled from Settings → Feature Config; content itself
+          lives in Postgres, editable at /admin/hero) */}
+      {isEnabled("hero", moduleStates) && (() => {
+        const overlayClass = HERO_OVERLAY_OPACITY[hero.overlay_strength] || HERO_OVERLAY_OPACITY.medium;
+        const heroStyle = HERO_TEXT_STYLE[hero.text_style] || HERO_TEXT_STYLE.auto;
+        return (
       <section className="relative isolate overflow-hidden">
-        {hero.backgroundImage && (
+        {hero.background_image && (
           // No z-index here, deliberately — `isolate` on the section already gives this
           // whole hero its own stacking context, so plain DOM order (image div first, text
           // content div second) is enough to paint the image behind the text. A `-z-10`
@@ -175,18 +244,20 @@ export default async function Home({ searchParams }) {
                 viewport is wide enough that object-cover no longer loses the side content. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={hero.backgroundImage}
+              src={hero.background_image}
               alt=""
               className="h-full w-full object-contain sm:object-cover"
             />
             {/* Theme-color overlay (not a fixed white/black) so the image stays legible —
                 and readable as the *same* background color — across all 8 color themes and
-                dark mode, rather than only looking right in the one theme it was tuned for. */}
-            <div className="absolute inset-0 bg-background/25" />
+                dark mode, rather than only looking right in the one theme it was tuned for.
+                Strength is admin-adjustable (hero.overlay_strength) for images that need more
+                or less scrim; still theme-derived either way, never a fixed color. */}
+            <div className={`absolute inset-0 ${overlayClass}`} />
           </div>
         )}
         <div className="relative mx-auto max-w-6xl px-6 py-24 text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
+          <h1 className={`text-4xl font-extrabold tracking-tight sm:text-6xl ${heroStyle.heading}`}>
             {/* A heading written as two short statements ("X. Y.") reads better as two
                 lines than left to the browser's natural wrap, which can break mid-phrase
                 depending on viewport width. Falls back to one line if there's no ". " split. */}
@@ -200,29 +271,34 @@ export default async function Home({ searchParams }) {
               hero.heading
             )}
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">
+          <p className={`mx-auto mt-6 max-w-2xl text-lg ${heroStyle.subheading}`}>
             {hero.subheading}
           </p>
           <div className="mt-8 flex justify-center gap-4">
-            <a
-              href={hero.primaryCta.href}
-              className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
-            >
-              {hero.primaryCta.label}
-            </a>
-            <a
-              href={hero.secondaryCta.href}
-              className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
-            >
-              {hero.secondaryCta.label}
-            </a>
+            {hero.primary_cta_label && (
+              <a
+                href={hero.primary_cta_href || "#"}
+                className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+              >
+                {hero.primary_cta_label}
+              </a>
+            )}
+            {hero.secondary_cta_label && (
+              <a
+                href={hero.secondary_cta_href || "#"}
+                className={`rounded-full border px-6 py-3 text-sm font-semibold ${heroStyle.secondaryBtn}`}
+              >
+                {hero.secondary_cta_label}
+              </a>
+            )}
           </div>
         </div>
       </section>
-      )}
+        );
+      })()}
 
       {/* COMPONENT: stats (optional — live from Postgres, editable at /admin/stats) */}
-      {stats && statItems.length > 0 && (
+      {statsEnabled && statItems.length > 0 && (
         <section className="border-y border-border py-10">
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center sm:grid-cols-4">
             {statItems.map((stat) => (
@@ -237,7 +313,7 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: trusted-by (optional — live from Postgres, editable at /admin/partners;
           only status "Active" partners shown) */}
-      {partners && partnerItems.length > 0 && (
+      {partnersEnabled && partnerItems.length > 0 && (
         <section className="border-b border-border bg-surface-alt py-12">
           <div className="mx-auto max-w-6xl px-6 text-center">
             <p className="text-sm font-medium text-muted">{partners.heading}</p>
@@ -268,7 +344,7 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: how-it-works (optional — live from Postgres, editable at /admin/how-it-works) */}
-      {howItWorks && howItWorksSteps.length > 0 && (
+      {isEnabled("howItWorks", moduleStates) && howItWorksSteps.length > 0 && (
         <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-center text-3xl font-bold">{howItWorks.heading}</h2>
           <p className="mt-2 text-center text-muted">{howItWorks.subheading}</p>
@@ -289,7 +365,7 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: products (optional — toggled from Settings → Feature Config; content
           itself lives in Postgres, editable at /admin/products) */}
-      {products && (
+      {productsEnabled && (
       <section id="products" className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="text-3xl font-bold">{products.heading}</h2>
         <p className="mt-2 text-muted">{products.subheading}</p>
@@ -391,7 +467,13 @@ export default async function Home({ searchParams }) {
                   </ul>
 
                   <a
-                    href={enquiryForm ? "#enquiry" : contactInfo.enabled ? "#contact-info" : "#plans"}
+                    href={
+                      isEnabled("enquiryForm", moduleStates)
+                        ? "#enquiry"
+                        : contactInfo.enabled
+                          ? "#contact-info"
+                          : "#plans"
+                    }
                     className={`mt-8 block rounded-full py-3 text-center text-sm font-semibold ${
                       tier.popular
                         ? "bg-primary text-primary-foreground hover:bg-primary-hover"
@@ -417,7 +499,7 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: portfolio (optional — live from Postgres, editable at /admin/portfolio) */}
-      {portfolio && portfolioItems.length > 0 && (
+      {isEnabled("portfolio", moduleStates) && portfolioItems.length > 0 && (
         <section id="portfolio" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-3xl font-bold">{portfolio.heading}</h2>
@@ -453,7 +535,7 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: gallery (optional — live from Postgres, editable at /admin/gallery; the 3
           most recent photos show here, the full set lives at /gallery) */}
-      {gallery && recentPhotos.length > 0 && (
+      {isEnabled("gallery", moduleStates) && recentPhotos.length > 0 && (
         <section id="gallery" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-3xl font-bold">{gallery.heading}</h2>
           <p className="mt-2 text-muted">{gallery.subheading}</p>
@@ -491,7 +573,7 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: reviews (optional — live from Postgres, editable at /admin/reviews) */}
-      {reviews && reviewItems.length > 0 && (
+      {isEnabled("reviews", moduleStates) && reviewItems.length > 0 && (
         <section id="reviews" className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-center text-3xl font-bold">{reviews.heading}</h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
@@ -522,7 +604,7 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: testimonials (optional — customer-submitted, admin-moderated; shown
           alongside third-party ratings when Reviews is enabled) */}
-      {reviews && (
+      {isEnabled("reviews", moduleStates) && (
         <section className="mx-auto max-w-6xl px-6 pb-20">
           {testimonialStats.count > 0 && (
             <p className="mb-6 text-center text-sm text-muted">
@@ -558,11 +640,11 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: recent-posts (optional — latest 3 blog posts, only shown if Blog is enabled) */}
-      {effectiveConfig.blog && recentPosts.length > 0 && (
+      {isEnabled("blog", moduleStates) && recentPosts.length > 0 && (
         <section id="recent-posts" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-6xl px-6">
-            <h2 className="text-3xl font-bold">{effectiveConfig.blog.heading}</h2>
-            <p className="mt-2 text-muted">{effectiveConfig.blog.subheading}</p>
+            <h2 className="text-3xl font-bold">{blog.heading}</h2>
+            <p className="mt-2 text-muted">{blog.subheading}</p>
 
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
               {recentPosts.map((post) => (
@@ -610,11 +692,11 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: news-events (optional — latest 3 news/event items, live from Postgres,
           editable at /admin/news-events) */}
-      {effectiveConfig.newsEvents && recentNewsEvents.length > 0 && (
+      {isEnabled("newsEvents", moduleStates) && recentNewsEvents.length > 0 && (
         <section id="news-events" className="py-20">
           <div className="mx-auto max-w-6xl px-6">
-            <h2 className="text-3xl font-bold">{effectiveConfig.newsEvents.heading}</h2>
-            <p className="mt-2 text-muted">{effectiveConfig.newsEvents.subheading}</p>
+            <h2 className="text-3xl font-bold">{newsEvents.heading}</h2>
+            <p className="mt-2 text-muted">{newsEvents.subheading}</p>
 
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
               {recentNewsEvents.map((item) => (
@@ -672,9 +754,7 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: about (optional — toggled from Settings → Feature Config; content itself
-          lives in Postgres, editable at /admin/about). No config/site.js key for this one, so
-          it's gated directly against moduleStates instead of going through
-          getEffectiveSiteConfig like the other Core sections. */}
+          lives in Postgres, editable at /admin/about) */}
       {isEnabled("about", moduleStates) && (
       <section id="about" className="mx-auto max-w-4xl px-6 py-20 text-center">
         <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
@@ -685,7 +765,7 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and
           /admin/team-members; only active members from teams/members with "Show on home"
           enabled are shown here, grouped by team — the full roster lives at /team) */}
-      {team && teamGroups.length > 0 && (
+      {isEnabled("team", moduleStates) && teamGroups.length > 0 && (
         <section id="team" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-center text-3xl font-bold">{team.heading}</h2>
@@ -735,7 +815,7 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: certifications (optional — live from Postgres, editable at
           /admin/certifications) */}
-      {certifications && certificationItems.length > 0 && (
+      {isEnabled("certifications", moduleStates) && certificationItems.length > 0 && (
         <section id="certifications" className="bg-surface-alt py-16">
           <div className="mx-auto max-w-6xl px-6 text-center">
             <p className="text-sm font-medium text-muted">{certifications.heading}</p>
@@ -763,18 +843,20 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: map (optional — live-queries Google Maps with business.address) */}
-      {map && (
+      {/* COMPONENT: map (optional — live-queries Google Maps with contactInfo.address, the
+          same admin-editable value shown in the Contact Us section below, rather than a
+          second independent address that could drift out of sync with it) */}
+      {isEnabled("map", moduleStates) && contactInfo.address && (
         <section className="mx-auto max-w-6xl px-6 py-20">
           <h2 className="text-center text-3xl font-bold">{map.heading}</h2>
-          <p className="mt-2 text-center text-muted">{business.address}</p>
+          <p className="mt-2 text-center text-muted">{contactInfo.address}</p>
           <div className="mt-10 aspect-16/6 w-full overflow-hidden rounded-xl border border-border">
             <iframe
               title="Business location map"
               className="h-full w-full grayscale"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(business.address)}&output=embed`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(contactInfo.address)}&output=embed`}
             />
           </div>
         </section>
@@ -821,7 +903,7 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: enquiry-form (optional — submits to /api/enquiries, viewable at /admin/enquiries) */}
-      {enquiryForm && (
+      {isEnabled("enquiryForm", moduleStates) && (
         <section id="enquiry" className="bg-surface-alt py-20">
           <div className="mx-auto max-w-xl px-6">
             <h2 className="text-center text-3xl font-bold">{enquiryForm.heading}</h2>
@@ -838,7 +920,7 @@ export default async function Home({ searchParams }) {
           ensures this last section has enough room below it to scroll fully under the sticky
           header when jumped to via #contact — otherwise, being the final element on the page,
           the browser can't scroll far enough and the Enquiry section above it stays in view. */}
-      {footer && (
+      {footerEnabled && (
       <footer
         id="contact"
         className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center bg-gray-900 dark:bg-black py-16 text-center text-white"
@@ -860,18 +942,35 @@ export default async function Home({ searchParams }) {
         <p className="mt-10 flex items-center justify-center gap-2 text-xs text-gray-400">
           <Logo className="h-4 w-4" />© {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
+        {/* COMPONENT: legal-page-links (optional — only pages an admin has actually published
+            at /admin/legal show up here; an un-filled-in page never gets linked). */}
+        {publishedLegalPages.length > 0 && (
+          <p className="mt-2 flex items-center justify-center gap-3 text-xs text-gray-400">
+            {publishedLegalPages.map((page) => (
+              <a key={page.slug} href={`/${page.slug}`} className="hover:text-white">
+                {page.title}
+              </a>
+            ))}
+          </p>
+        )}
       </footer>
       )}
       </main>
 
-      {/* COMPONENT: floating-whatsapp-button (optional) */}
-      <FloatingWhatsApp />
+      {/* COMPONENT: floating-whatsapp-button (optional — tied to the same "footer" toggle as
+          the footer's own WhatsApp CTA, since Feature Config's "Footer" entry is labeled as
+          covering both WhatsApp CTAs, not just the footer's own button) */}
+      {footerEnabled && <FloatingWhatsApp />}
 
       {/* Back-to-top button — stacked above the WhatsApp button, appears after scrolling down. */}
       <BackToTopButton />
 
       {/* COMPONENT: cookie-consent (required if analytics tracking is enabled) */}
-      <CookieConsent />
+      <CookieConsent
+        message={siteText.cookie_message}
+        acceptLabel={siteText.cookie_accept_label}
+        declineLabel={siteText.cookie_decline_label}
+      />
     </div>
   );
 }

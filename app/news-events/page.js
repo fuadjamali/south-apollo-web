@@ -1,12 +1,12 @@
 import { getItems } from "@/lib/newsEvents";
-import siteConfig from "@/config/site";
+import { getSectionHeadings } from "@/lib/sectionHeadings";
 
 export const revalidate = 3600;
 
-export const metadata = {
-  title: "News & Events",
-  description: siteConfig.newsEvents?.subheading,
-};
+export async function generateMetadata() {
+  const headings = await getSectionHeadings();
+  return { title: "News & Events", description: headings.newsEvents.subheading };
+}
 
 const TYPE_BADGE = {
   News: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400",
@@ -14,18 +14,8 @@ const TYPE_BADGE = {
 };
 
 export default async function NewsEventsIndexPage() {
-  const { newsEvents } = siteConfig;
-
-  if (!newsEvents) {
-    return (
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">News &amp; Events</h1>
-        <p className="mt-2 text-muted">Nothing here yet.</p>
-      </div>
-    );
-  }
-
-  const items = await getItems();
+  const [headings, items] = await Promise.all([getSectionHeadings(), getItems()]);
+  const { newsEvents } = headings;
 
   return (
     <div>

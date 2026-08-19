@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import Logo from "@/components/Logo";
 import { FEATURES, TIERS } from "@/lib/planFeatures";
-import siteConfig from "@/config/site";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
 function Check({ included }) {
   return included ? (
@@ -33,8 +33,9 @@ function groupFeatures(features) {
   return groups;
 }
 
-export default function ComparePlansPage() {
+export default async function ComparePlansPage() {
   const groups = groupFeatures(FEATURES);
+  const business = await getBusinessInfo();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -42,7 +43,7 @@ export default function ComparePlansPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <a href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-bold">
             <Logo className="h-7 w-7" />
-            {siteConfig.business.name}
+            {business.name}
           </a>
           <a href="/#plans" className="text-sm font-medium hover:text-muted">
             &larr; Back to plans

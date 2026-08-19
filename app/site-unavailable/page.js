@@ -1,10 +1,15 @@
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
-import siteConfig from "@/config/site";
+import { getSiteText } from "@/lib/siteText";
 
-export default function SiteUnavailablePage() {
-  const { errorCodeLabel, heading, message } = siteConfig.siteUnavailable;
+export const dynamic = "force-dynamic";
+
+export default async function SiteUnavailablePage() {
+  const siteText = await getSiteText();
+  const errorCodeLabel = siteText.unavailable_error_code_label;
+  const heading = siteText.unavailable_heading;
+  const message = siteText.unavailable_message;
 
   return (
     <div className="min-h-screen bg-surface-alt">

@@ -2,7 +2,7 @@
 
 import { generateContent } from "@/lib/ai";
 import { isModuleEnabled } from "@/lib/plan";
-import siteConfig from "@/config/site";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
 export async function generateAIContentAction(prevState, formData) {
   // Server-side check regardless of whether the calling form already hides the button for
@@ -14,7 +14,8 @@ export async function generateAIContentAction(prevState, formData) {
   const instruction = formData.get("instruction")?.toString() || "";
   const existingText = formData.get("existingText")?.toString() || "";
   const fieldLabel = formData.get("fieldLabel")?.toString() || "this field";
-  const businessContext = `${siteConfig.business.name} — ${siteConfig.business.description}`;
+  const business = await getBusinessInfo();
+  const businessContext = `${business.name} — ${business.description}`;
 
   try {
     const content = await generateContent({ instruction, existingText, fieldLabel, businessContext });

@@ -5,7 +5,7 @@ import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import MemberSignOutButton from "@/components/MemberSignOutButton";
-import siteConfig from "@/config/site";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
 export default async function MemberProtectedLayout({ children }) {
   const session = await getMemberSession();
@@ -23,6 +23,7 @@ export default async function MemberProtectedLayout({ children }) {
   if (!member || member.membership_status === "Closed") {
     redirect("/member/login");
   }
+  const business = await getBusinessInfo();
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-alt">
@@ -30,7 +31,7 @@ export default async function MemberProtectedLayout({ children }) {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <span className="flex items-center gap-2 whitespace-nowrap text-lg font-bold text-foreground">
             <Logo className="h-6 w-6" />
-            {siteConfig.business.name} <span className="font-normal text-muted">Member</span>
+            {business.name} <span className="font-normal text-muted">Member</span>
           </span>
           <div className="flex items-center gap-3">
             <a

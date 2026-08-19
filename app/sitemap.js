@@ -1,11 +1,12 @@
-import siteConfig from "@/config/site";
 import { getPosts } from "@/lib/blog";
 import { getProducts } from "@/lib/products";
 import { getItems } from "@/lib/newsEvents";
 import { getPhotos } from "@/lib/gallery";
+import { getModuleStates, isEnabled } from "@/lib/plan";
 
 export default async function sitemap() {
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const moduleStates = await getModuleStates();
 
   const entries = [
     {
@@ -33,7 +34,7 @@ export default async function sitemap() {
     });
   }
 
-  if (siteConfig.blog) {
+  if (isEnabled("blog", moduleStates)) {
     entries.push({
       url: `${baseUrl}/blog`,
       lastModified: new Date(),
@@ -52,7 +53,7 @@ export default async function sitemap() {
     }
   }
 
-  if (siteConfig.team) {
+  if (isEnabled("team", moduleStates)) {
     entries.push({
       url: `${baseUrl}/team`,
       lastModified: new Date(),
@@ -61,7 +62,7 @@ export default async function sitemap() {
     });
   }
 
-  if (siteConfig.gallery) {
+  if (isEnabled("gallery", moduleStates)) {
     const photos = await getPhotos();
     entries.push({
       url: `${baseUrl}/gallery`,
@@ -71,7 +72,7 @@ export default async function sitemap() {
     });
   }
 
-  if (siteConfig.newsEvents) {
+  if (isEnabled("newsEvents", moduleStates)) {
     entries.push({
       url: `${baseUrl}/news-events`,
       lastModified: new Date(),

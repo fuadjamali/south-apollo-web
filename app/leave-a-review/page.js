@@ -1,12 +1,12 @@
 import Logo from "@/components/Logo";
 import TestimonialForm from "@/components/TestimonialForm";
 import { getActiveMemberSession } from "@/lib/memberSession";
-import siteConfig from "@/config/site";
+import { getBusinessInfo } from "@/lib/businessInfo";
 
 export const dynamic = "force-dynamic";
 
 export default async function LeaveAReviewPage() {
-  const member = await getActiveMemberSession();
+  const [member, business] = await Promise.all([getActiveMemberSession(), getBusinessInfo()]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -14,7 +14,7 @@ export default async function LeaveAReviewPage() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <a href="/" className="flex items-center gap-2 whitespace-nowrap text-xl font-bold">
             <Logo className="h-7 w-7" />
-            {siteConfig.business.name}
+            {business.name}
           </a>
           <a href="/#reviews" className="text-sm font-medium hover:text-muted">
             &larr; Back to home

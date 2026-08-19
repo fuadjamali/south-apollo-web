@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { CONSENT_EVENT, CONSENT_KEY, getConsent } from "@/lib/consent";
-import siteConfig from "@/config/site";
 
-export default function CookieConsent() {
+export default function CookieConsent({ message, acceptLabel, declineLabel }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -23,21 +22,21 @@ export default function CookieConsent() {
 
   return (
     <div className="fixed bottom-6 left-6 z-30 max-w-sm rounded-xl border border-border bg-surface p-4 shadow-lg">
-      <p className="text-sm text-foreground">{siteConfig.cookieConsent.message}</p>
+      <p className="text-sm text-foreground">{message}</p>
       <div className="mt-3 flex gap-2">
         <button
           type="button"
           onClick={() => respond("declined")}
           className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-alt"
         >
-          {siteConfig.cookieConsent.declineLabel}
+          {declineLabel}
         </button>
         <button
           type="button"
           onClick={() => respond("accepted")}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
         >
-          {siteConfig.cookieConsent.acceptLabel}
+          {acceptLabel}
         </button>
       </div>
     </div>

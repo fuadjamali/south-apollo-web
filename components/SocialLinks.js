@@ -6,7 +6,7 @@ import {
   IconBrandLinkedin,
   IconBrandYoutube,
 } from "@tabler/icons-react";
-import siteConfig from "@/config/site";
+import { getSocialSettings, getActiveSocialLinks } from "@/lib/socialSettings";
 
 const ICONS = {
   "ti-brand-x": IconBrandX,
@@ -17,9 +17,11 @@ const ICONS = {
   "ti-brand-youtube": IconBrandYoutube,
 };
 
-export default function SocialLinks() {
-  const { social } = siteConfig;
-  if (!social?.length) return null;
+// Admin-editable at /admin/social — only platforms with a URL set are shown.
+export default async function SocialLinks() {
+  const settings = await getSocialSettings();
+  const social = getActiveSocialLinks(settings);
+  if (!social.length) return null;
 
   return (
     <div className="mt-8 flex justify-center gap-5 text-gray-300">

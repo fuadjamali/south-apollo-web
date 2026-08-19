@@ -1,4 +1,18 @@
+"use client";
+
+import { useLogoUrl } from "@/components/LogoContext";
+
+// Falls back to the built-in vector mark whenever no logo has been uploaded at /admin/logo —
+// every one of this component's ~20 call sites across the site keeps working unchanged, since
+// they just render <Logo className="..." /> and never need to know which case applies.
 export default function Logo({ className = "h-7 w-7" }) {
+  const logoUrl = useLogoUrl();
+
+  if (logoUrl) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={logoUrl} alt="" className={`${className} object-contain`} />;
+  }
+
   return (
     <svg
       viewBox="0 0 100 100"
