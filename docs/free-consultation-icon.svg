@@ -1,0 +1,41 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f0f9ff"/>
+      <stop offset="100%" stop-color="#e0f2fe"/>
+    </linearGradient>
+    <linearGradient id="cal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="48" fill="url(#bg)"/>
+
+  <!-- Calendar body -->
+  <rect x="128" y="152" width="256" height="216" rx="24" fill="#ffffff" stroke="#0284c7" stroke-width="10"/>
+  <!-- Calendar header -->
+  <path d="M128 176a24 24 0 0 1 24-24h208a24 24 0 0 1 24 24v40H128z" fill="url(#cal)"/>
+  <!-- Calendar rings -->
+  <rect x="176" y="120" width="16" height="48" rx="8" fill="#0369a1"/>
+  <rect x="320" y="120" width="16" height="48" rx="8" fill="#0369a1"/>
+
+  <!-- Grid dots -->
+  <circle cx="176" cy="256" r="10" fill="#bae6fd"/>
+  <circle cx="216" cy="256" r="10" fill="#bae6fd"/>
+  <circle cx="256" cy="256" r="10" fill="#bae6fd"/>
+  <circle cx="176" cy="296" r="10" fill="#bae6fd"/>
+  <circle cx="216" cy="296" r="10" fill="#bae6fd"/>
+
+  <!-- Highlighted date -->
+  <circle cx="296" cy="296" r="26" fill="#0284c7"/>
+  <path d="M286 296l7 7 15-15" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Chat bubble accent -->
+  <g>
+    <path d="M352 300c30 0 54 21 54 47 0 26-24 47-54 47-6 0-12-1-17-2l-25 14 6-24c-11-9-18-21-18-35 0-26 24-47 54-47z" fill="#38bdf8"/>
+    <circle cx="334" cy="347" r="7" fill="#ffffff"/>
+    <circle cx="354" cy="347" r="7" fill="#ffffff"/>
+    <circle cx="374" cy="347" r="7" fill="#ffffff"/>
+  </g>
+</svg>

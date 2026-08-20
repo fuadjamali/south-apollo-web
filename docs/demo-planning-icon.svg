@@ -1,0 +1,53 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+    <linearGradient id="stand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#64748b"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="48" fill="url(#bg2)"/>
+
+  <!-- Monitor -->
+  <rect x="96" y="120" width="240" height="168" rx="16" fill="#ffffff" stroke="#0284c7" stroke-width="10"/>
+  <!-- Browser bar -->
+  <rect x="96" y="120" width="240" height="32" rx="16" fill="url(#screen)"/>
+  <circle cx="116" cy="136" r="5" fill="#ffffff"/>
+  <circle cx="132" cy="136" r="5" fill="#ffffff"/>
+  <circle cx="148" cy="136" r="5" fill="#ffffff"/>
+  <!-- Mock site content -->
+  <rect x="116" y="168" width="140" height="16" rx="6" fill="#bae6fd"/>
+  <rect x="116" y="192" width="200" height="10" rx="5" fill="#e0f2fe"/>
+  <rect x="116" y="208" width="180" height="10" rx="5" fill="#e0f2fe"/>
+  <rect x="116" y="234" width="70" height="34" rx="8" fill="#0284c7"/>
+  <rect x="196" y="234" width="70" height="34" rx="8" fill="#bae6fd"/>
+
+  <!-- Monitor stand -->
+  <rect x="200" y="288" width="32" height="24" fill="url(#stand)"/>
+  <rect x="176" y="308" width="80" height="12" rx="6" fill="url(#stand)"/>
+
+  <!-- Clipboard (planning) -->
+  <g>
+    <rect x="300" y="248" width="132" height="164" rx="16" fill="#ffffff" stroke="#16a34a" stroke-width="10"/>
+    <rect x="336" y="234" width="60" height="24" rx="8" fill="#16a34a"/>
+
+    <circle cx="330" cy="296" r="10" fill="#16a34a"/>
+    <path d="M325 296l4 4 8-8" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <rect x="350" y="290" width="62" height="12" rx="6" fill="#dcfce7"/>
+
+    <circle cx="330" cy="332" r="10" fill="#16a34a"/>
+    <path d="M325 332l4 4 8-8" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <rect x="350" y="326" width="62" height="12" rx="6" fill="#dcfce7"/>
+
+    <circle cx="330" cy="368" r="10" fill="#bbf7d0"/>
+    <rect x="350" y="362" width="62" height="12" rx="6" fill="#dcfce7"/>
+  </g>
+</svg>
