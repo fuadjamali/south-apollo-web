@@ -480,7 +480,7 @@ export default async function Home({ searchParams }) {
                         : "border border-border text-foreground hover:bg-surface-alt"
                     }`}
                   >
-                    Get started
+                    Get my free quote
                   </a>
                 </div>
               ))}

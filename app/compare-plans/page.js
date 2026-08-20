@@ -101,7 +101,7 @@ export default async function ComparePlansPage() {
                     : "border border-border text-foreground hover:bg-surface-alt"
                 }`}
               >
-                Get started
+                Get my free quote
               </a>
             </div>
           ))}
@@ -208,7 +208,7 @@ export default async function ComparePlansPage() {
             href="/#enquiry"
             className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
           >
-            Get started
+            Get my free quote
           </a>
           <a
             href="/"
