@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/products";
+import { getProductPhotos } from "@/lib/productPhotos";
 import ProductForm from "@/components/ProductForm";
+import ProductPhotoManager from "@/components/ProductPhotoManager";
 import DeleteButton from "@/components/DeleteButton";
 import { updateProductAction, deleteProductAction } from "../../actions";
 import { isAIAssistantEnabled } from "@/lib/ai";
@@ -9,7 +11,11 @@ export const dynamic = "force-dynamic";
 
 export default async function EditProductPage({ params }) {
   const { id } = await params;
-  const [product, aiEnabled] = await Promise.all([getProduct(id), isAIAssistantEnabled()]);
+  const [product, aiEnabled, photos] = await Promise.all([
+    getProduct(id),
+    isAIAssistantEnabled(),
+    getProductPhotos(id),
+  ]);
 
   if (!product) {
     notFound();
@@ -27,6 +33,10 @@ export default async function EditProductPage({ params }) {
           submitLabel="Save changes"
           aiEnabled={aiEnabled}
         />
+
+        <div className="mt-6 border-t border-border pt-6">
+          <ProductPhotoManager productId={product.id} photos={photos} />
+        </div>
 
         <form action={deleteProductAction} className="mt-4 border-t border-border pt-4">
           <input type="hidden" name="id" value={product.id} />

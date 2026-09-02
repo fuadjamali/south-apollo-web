@@ -17,6 +17,7 @@ const PUBLIC_PREFIXES = [
   "/api/enquiries",
   "/api/track-visit",
   "/api/verify-membership",
+  "/api/upload-product-photo",
   "/blog",
   "/products",
   "/news-events",

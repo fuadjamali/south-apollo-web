@@ -1,4 +1,3 @@
-import ImageFileInput from "@/components/ImageFileInput";
 import AIAssistantButton from "@/components/AIAssistantButton";
 
 const fieldClass =
@@ -86,7 +85,12 @@ export default function ProductForm({ action, product, submitLabel, aiEnabled = 
         />
       </div>
 
-      <ImageFileInput name="imageFile" label="Image" currentImage={product?.image} />
+      {!product && (
+        <p className="text-xs text-muted">
+          Photos are added after the product is created — you&apos;ll be taken to the photo
+          manager next.
+        </p>
+      )}
 
       <div className="flex gap-3">
         <button

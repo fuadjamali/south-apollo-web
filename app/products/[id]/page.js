@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/products";
+import { getProductPhotos } from "@/lib/productPhotos";
 import AddToCartButton from "@/components/AddToCartButton";
+import ProductGallery from "@/components/ProductGallery";
 import { isModuleEnabled } from "@/lib/plan";
 import { getBusinessInfo } from "@/lib/businessInfo";
 
@@ -15,15 +17,20 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;
-  const [product, cartEnabled, business] = await Promise.all([
+  const [product, cartEnabled, business, photos] = await Promise.all([
     getProduct(id),
     isModuleEnabled("cart"),
     getBusinessInfo(),
+    getProductPhotos(id),
   ]);
 
   if (!product) {
     notFound();
   }
+
+  // Falls back to the single legacy `image` column for products that predate the photo
+  // gallery (no product_photos rows yet), so they still render exactly as before.
+  const galleryPhotos = photos.length > 0 ? photos : product.image ? [{ image: product.image }] : [];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -42,16 +49,8 @@ export default async function ProductDetailPage({ params }) {
 
       <main className="mx-auto max-w-4xl px-6 py-16">
         <div className="grid gap-10 sm:grid-cols-2">
-          <div className="relative aspect-video overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 sm:aspect-square">
-            {product.image && (
-              // Admin-editable image source — plain <img>, same reasoning as the home page grid.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            )}
+          <div>
+            <ProductGallery key={product.id} photos={galleryPhotos} productName={product.name} />
           </div>
 
           <div>
