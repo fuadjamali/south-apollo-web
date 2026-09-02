@@ -23,6 +23,11 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
   const [queue, setQueue] = useState([]); // files still waiting to be cropped
   const [cropping, setCropping] = useState(null); // { file, objectUrl } currently in the modal
   const [uploading, setUploading] = useState(false);
+  // True while a set-cover/delete/reorder request is in flight — disables those controls on
+  // every card so a rapid double-click can't fire two overlapping mutations. The backend
+  // (lib/productPhotos.js) is transactionally safe against this either way, but this avoids
+  // confusing optimistic-UI flicker while both requests are still in flight.
+  const [mutating, setMutating] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
 
@@ -107,11 +112,16 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
   }
 
   async function handleSetCover(photoId) {
-    const formData = new FormData();
-    formData.set("productId", productId);
-    formData.set("photoId", photoId);
-    await setCoverPhotoAction(formData);
-    setPhotos((prev) => prev.map((p) => ({ ...p, is_cover: p.id === photoId })));
+    setMutating(true);
+    try {
+      const formData = new FormData();
+      formData.set("productId", productId);
+      formData.set("photoId", photoId);
+      await setCoverPhotoAction(formData);
+      setPhotos((prev) => prev.map((p) => ({ ...p, is_cover: p.id === photoId })));
+    } finally {
+      setMutating(false);
+    }
   }
 
   async function handleOrderChange(photoId, value) {
@@ -130,12 +140,17 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
 
   async function handleDelete(photo) {
     if (!window.confirm("Delete this photo? This can't be undone.")) return;
-    const formData = new FormData();
-    formData.set("productId", productId);
-    formData.set("photoId", photo.id);
-    formData.set("imageUrl", photo.image);
-    await deleteProductPhotoAction(formData);
-    setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+    setMutating(true);
+    try {
+      const formData = new FormData();
+      formData.set("productId", productId);
+      formData.set("photoId", photo.id);
+      formData.set("imageUrl", photo.image);
+      await deleteProductPhotoAction(formData);
+      setPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+    } finally {
+      setMutating(false);
+    }
   }
 
   return (
@@ -180,7 +195,8 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
                   <button
                     type="button"
                     onClick={() => handleSetCover(photo.id)}
-                    className="flex-1 rounded-md border border-border px-1.5 py-1 text-[11px] font-medium text-foreground hover:bg-surface-alt"
+                    disabled={mutating}
+                    className="flex-1 rounded-md border border-border px-1.5 py-1 text-[11px] font-medium text-foreground hover:bg-surface-alt disabled:opacity-50"
                   >
                     Set cover
                   </button>
@@ -188,7 +204,8 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
                 <button
                   type="button"
                   onClick={() => handleDelete(photo)}
-                  className="rounded-md border border-border px-1.5 py-1 text-[11px] font-medium text-red-600 hover:bg-surface-alt dark:text-red-400"
+                  disabled={mutating}
+                  className="rounded-md border border-border px-1.5 py-1 text-[11px] font-medium text-red-600 hover:bg-surface-alt disabled:opacity-50 dark:text-red-400"
                 >
                   Delete
                 </button>
