@@ -27,11 +27,16 @@ in this list has been actioned except where marked done — review and decide wh
 
 ## Conversion / Funnel
 
-- [ ] Add a response-time commitment to the enquiry form copy (e.g. "we reply within 24
-      hours")
+- [x] Add a response-time commitment to the enquiry form copy (done — "Ready to build your
+      website? ... we'll reply within 24 hours" live at `/#enquiry`)
+- [x] Consider a more concrete, less clever-first hero line for a 5-second skim (done —
+      "Fast to start. Easy to upgrade to bookings and online orders.")
+- [x] "Get started" pricing buttons reworded to "Get my free quote" (homepage + compare-plans)
 - [ ] Use the site's own booking feature on the "Get started" CTA — link to a bookable call
-      instead of (or alongside) the static enquiry form; doubles as a live product demo
-- [ ] Consider a more concrete, less clever-first hero line for a 5-second skim
+      instead of (or alongside) the static enquiry form; doubles as a live product demo. Two
+      candidate booking services drafted (name/description/icon) but not yet wired up as real
+      bookable services — see `docs/free-consultation-icon.svg` and
+      `docs/demo-planning-icon.svg`
 
 ## Content Clarity
 

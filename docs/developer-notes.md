@@ -321,6 +321,48 @@ CRUD, cart/checkout, or login flows (those need a real session; drive those by h
 browser-automation tool for now). Run with `npm run smoke-test`; `BASE_URL` and `TEST_PLAN`
 env vars point it at a specific deployment and tier.
 
+## Table-creation races
+
+`CREATE TABLE IF NOT EXISTS` is **not atomic** in Postgres — two concurrent first-time callers
+(e.g. every page hitting a brand-new table simultaneously during Next.js's parallel prerender
+workers at `next build`, or two admin requests racing on a fresh deployment) can both decide
+the table doesn't exist yet and both attempt to create it, tripping a duplicate `pg_type`
+entry. Hit for real more than once as new tables were added. Two fixes, depending on shape:
+
+- **Singleton/simple tables**: wrap the `CREATE TABLE` in `try { ... } catch (err) { if
+  (err.code !== "23505" && err.code !== "42P07") throw err; }` — swallow the specific race,
+  it just means another caller already created the table. See any `ensureTable()` in
+  `lib/sectionHeadings.js`, `lib/siteText.js`, `lib/rootAlert.js`, `lib/branding.js`, etc.
+- **Multi-row seed data with parent/child inserts** (e.g. nav items, where a group needs its
+  id before its children can reference it): hold a `pg_advisory_xact_lock` across the whole
+  create-and-seed transaction, so concurrent callers serialize onto one winner instead of
+  racing. See `lib/navItems.js` / `lib/adminNavItems.js`'s `ensureSeeded()`.
+
+If you add a new table, use one of these two patterns from the start rather than a bare
+`CREATE TABLE IF NOT EXISTS` — cheap to add, expensive to debug later (this exact bug broke a
+production build once after being missed on five new tables in one deploy).
+
+## Product photo galleries — direct-to-Blob upload
+
+Everywhere else, an image field is a plain `<input type=file>` inside a Server Action (see
+`components/ImageFileInput.js`) — fine for one file at a time, since Vercel caps a Server
+Action's total request body at 4.5MB. Product photos allow up to 8 photos per product, so
+`components/ProductPhotoManager.js` instead uploads **directly from the browser to Vercel
+Blob**, bypassing the Server Action body limit entirely — only the resulting Blob URL passes
+through a (tiny) server action afterward, via `app/api/upload-product-photo/route.js`
+(`@vercel/blob/client`'s `handleUpload`, authorized by checking for an admin session before
+issuing the client upload token).
+
+**A real race this pattern needs guarding against**: `product_photos.is_cover` /
+`products.image` (the denormalized cover-photo pointer the home page grid reads) must always
+agree. `deleteProductPhoto`, `addProductPhoto`, and `setCoverPhoto` in `lib/productPhotos.js`
+each run as one Postgres transaction and unconditionally recompute the cover from scratch on
+delete, rather than trusting the prior `is_cover` flag — a read-then-write version of this
+went stale for real in production when a user deleted two photos in quick succession (the two
+delete requests interleaved). If you touch this file, keep everything cover-related inside one
+transaction; don't split a "read current cover" step from the "write new cover" step across
+separate queries.
+
 ## Where things live
 
 Every content feature (Products, Blog, Gallery, News & Events, Reviews, Partners, Team, Team
@@ -334,3 +376,9 @@ Members, Certifications, Portfolio, Stats, How It Works, Orders) follows the sam
   `lib/blob.js` for any image fields.
 - Public-facing rendering lives in `app/page.js` (home page sections) and, for features with
   their own pages, `app/<feature>/`.
+
+**Site-chrome features** (nav, section headings, root alert, cookie banner/401 text, admin
+panel text/nav — see modules-blueprint.md 1.10 and 8.5) follow a lighter version of this same
+shape: a `lib/<feature>.js` with the same self-migrating schema and CRUD, but usually one admin
+page with an inline form per item rather than the full List/Create/Detail/Edit/Delete route
+tree, since these are small, fixed-shape lists (or singletons) rather than open-ended content.

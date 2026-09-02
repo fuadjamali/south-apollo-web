@@ -66,7 +66,25 @@ Row of platform icon links (X, Facebook, Instagram, TikTok, etc.), each optional
 ### 1.9 "Site Unavailable" (401) handling
 Any route not on the explicit public/protected allowlist in `proxy.js` — or that belongs to a
 module outside the current plan tier — renders this page with a real 401 status, not a
-default Next.js 404.
+default Next.js 404. Its heading/message/error-code label are admin-editable (see 1.10).
+
+### 1.10 Fully admin-editable site chrome
+Everything a visitor sees is now Postgres-backed and admin-editable — `config/site.js` holds
+exactly one remaining static key (`plans`, Falcon's own demo pricing, `null`'d on every real
+client deployment). No code change is needed to reword or restructure any of the following:
+
+- **Header nav menu** (`/admin/nav`, `lib/navItems.js`) — full CRUD for top-level links and
+  dropdown groups (add/edit/delete/reorder), not just a fixed list
+- **Section headings/subheadings** (`/admin/section-text`, `lib/sectionHeadings.js`) — the
+  heading and subheading shown above every home page section (How It Works, Portfolio,
+  Gallery, Reviews, Certifications, Team, Blog, News & Events, Enquiry Form, Find Us, Footer,
+  Products, Partners)
+- **Root Alert** (`/admin/root-alert`, `lib/rootAlert.js`) — the banner at the very top of
+  every page, on/off with an editable message (was a hardcoded, always-on demo disclaimer)
+- **Cookie consent banner & Site Unavailable page text** (`/admin/site-text`,
+  `lib/siteText.js`)
+
+The admin panel's own chrome got the same treatment — see 8.5.
 
 ---
 
@@ -74,7 +92,7 @@ default Next.js 404.
 
 | Module | Key fields | Public surface |
 |---|---|---|
-| **Products** | name, description, price label (free text), cart price (numeric, optional), image, category, display order | Home grid (with category filter) + `/products/[id]` detail page |
+| **Products** | name, description, price label (free text), cart price (numeric, optional), up to 8 gallery photos with a chosen cover, category, display order | Home grid (cover photo, with category filter) + `/products/[id]` detail page (full gallery) |
 | **Portfolio** | name, description, image, display order | Home "Our Work" grid with captions |
 | **Gallery** | image (required), caption (optional) | Home teaser (3 most recent) + full `/gallery` page |
 | **Blog** | title, slug (auto-generated + uniqueness-checked), excerpt, body, cover image, published date | Home teaser (3 most recent) + `/blog` list + `/blog/[slug]` detail |
@@ -84,6 +102,23 @@ default Next.js 404.
 | **Certifications** | name, badge image, display order | Home badge strip |
 | **Stats** | value, label, display order | Home stats strip |
 | **How It Works** | title, description, display order | Home numbered steps |
+
+### 2.0 Product photo galleries
+Products can have up to 8 gallery photos (`product_photos` table), not just one image:
+
+- Admin photo manager on the product edit page: upload (each photo goes through the crop tool,
+  see 7.1), set any photo as the cover, reorder, delete
+- `products.image` stays as an auto-synced pointer to whichever photo is the cover, so the
+  home page grid and admin products list — anywhere that only needs one thumbnail — never
+  have to join the photos table
+- First photo uploaded becomes the cover automatically; deleting the cover promotes the next
+  one (or clears it if none remain) — this whole delete-and-recompute runs as one Postgres
+  transaction, not separate read-then-write steps (a real bug once: an admin deleting two
+  photos in quick succession could leave `products.image` pointing at nothing)
+- Public `/products/[id]` page: thumbnail strip + click-to-zoom lightbox — scroll-wheel or
+  pinch to zoom, drag to pan, double-click/tap to toggle zoom. Deliberately not an
+  Amazon-style hover magnifier, since that does nothing on a touch device
+- Products with no gallery photos yet fall back to the single legacy `image` column, unchanged
 
 ### 2.1 Team & Team Members
 Two related tables, not one:
@@ -272,7 +307,7 @@ button doesn't render.
 ## 7. Image uploads
 
 Shared across every module with an image field (Products, Gallery, Team, Partners, Reviews,
-Blog, News & Events, Certifications, Portfolio):
+Blog, News & Events, Certifications, Portfolio, Booking Services, Branding, Hero):
 
 - `components/ImageFileInput.js` — single reusable file input, used everywhere
 - Client-side validation before upload: file type (image/* only) and size (4.5MB cap — Vercel's
@@ -281,6 +316,32 @@ Blog, News & Events, Certifications, Portfolio):
 - Server-side upload via `lib/blob.js` → Vercel Blob, explicit token auth (bypasses a known
   OIDC auto-detection issue in local dev)
 - Old blob is deleted automatically when an image is replaced or its record is deleted
+
+### 7.1 In-admin crop tool
+Picking a file in any of the 12 admin image/photo forms (the 11 single-image forms above, plus
+the Product photo gallery, 2.0) opens a crop step before upload —
+`components/ImageCropModal.js`, shared by all of them:
+
+- **3 aspect presets** — Square 1:1, Portrait 4:5, Landscape 16:9 — drag to reposition, zoom
+  slider (`react-easy-crop`)
+- **90° rotate** (Left/Right buttons) separate from a **-45°..+45°, 1°-step straighten
+  slider**, so a sideways phone photo and a slightly tilted one are two different controls, not
+  one combined slider
+- **Coverage guarantee**: the zoom auto-bumps whenever rotation or aspect changes so the image
+  always fully covers the crop box, no gap at the corners, at any angle including the ±45°
+  extreme. Derived formula (`lib/cropImage.js`'s `minZoomForRotation`):
+  `s(θ) = |cosθ| + |sinθ| · max(aspect, 1/aspect)` — at θ=45° and a square crop this gives √2,
+  the standard "square rotated 45° needs √2 scale to still cover itself" result
+- **"Use original, uncropped"** skips cropping entirely; **"Edit crop"** re-opens the modal
+  against the untouched original file (never crops a crop) before saving
+- For the 11 single-image forms, cropping happens entirely client-side and the result is
+  swapped into the existing `<input>` via `DataTransfer` — the underlying Server Action upload
+  for each form is unchanged. Product photos go through a separate direct-to-Blob client
+  upload instead (see 2.0's sibling note in `docs/developer-notes.md`), since several
+  full-size gallery photos in one request would exceed the 4.5MB Server Action cap
+- Output is validated before upload — a crop confirmed before the tool's container has
+  finished measuring itself (e.g. the browser tab was backgrounded mid-crop) throws a visible
+  error instead of silently uploading a corrupt, near-empty image
 
 ---
 
@@ -319,6 +380,16 @@ Every content module above follows the identical admin structure:
   site →" link where a public page exists
 - **Edit** (`/admin/<feature>/[id]/edit`) — same form component as Create, pre-filled
 - **Delete** — confirmation-gated, cascades related Blob images
+
+### 8.5 Admin panel's own chrome, also admin-editable
+Not just the public site — the admin panel's own text and sidebar structure are Postgres-backed
+too, same "no code change needed" principle as 1.10:
+
+- **Admin Panel Text** (`/admin/admin-text`, `lib/adminText.js`) — the heading/subheading on
+  the admin login page and the dashboard
+- **Admin Navigation** (`/admin/admin-nav`, `lib/adminNavItems.js`) — the sidebar menu itself
+  (groups + links), full CRUD — the same pattern as 1.10's public nav, minus CTA/highlight
+  styling, which this sidebar doesn't use
 
 ---
 
