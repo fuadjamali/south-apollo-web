@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/products";
+import { getProductPhotos } from "@/lib/productPhotos";
 import DetailField from "@/components/DetailField";
 import { formatCurrency } from "@/lib/currency";
 
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminProductDetailPage({ params }) {
   const { id } = await params;
-  const product = await getProduct(id);
+  const [product, photos] = await Promise.all([getProduct(id), getProductPhotos(id)]);
 
   if (!product) {
     notFound();
@@ -34,13 +35,38 @@ export default async function AdminProductDetailPage({ params }) {
           </div>
         </div>
 
-        {product.image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.image}
-            alt=""
-            className="mt-6 h-48 w-full rounded-lg border border-border object-cover"
-          />
+        {photos.length > 0 ? (
+          <div className="mt-6">
+            <p className="text-xs font-medium text-muted">
+              {photos.length} photo{photos.length === 1 ? "" : "s"}
+            </p>
+            <div className="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-4">
+              {photos.map((photo) => (
+                <div key={photo.id} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photo.image}
+                    alt=""
+                    className="h-24 w-full rounded-lg border border-border object-cover"
+                  />
+                  {photo.is_cover && (
+                    <span className="absolute left-1 top-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      Cover
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          product.image && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.image}
+              alt=""
+              className="mt-6 h-48 w-full rounded-lg border border-border object-cover"
+            />
+          )
         )}
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
