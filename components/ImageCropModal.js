@@ -27,6 +27,7 @@ export default function ImageCropModal({ imageSrc, fileName, onDone, onUseOrigin
   const [fineRotation, setFineRotation] = useState(0); // -45..45, from the straighten slider
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
 
   const totalRotation = normalizeRotation(baseRotation + fineRotation);
   const aspectValue = ASPECT_RATIOS[ratioKey].value;
@@ -57,9 +58,15 @@ export default function ImageCropModal({ imageSrc, fileName, onDone, onUseOrigin
   async function handleConfirm() {
     if (!croppedAreaPixels) return;
     setProcessing(true);
+    setError("");
     try {
       const blob = await getCroppedImageBlob(imageSrc, croppedAreaPixels, totalRotation);
       onDone(blob, ratioKey);
+    } catch (err) {
+      // Surfaced here rather than left to fail silently — see lib/cropImage.js's
+      // MIN_VALID_BLOB_BYTES comment for the real bug this guards against (a near-empty,
+      // broken image getting uploaded as if the crop had succeeded).
+      setError(err.message || "Something went wrong cropping this photo — please try again.");
     } finally {
       setProcessing(false);
     }
@@ -188,6 +195,15 @@ export default function ImageCropModal({ imageSrc, fileName, onDone, onUseOrigin
             {processing ? "Processing…" : "Use this crop"}
           </button>
         </div>
+
+        {error && (
+          <p
+            role="alert"
+            className="mt-3 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400"
+          >
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
