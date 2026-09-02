@@ -9,6 +9,7 @@ import {
   deleteProductPhotoAction,
 } from "@/app/admin/(protected)/products/actions";
 import ImageCropModal from "@/components/ImageCropModal";
+import { getImageNaturalSize } from "@/lib/cropImage";
 
 const MAX_PHOTOS = 8;
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -82,6 +83,15 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
     }
   }
 
+  async function uploadPhoto(file, aspectRatio) {
+    const uploaded = await upload(`product-photos/${productId}/${Date.now()}-${file.name}`, file, {
+      access: "public",
+      handleUploadUrl: "/api/upload-product-photo",
+    });
+    const photo = await addProductPhotoAction(productId, uploaded.url, aspectRatio);
+    setPhotos((prev) => [...prev, photo]);
+  }
+
   async function handleCropDone(blob, ratioKey) {
     const current = cropping;
     setUploading(true);
@@ -89,13 +99,26 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
       const croppedFile = new File([blob], current.file.name.replace(/\.\w+$/, ".jpg"), {
         type: "image/jpeg",
       });
-      const uploaded = await upload(
-        `product-photos/${productId}/${Date.now()}-${croppedFile.name}`,
-        croppedFile,
-        { access: "public", handleUploadUrl: "/api/upload-product-photo" }
-      );
-      const photo = await addProductPhotoAction(productId, uploaded.url, ratioKey);
-      setPhotos((prev) => [...prev, photo]);
+      await uploadPhoto(croppedFile, ratioKey);
+    } catch (err) {
+      setError((prev) => `${prev ? prev + " " : ""}${err.message || "Upload failed."}`);
+    } finally {
+      setUploading(false);
+      URL.revokeObjectURL(current.objectUrl);
+      advanceQueue(queue);
+    }
+  }
+
+  // Uploads the picked file exactly as-is, no crop/rotate applied — the display box then uses
+  // the image's own natural aspect ratio (see lib/photoAspectRatios.js's cssRatio fallback)
+  // instead of one of the 3 presets, since forcing an uncropped photo into a preset shape
+  // would just letterbox or distort it.
+  async function handleUseOriginal() {
+    const current = cropping;
+    setUploading(true);
+    try {
+      const { width, height } = await getImageNaturalSize(current.objectUrl);
+      await uploadPhoto(current.file, (width / height).toFixed(4));
     } catch (err) {
       setError((prev) => `${prev ? prev + " " : ""}${err.message || "Upload failed."}`);
     } finally {
@@ -247,6 +270,7 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
           imageSrc={cropping.objectUrl}
           fileName={cropping.file.name}
           onDone={handleCropDone}
+          onUseOriginal={handleUseOriginal}
           onSkip={handleCropSkip}
         />
       )}

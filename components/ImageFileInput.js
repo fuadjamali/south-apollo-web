@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import ImageCropModal from "@/components/ImageCropModal";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-foreground";
@@ -11,10 +12,13 @@ function formatMB(bytes) {
   return (bytes / (1024 * 1024)).toFixed(1);
 }
 
-// Shared file input for every admin image/logo/photo field. Vercel caps a server
-// action's request body at 4.5MB, so an oversized file always fails on the server —
-// this catches it client-side first with a clear message instead of letting the
-// upload crash to the generic error boundary.
+// Shared file input for every admin image/logo/photo field. Picking a file opens a crop step
+// (components/ImageCropModal.js) before it's attached to this input — "Use this crop" or "Use
+// original, uncropped" both end with a File placed into the real <input> via DataTransfer, so
+// the surrounding form's existing Server Action submission is completely unchanged; only what
+// ends up in the file list differs. Vercel caps a server action's request body at 4.5MB, so an
+// oversized file always fails on the server — this catches it client-side first with a clear
+// message instead of letting the upload crash to the generic error boundary.
 export default function ImageFileInput({
   name,
   label,
@@ -24,28 +28,32 @@ export default function ImageFileInput({
   helpText,
 }) {
   const [error, setError] = useState("");
-  // Object URL for the file just picked in this session — distinct from `currentImage` (the
-  // already-saved value), so a chosen replacement shows up immediately instead of only after
-  // Save reloads the page. Revoked on cleanup/replacement so picking several files in a row
-  // doesn't leak blob URLs.
   const [previewUrl, setPreviewUrl] = useState("");
+  // The originally-picked file's object URL, kept separately from previewUrl (which may be a
+  // *cropped* blob) so "Edit crop" always re-opens the modal against the untouched original,
+  // not a crop of a crop.
+  const [rawSrc, setRawSrc] = useState("");
+  const [rawFile, setRawFile] = useState(null);
+  const [cropping, setCropping] = useState(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (rawSrc) URL.revokeObjectURL(rawSrc);
     };
-  }, [previewUrl]);
+  }, [previewUrl, rawSrc]);
+
+  function setInputFile(file) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    inputRef.current.files = dt.files;
+  }
 
   function handleChange(e) {
     const file = e.target.files?.[0];
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl("");
-    }
-    if (!file) {
-      setError("");
-      return;
-    }
+    if (!file) return;
+
     if (!file.type.startsWith("image/")) {
       setError(`"${file.name}" isn't an image file.`);
       e.target.value = "";
@@ -58,8 +66,31 @@ export default function ImageFileInput({
       e.target.value = "";
       return;
     }
+
     setError("");
-    setPreviewUrl(URL.createObjectURL(file));
+    if (rawSrc) URL.revokeObjectURL(rawSrc);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl("");
+    setRawFile(file);
+    setRawSrc(URL.createObjectURL(file));
+    setCropping(true);
+  }
+
+  function handleCropDone(blob) {
+    const croppedFile = new File([blob], rawFile.name.replace(/\.\w+$/, ".jpg"), {
+      type: "image/jpeg",
+    });
+    setInputFile(croppedFile);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(URL.createObjectURL(blob));
+    setCropping(false);
+  }
+
+  function handleUseOriginal() {
+    setInputFile(rawFile);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(rawSrc);
+    setCropping(false);
   }
 
   const displayImage = previewUrl || currentImage;
@@ -71,11 +102,23 @@ export default function ImageFileInput({
         <>
           <img src={displayImage} alt="" className={previewClassName} />
           {previewUrl && (
-            <p className="mt-1 text-xs font-medium text-accent">New file — not saved yet</p>
+            <p className="mt-1 flex items-center gap-2 text-xs font-medium text-accent">
+              New file — not saved yet
+              {rawFile && (
+                <button
+                  type="button"
+                  onClick={() => setCropping(true)}
+                  className="font-semibold underline hover:no-underline"
+                >
+                  Edit crop
+                </button>
+              )}
+            </p>
           )}
         </>
       )}
       <input
+        ref={inputRef}
         type="file"
         name={name}
         accept="image/*"
@@ -95,6 +138,15 @@ export default function ImageFileInput({
         >
           {error}
         </p>
+      )}
+
+      {cropping && (
+        <ImageCropModal
+          imageSrc={rawSrc}
+          fileName={rawFile.name}
+          onDone={handleCropDone}
+          onUseOriginal={handleUseOriginal}
+        />
       )}
     </div>
   );

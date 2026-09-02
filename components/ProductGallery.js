@@ -7,6 +7,15 @@ import { ASPECT_RATIOS } from "@/lib/photoAspectRatios";
 const MAX_ZOOM = 3;
 const DEFAULT_CSS_RATIO = "1 / 1";
 
+// A photo's stored aspect_ratio is either one of the 3 preset keys ("1:1" etc.) or, for a
+// photo uploaded via "Use original, uncropped", a bare decimal number holding that photo's
+// own natural ratio — CSS `aspect-ratio` accepts both a "W / H" string and a plain number.
+function resolveCssRatio(aspectRatio) {
+  if (ASPECT_RATIOS[aspectRatio]) return ASPECT_RATIOS[aspectRatio].cssRatio;
+  if (aspectRatio && /^\d+(\.\d+)?$/.test(aspectRatio)) return aspectRatio;
+  return DEFAULT_CSS_RATIO;
+}
+
 function distance(touches) {
   const [a, b] = touches;
   return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
@@ -122,7 +131,7 @@ export default function ProductGallery({ photos, productName }) {
       <button
         type="button"
         onClick={() => openLightbox(index)}
-        style={{ aspectRatio: ASPECT_RATIOS[current.aspect_ratio]?.cssRatio || DEFAULT_CSS_RATIO }}
+        style={{ aspectRatio: resolveCssRatio(current.aspect_ratio) }}
         className="group relative block w-full overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
