@@ -165,13 +165,13 @@ export default function ProductGallery({ photos, productName }) {
             type="button"
             onClick={closeLightbox}
             aria-label="Close"
-            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+            className="absolute right-4 top-4 z-20 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
           >
             <IconX size={20} />
           </button>
 
           {photos.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+            <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
               {photos.map((photo, i) => (
                 <button
                   key={photo.id ?? i}
