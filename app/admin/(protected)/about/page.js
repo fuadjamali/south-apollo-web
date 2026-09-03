@@ -1,12 +1,9 @@
 import { getAboutInfo } from "@/lib/aboutInfo";
 import { updateAboutInfoAction } from "./actions";
 import { isAIAssistantEnabled } from "@/lib/ai";
-import AIAssistantButton from "@/components/AIAssistantButton";
+import ImageTextSectionForm from "@/components/ImageTextSectionForm";
 
 export const dynamic = "force-dynamic";
-
-const fieldClass =
-  "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
 export default async function AdminAboutPage() {
   const [about, aiEnabled] = await Promise.all([getAboutInfo(), isAIAssistantEnabled()]);
@@ -19,38 +16,14 @@ export default async function AdminAboutPage() {
           Shown on the home page. Changes appear on the live site immediately.
         </p>
 
-        <form action={updateAboutInfoAction} className="mt-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-foreground">Heading</label>
-            <input
-              type="text"
-              name="heading"
-              defaultValue={about.heading}
-              className={fieldClass}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-foreground">Body</label>
-            <textarea
-              id="about-body"
-              name="body"
-              rows={6}
-              defaultValue={about.body}
-              className={fieldClass}
-            />
-            {aiEnabled && (
-              <AIAssistantButton targetId="about-body" fieldLabel="About Us body text" />
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
-          >
-            Save changes
-          </button>
-        </form>
+        <ImageTextSectionForm
+          data={about}
+          action={updateAboutInfoAction}
+          bodyFieldId="about-body"
+          aiEnabled={aiEnabled}
+          allowBehindPosition
+          hidesWhenBodyEmpty={false}
+        />
       </div>
     </div>
   );

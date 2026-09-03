@@ -34,40 +34,13 @@ import { getRecentPhotos } from "@/lib/gallery";
 import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
 import { getModuleStates, isEnabled, isPublicPathEnabled } from "@/lib/plan";
+import { OVERLAY_OPACITY_CLASSES, TEXT_STYLE_CLASSES } from "@/lib/overlaySettings";
 import { TIERS } from "@/lib/planFeatures";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
 // just a safety net, not the primary way updates propagate.
 export const revalidate = 3600;
-
-// Overlay opacity and text colors for the hero, keyed by the admin-chosen
-// hero_info.overlay_strength / .text_style (see lib/heroInfo.js). "auto" deliberately leaves
-// text/button colors unset so they inherit the page's normal text-foreground/border-border —
-// the same theme-matched colors used everywhere else on the site, correct in all 8 color
-// themes and dark mode without any per-theme tuning. "light"/"dark" are fixed overrides for
-// when a particular background image needs more contrast than the themed overlay alone gives.
-// Full class strings, not interpolated numbers — Tailwind's build-time scanner only generates
-// CSS for class names it can see literally in the source, so `bg-background/${n}` would
-// silently produce no styles at all for opacity values it never sees as a complete token.
-const HERO_OVERLAY_OPACITY = {
-  light: "bg-background/10",
-  medium: "bg-background/25",
-  dark: "bg-background/45",
-};
-const HERO_TEXT_STYLE = {
-  auto: { heading: "", subheading: "text-muted", secondaryBtn: "border-border hover:bg-surface-alt" },
-  light: {
-    heading: "text-white",
-    subheading: "text-white/85",
-    secondaryBtn: "border-white/40 text-white hover:bg-white/10",
-  },
-  dark: {
-    heading: "text-gray-900",
-    subheading: "text-gray-700",
-    secondaryBtn: "border-gray-900/30 text-gray-900 hover:bg-gray-900/5",
-  },
-};
 
 export async function generateMetadata() {
   const business = await getBusinessInfo();
@@ -228,8 +201,8 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: hero (optional — toggled from Settings → Feature Config; content itself
           lives in Postgres, editable at /admin/hero) */}
       {isEnabled("hero", moduleStates) && (() => {
-        const overlayClass = HERO_OVERLAY_OPACITY[hero.overlay_strength] || HERO_OVERLAY_OPACITY.medium;
-        const heroStyle = HERO_TEXT_STYLE[hero.text_style] || HERO_TEXT_STYLE.auto;
+        const overlayClass = OVERLAY_OPACITY_CLASSES[hero.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium;
+        const heroStyle = TEXT_STYLE_CLASSES[hero.text_style] || TEXT_STYLE_CLASSES.auto;
         return (
       <section className="relative isolate overflow-hidden">
         {hero.background_image && (
@@ -788,13 +761,60 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: about (optional — toggled from Settings → Feature Config; content itself
-          lives in Postgres, editable at /admin/about) */}
-      {isEnabled("about", moduleStates) && (
-      <section id="about" className="mx-auto max-w-4xl px-6 py-20 text-center">
-        <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
-        <p className="mt-4 text-muted">{aboutInfo.body}</p>
-      </section>
-      )}
+          lives in Postgres, editable at /admin/about). Three layouts depending on
+          aboutInfo.image_position: no image is the section's original centered text-only
+          treatment (unchanged); "left"/"right" is the same in-flow image+text grid as
+          vision-mission/history below (no collision risk regardless of body length — see that
+          section's comment); "behind" reuses the hero section's exact full-bleed-background
+          pattern (object-contain/object-bottom below sm:, object-cover/center from sm: up, plus
+          the same overlay/text-style scrim) since it carries the identical risk hero's own
+          single-image fallback was built to avoid — a long body could otherwise push text into
+          an image cropped by an arbitrary uploaded aspect ratio. */}
+      {isEnabled("about", moduleStates) && (() => {
+        if (aboutInfo.image && aboutInfo.image_position === "behind") {
+          const overlayClass = OVERLAY_OPACITY_CLASSES[aboutInfo.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium;
+          const aboutStyle = TEXT_STYLE_CLASSES[aboutInfo.text_style] || TEXT_STYLE_CLASSES.auto;
+          return (
+            <section id="about" className="relative isolate overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#c7dcff] to-[#93b8f5]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={aboutInfo.image}
+                  alt=""
+                  className="h-full w-full object-contain object-bottom sm:object-cover sm:object-center"
+                />
+                <div className={`absolute inset-0 ${overlayClass}`} />
+              </div>
+              <div className="relative mx-auto max-w-4xl px-6 py-20 text-center">
+                <h2 className={`text-3xl font-bold ${aboutStyle.heading}`}>{aboutInfo.heading}</h2>
+                <p className={`mt-4 ${aboutStyle.subheading}`}>{aboutInfo.body}</p>
+              </div>
+            </section>
+          );
+        }
+        if (aboutInfo.image) {
+          return (
+            <section id="about" className="mx-auto max-w-6xl px-6 py-20">
+              <div className="grid items-center gap-10 md:grid-cols-2">
+                <div className={aboutInfo.image_position === "right" ? "md:order-2" : ""}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={aboutInfo.image} alt="" className="w-full rounded-2xl object-cover" />
+                </div>
+                <div className={aboutInfo.image_position === "right" ? "md:order-1" : ""}>
+                  <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
+                  <p className="mt-4 whitespace-pre-line text-muted">{aboutInfo.body}</p>
+                </div>
+              </div>
+            </section>
+          );
+        }
+        return (
+          <section id="about" className="mx-auto max-w-4xl px-6 py-20 text-center">
+            <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
+            <p className="mt-4 text-muted">{aboutInfo.body}</p>
+          </section>
+        );
+      })()}
 
       {/* COMPONENT: vision-mission (optional, off by default — toggled from Settings → Feature
           Config; content lives in Postgres, editable at /admin/vision-mission). Only renders
