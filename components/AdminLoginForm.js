@@ -7,7 +7,7 @@ import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 
-export default function AdminLoginForm({ heading, subheading }) {
+export default function AdminLoginForm({ businessName, heading, subheading }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,6 +45,11 @@ export default function AdminLoginForm({ heading, subheading }) {
       <main className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-8 shadow-sm">
           <Logo className="mx-auto h-10 w-10 text-foreground" />
+          {businessName && (
+            <p className="mt-2 text-center text-sm font-semibold text-foreground">
+              {businessName}
+            </p>
+          )}
           <h1 className="mt-3 text-center text-xl font-bold text-foreground">{heading}</h1>
           <p className="mt-1 text-center text-sm text-muted">{subheading}</p>
 
