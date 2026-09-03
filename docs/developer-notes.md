@@ -363,6 +363,57 @@ delete requests interleaved). If you touch this file, keep everything cover-rela
 transaction; don't split a "read current cover" step from the "write new cover" step across
 separate queries.
 
+## Image + text home page sections (About, Vision & Mission, History)
+
+Three singleton sections — `lib/aboutInfo.js`, `lib/visionMissionInfo.js`, `lib/historyInfo.js`
+— share one shape: `heading`, `body`, an optional `image`, and `image_position` (`left` /
+`right` / `behind`). Admin editing is one shared client component,
+`components/ImageTextSectionForm.js`; public rendering is one shared server component,
+`components/ImageTextSection.js`. Three real call sites in `app/page.js`, not a speculative
+abstraction — if a fourth section needs this exact shape, reuse both rather than forking.
+
+- **`left`/`right`** — a normal `md:grid-cols-2` grid, image always first/on top below `md:`.
+  No collision risk to design around here regardless of body length, since it's plain in-flow
+  layout, not a background image with text on top of it.
+- **`behind`** — full-bleed background image with the heading/body overlaid on top, same
+  pattern as the hero section (including its `overlay_strength`/`text_style` admin controls,
+  shared via `lib/overlaySettings.js` so hero/about/vision-mission/history can never drift into
+  rendering "medium" differently from each other).
+
+**About Us** is Core, defaults on, and always renders once the module is enabled (matches its
+original pre-image behavior — an admin who clears the body still sees the heading, not nothing).
+**Vision & Mission** and **History** are also Core but seeded `enabled = false` in
+`lib/moduleSettings.js`'s `ensureTable()` — most clients don't want them, so they're opt-in
+rather than something to switch off — and only render once the module is on **and** the body is
+non-empty, so switching the toggle on early doesn't show a blank heading. Because of that
+difference, `ImageTextSectionForm` takes `hidesWhenBodyEmpty` (only About passes `false`) and
+`allowBehindPosition` (all three pass this now, but it exists as an opt-in prop in case a future
+caller of the shared form shouldn't offer it).
+
+**If you add a similar section**: don't forget `proxy.js`'s `PROTECTED_ROUTES` allowlist — it's
+a separate gate from `lib/plan.js`'s module-toggle system, checked first, and an admin route
+missing from it 401s regardless of the module being enabled (hit this for real building
+`/admin/vision-mission` — the module was on, the page still 401'd). Also remember `lib/plan.js`
+needs the new module in `CORE_MODULES`/`ANCHOR_MODULES`/`ADMIN_ROUTE_MODULES`/
+`NAV_HREF_MODULES`, and `lib/moduleSettings.js` needs a `MODULE_GROUPS` entry — grep any
+existing module name (e.g. `"about"`) across `lib/` to find every place it's wired in.
+
+**Nav items on an already-seeded install**: `lib/navItems.js` and `lib/adminNavItems.js` only
+run their seed block once, on an empty table — adding a new default nav child doesn't retroactively
+add it to a site that seeded its nav before the change shipped (this one included). Both files'
+`ensureSeeded()` now have an `else` branch that backfills specific hrefs by checking existence
+first, safe to run on every call. Copy that pattern for a similar future addition rather than
+expecting `DEFAULT_NAV`/`DEFAULT_ADMIN_NAV` alone to reach existing installs.
+
+**The hero mobile-image lesson** (relevant to any full-bleed background image, not just hero):
+`object-cover` scales to *fill* its box, and this section's box height is driven by the heading/
+body text above it, not by any fixed aspect ratio. A tall/portrait image under `object-cover` on
+a short mobile section gets zoomed in far enough that its content lands under the buttons —
+confirmed live twice (the hero mobile crop, then About Us in behind-mode during testing) before
+settling on `object-contain object-bottom` below `sm:` as the standing default for every
+full-bleed section in this codebase. Don't reach for `object-cover` on mobile for a new one
+without re-deriving why the existing sections don't use it there.
+
 ## Where things live
 
 Every content feature (Products, Blog, Gallery, News & Events, Reviews, Partners, Team, Team
