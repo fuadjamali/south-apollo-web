@@ -22,6 +22,8 @@ import { getSiteText } from "@/lib/siteText";
 import { getReviews } from "@/lib/reviews";
 import { getApprovedTestimonials, getTestimonialStats } from "@/lib/testimonials";
 import { getAboutInfo } from "@/lib/aboutInfo";
+import { getVisionMissionInfo } from "@/lib/visionMissionInfo";
+import { getHistoryInfo } from "@/lib/historyInfo";
 import { getRecentPosts } from "@/lib/blog";
 import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
 import { getActivePartners } from "@/lib/partners";
@@ -166,6 +168,8 @@ export default async function Home({ searchParams }) {
     testimonials,
     testimonialStats,
     aboutInfo,
+    visionMissionInfo,
+    historyInfo,
     recentPosts,
     teamGroups,
     partnerItems,
@@ -184,6 +188,8 @@ export default async function Home({ searchParams }) {
       ? getTestimonialStats()
       : Promise.resolve({ count: 0, average: 0 }),
     getAboutInfo(),
+    isEnabled("visionMission", moduleStates) ? getVisionMissionInfo() : Promise.resolve(null),
+    isEnabled("history", moduleStates) ? getHistoryInfo() : Promise.resolve(null),
     isEnabled("blog", moduleStates) ? getRecentPosts(3) : Promise.resolve([]),
     getActiveTeamsWithMembers(),
     getActivePartners(),
@@ -788,6 +794,69 @@ export default async function Home({ searchParams }) {
         <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
         <p className="mt-4 text-muted">{aboutInfo.body}</p>
       </section>
+      )}
+
+      {/* COMPONENT: vision-mission (optional, off by default — toggled from Settings → Feature
+          Config; content lives in Postgres, editable at /admin/vision-mission). Only renders
+          once an admin has written a body — a client who switches the module on before filling
+          it in gets nothing rather than an empty heading. Image is optional too: with one, it's
+          a two-column layout (image side chosen by the admin, image always first/on top below
+          md: — no full-bleed/behind-text tricks here, this is a normal in-flow image next to
+          normal in-flow text, so unlike app/page.js's hero section there's no collision risk to
+          design around regardless of body length); without one, falls back to the same
+          text-only/centered treatment the about section above uses. */}
+      {isEnabled("visionMission", moduleStates) && visionMissionInfo?.body && (
+        <section id="vision-mission" className="mx-auto max-w-6xl px-6 py-20">
+          {visionMissionInfo.image ? (
+            <div className="grid items-center gap-10 md:grid-cols-2">
+              <div className={visionMissionInfo.image_position === "right" ? "md:order-2" : ""}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={visionMissionInfo.image}
+                  alt=""
+                  className="w-full rounded-2xl object-cover"
+                />
+              </div>
+              <div className={visionMissionInfo.image_position === "right" ? "md:order-1" : ""}>
+                <h2 className="text-3xl font-bold">{visionMissionInfo.heading}</h2>
+                <p className="mt-4 whitespace-pre-line text-muted">{visionMissionInfo.body}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto max-w-4xl text-center">
+              <h2 className="text-3xl font-bold">{visionMissionInfo.heading}</h2>
+              <p className="mt-4 whitespace-pre-line text-muted">{visionMissionInfo.body}</p>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* COMPONENT: history (optional, off by default — same reasoning as vision-mission
+          directly above; editable at /admin/history) */}
+      {isEnabled("history", moduleStates) && historyInfo?.body && (
+        <section id="history" className="mx-auto max-w-6xl px-6 py-20">
+          {historyInfo.image ? (
+            <div className="grid items-center gap-10 md:grid-cols-2">
+              <div className={historyInfo.image_position === "right" ? "md:order-2" : ""}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={historyInfo.image}
+                  alt=""
+                  className="w-full rounded-2xl object-cover"
+                />
+              </div>
+              <div className={historyInfo.image_position === "right" ? "md:order-1" : ""}>
+                <h2 className="text-3xl font-bold">{historyInfo.heading}</h2>
+                <p className="mt-4 whitespace-pre-line text-muted">{historyInfo.body}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto max-w-4xl text-center">
+              <h2 className="text-3xl font-bold">{historyInfo.heading}</h2>
+              <p className="mt-4 whitespace-pre-line text-muted">{historyInfo.body}</p>
+            </div>
+          )}
+        </section>
       )}
 
       {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and

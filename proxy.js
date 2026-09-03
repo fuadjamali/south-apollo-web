@@ -56,6 +56,8 @@ const PROTECTED_ROUTES = [
   "/admin/logo",
   "/admin/legal",
   "/admin/about",
+  "/admin/vision-mission",
+  "/admin/history",
   "/admin/account",
   "/admin/subscription",
   "/admin/subscription/compare",
