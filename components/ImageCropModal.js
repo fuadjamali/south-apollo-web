@@ -19,8 +19,15 @@ function normalizeRotation(deg) {
 // passes the picked file through untouched. `onSkip` is optional — only meaningful for a
 // multi-file queue (Products) where "skip" means "don't add this one at all", not "use
 // uncropped" (that's what onUseOriginal is for).
-export default function ImageCropModal({ imageSrc, fileName, onDone, onUseOriginal, onSkip }) {
-  const [ratioKey, setRatioKey] = useState("1:1");
+export default function ImageCropModal({
+  imageSrc,
+  fileName,
+  onDone,
+  onUseOriginal,
+  onSkip,
+  initialRatioKey = "1:1",
+}) {
+  const [ratioKey, setRatioKey] = useState(initialRatioKey);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [baseRotation, setBaseRotation] = useState(0); // 0/90/180/270, from the rotate buttons

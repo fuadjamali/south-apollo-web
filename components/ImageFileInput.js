@@ -26,6 +26,7 @@ export default function ImageFileInput({
   required,
   previewClassName = "mt-2 h-24 w-24 rounded-lg border border-border object-cover",
   helpText,
+  cropAspectRatio,
 }) {
   const [error, setError] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
@@ -146,6 +147,7 @@ export default function ImageFileInput({
           fileName={rawFile.name}
           onDone={handleCropDone}
           onUseOriginal={handleUseOriginal}
+          initialRatioKey={cropAspectRatio}
         />
       )}
     </div>

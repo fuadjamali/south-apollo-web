@@ -51,6 +51,25 @@ export default function HeroInfoForm({ hero }) {
         </label>
       )}
 
+      <ImageFileInput
+        name="backgroundImageMobileFile"
+        label="Mobile background image (optional)"
+        currentImage={hero.background_image_mobile}
+        previewClassName="mt-2 h-40 w-24 rounded-lg border border-border object-cover"
+        cropAspectRatio="4:5"
+        helpText="A portrait crop of the same scene, shown on phones instead of the background image above. Leave blank to keep using the background image on mobile too."
+      />
+      {hero.background_image_mobile && (
+        <label className="flex items-center gap-2 text-sm text-muted">
+          <input
+            type="checkbox"
+            name="removeBackgroundImageMobile"
+            className="h-4 w-4 rounded border-border"
+          />
+          Remove the mobile image (phones fall back to the background image above)
+        </label>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className={labelClass}>Overlay strength</label>

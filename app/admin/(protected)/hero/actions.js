@@ -25,10 +25,25 @@ export async function updateHeroInfoAction(prevState, formData) {
     backgroundImage = existing?.background_image || null;
   }
 
+  const removeMobileImage = formData.get("removeBackgroundImageMobile") === "on";
+  const uploadedMobile = await uploadImage(formData.get("backgroundImageMobileFile"), "hero");
+
+  let backgroundImageMobile;
+  if (uploadedMobile) {
+    await deleteImage(existing?.background_image_mobile);
+    backgroundImageMobile = uploadedMobile;
+  } else if (removeMobileImage) {
+    await deleteImage(existing?.background_image_mobile);
+    backgroundImageMobile = null;
+  } else {
+    backgroundImageMobile = existing?.background_image_mobile || null;
+  }
+
   await updateHeroInfo({
     heading,
     subheading: formData.get("subheading")?.toString().trim(),
     backgroundImage,
+    backgroundImageMobile,
     primaryCtaLabel: formData.get("primaryCtaLabel")?.toString().trim(),
     primaryCtaHref: formData.get("primaryCtaHref")?.toString().trim(),
     secondaryCtaLabel: formData.get("secondaryCtaLabel")?.toString().trim(),
