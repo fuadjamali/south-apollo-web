@@ -22,6 +22,7 @@ export default async function AdminHistoryPage() {
           action={updateHistoryInfoAction}
           bodyFieldId="history-body"
           aiEnabled={aiEnabled}
+          allowBehindPosition
         />
       </div>
     </div>

@@ -8,6 +8,7 @@ import BackToTopButton from "@/components/BackToTopButton";
 import SocialLinks from "@/components/SocialLinks";
 import CategoryFilter from "@/components/CategoryFilter";
 import Logo from "@/components/Logo";
+import ImageTextSection from "@/components/ImageTextSection";
 import siteConfig from "@/config/site";
 import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
 import { getProducts, getProductCategories } from "@/lib/products";
@@ -761,122 +762,24 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: about (optional — toggled from Settings → Feature Config; content itself
-          lives in Postgres, editable at /admin/about). Three layouts depending on
-          aboutInfo.image_position: no image is the section's original centered text-only
-          treatment (unchanged); "left"/"right" is the same in-flow image+text grid as
-          vision-mission/history below (no collision risk regardless of body length — see that
-          section's comment); "behind" reuses the hero section's exact full-bleed-background
-          pattern (object-contain/object-bottom below sm:, object-cover/center from sm: up, plus
-          the same overlay/text-style scrim) since it carries the identical risk hero's own
-          single-image fallback was built to avoid — a long body could otherwise push text into
-          an image cropped by an arbitrary uploaded aspect ratio. */}
-      {isEnabled("about", moduleStates) && (() => {
-        if (aboutInfo.image && aboutInfo.image_position === "behind") {
-          const overlayClass = OVERLAY_OPACITY_CLASSES[aboutInfo.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium;
-          const aboutStyle = TEXT_STYLE_CLASSES[aboutInfo.text_style] || TEXT_STYLE_CLASSES.auto;
-          return (
-            <section id="about" className="relative isolate overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#c7dcff] to-[#93b8f5]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={aboutInfo.image}
-                  alt=""
-                  className="h-full w-full object-contain object-bottom sm:object-cover sm:object-center"
-                />
-                <div className={`absolute inset-0 ${overlayClass}`} />
-              </div>
-              <div className="relative mx-auto max-w-4xl px-6 py-20 text-center">
-                <h2 className={`text-3xl font-bold ${aboutStyle.heading}`}>{aboutInfo.heading}</h2>
-                <p className={`mt-4 ${aboutStyle.subheading}`}>{aboutInfo.body}</p>
-              </div>
-            </section>
-          );
-        }
-        if (aboutInfo.image) {
-          return (
-            <section id="about" className="mx-auto max-w-6xl px-6 py-20">
-              <div className="grid items-center gap-10 md:grid-cols-2">
-                <div className={aboutInfo.image_position === "right" ? "md:order-2" : ""}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={aboutInfo.image} alt="" className="w-full rounded-2xl object-cover" />
-                </div>
-                <div className={aboutInfo.image_position === "right" ? "md:order-1" : ""}>
-                  <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
-                  <p className="mt-4 whitespace-pre-line text-muted">{aboutInfo.body}</p>
-                </div>
-              </div>
-            </section>
-          );
-        }
-        return (
-          <section id="about" className="mx-auto max-w-4xl px-6 py-20 text-center">
-            <h2 className="text-3xl font-bold">{aboutInfo.heading}</h2>
-            <p className="mt-4 text-muted">{aboutInfo.body}</p>
-          </section>
-        );
-      })()}
+          lives in Postgres, editable at /admin/about). Rendering (three layouts depending on
+          image_position, including the hero-style "behind the text" full-bleed background) is
+          shared with vision-mission/history below via components/ImageTextSection.js — see that
+          file for why each layout looks the way it does. */}
+      {isEnabled("about", moduleStates) && <ImageTextSection id="about" data={aboutInfo} />}
 
       {/* COMPONENT: vision-mission (optional, off by default — toggled from Settings → Feature
           Config; content lives in Postgres, editable at /admin/vision-mission). Only renders
           once an admin has written a body — a client who switches the module on before filling
-          it in gets nothing rather than an empty heading. Image is optional too: with one, it's
-          a two-column layout (image side chosen by the admin, image always first/on top below
-          md: — no full-bleed/behind-text tricks here, this is a normal in-flow image next to
-          normal in-flow text, so unlike app/page.js's hero section there's no collision risk to
-          design around regardless of body length); without one, falls back to the same
-          text-only/centered treatment the about section above uses. */}
+          it in gets nothing rather than an empty heading. */}
       {isEnabled("visionMission", moduleStates) && visionMissionInfo?.body && (
-        <section id="vision-mission" className="mx-auto max-w-6xl px-6 py-20">
-          {visionMissionInfo.image ? (
-            <div className="grid items-center gap-10 md:grid-cols-2">
-              <div className={visionMissionInfo.image_position === "right" ? "md:order-2" : ""}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={visionMissionInfo.image}
-                  alt=""
-                  className="w-full rounded-2xl object-cover"
-                />
-              </div>
-              <div className={visionMissionInfo.image_position === "right" ? "md:order-1" : ""}>
-                <h2 className="text-3xl font-bold">{visionMissionInfo.heading}</h2>
-                <p className="mt-4 whitespace-pre-line text-muted">{visionMissionInfo.body}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="mx-auto max-w-4xl text-center">
-              <h2 className="text-3xl font-bold">{visionMissionInfo.heading}</h2>
-              <p className="mt-4 whitespace-pre-line text-muted">{visionMissionInfo.body}</p>
-            </div>
-          )}
-        </section>
+        <ImageTextSection id="vision-mission" data={visionMissionInfo} />
       )}
 
       {/* COMPONENT: history (optional, off by default — same reasoning as vision-mission
           directly above; editable at /admin/history) */}
       {isEnabled("history", moduleStates) && historyInfo?.body && (
-        <section id="history" className="mx-auto max-w-6xl px-6 py-20">
-          {historyInfo.image ? (
-            <div className="grid items-center gap-10 md:grid-cols-2">
-              <div className={historyInfo.image_position === "right" ? "md:order-2" : ""}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={historyInfo.image}
-                  alt=""
-                  className="w-full rounded-2xl object-cover"
-                />
-              </div>
-              <div className={historyInfo.image_position === "right" ? "md:order-1" : ""}>
-                <h2 className="text-3xl font-bold">{historyInfo.heading}</h2>
-                <p className="mt-4 whitespace-pre-line text-muted">{historyInfo.body}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="mx-auto max-w-4xl text-center">
-              <h2 className="text-3xl font-bold">{historyInfo.heading}</h2>
-              <p className="mt-4 whitespace-pre-line text-muted">{historyInfo.body}</p>
-            </div>
-          )}
-        </section>
+        <ImageTextSection id="history" data={historyInfo} />
       )}
 
       {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and

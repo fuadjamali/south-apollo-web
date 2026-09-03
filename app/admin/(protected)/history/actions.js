@@ -30,6 +30,8 @@ export async function updateHistoryInfoAction(prevState, formData) {
     body: formData.get("body")?.toString().trim(),
     image,
     imagePosition: formData.get("imagePosition")?.toString(),
+    overlayStrength: formData.get("overlayStrength")?.toString(),
+    textStyle: formData.get("textStyle")?.toString(),
   });
 
   revalidatePath("/");

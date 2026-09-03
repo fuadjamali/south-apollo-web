@@ -22,6 +22,7 @@ export default async function AdminVisionMissionPage() {
           action={updateVisionMissionInfoAction}
           bodyFieldId="vision-mission-body"
           aiEnabled={aiEnabled}
+          allowBehindPosition
         />
       </div>
     </div>
