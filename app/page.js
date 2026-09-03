@@ -241,12 +241,20 @@ export default async function Home({ searchParams }) {
                 a thin center strip and cuts both side illustrations entirely. object-contain
                 keeps the whole scene visible instead; the gradient behind it (matching the
                 image's own background) fills the letterboxed gap seamlessly. From sm: up, the
-                viewport is wide enough that object-cover no longer loses the side content. */}
+                viewport is wide enough that object-cover no longer loses the side content.
+                object-bottom below sm: this section's height is driven by the text (which can
+                wrap to 4+ lines on a narrow phone), while the text itself sits at the *top* of
+                the section (plain flow, py-24, no vertical centering) — object-contain's default
+                center position put the image band right at the section's vertical midpoint,
+                which is exactly where a long heading's lower lines/subheading end up, causing a
+                real collision. Anchoring the image to the bottom instead means the two only
+                diverge further apart as the heading grows, never converge. Reset to center for
+                sm:'s object-cover, where a full-bleed crop has no such positioning concern. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={hero.background_image}
               alt=""
-              className="h-full w-full object-contain sm:object-cover"
+              className="h-full w-full object-contain object-bottom sm:object-cover sm:object-center"
             />
             {/* Theme-color overlay (not a fixed white/black) so the image stays legible —
                 and readable as the *same* background color — across all 8 color themes and
