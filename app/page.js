@@ -236,31 +236,46 @@ export default async function Home({ searchParams }) {
           // the section entirely and rendered invisible under the body background.
           <div className="absolute inset-0 bg-gradient-to-br from-[#c7dcff] to-[#93b8f5]">
             {/* Admin-editable image source — plain <img>, same reasoning as products/blog.
-                This whole div is a full-bleed *background* — text is overlaid on top of it —
-                which only stays clear of the text on a narrow phone because the landscape image,
-                scaled by width (object-contain), reduces to a short band (its own wide aspect
-                ratio means a small height at mobile width). A portrait crop doesn't get that
-                same protection: scaled by width it's nearly as tall as the section itself, so
-                object-contain/object-position tuning alone can't keep it from sitting under the
-                heading and CTAs no matter how it's anchored (tried object-cover, then
-                object-contain + object-bottom here first — both still overlapped real heading
-                text on the live site, confirmed via screenshot). So when a mobile crop exists,
-                it's deliberately left out of this background layer below sm: — only the gradient
-                shows there, and the crop instead renders as a normal in-flow image after the CTA
-                buttons (below), where it can never overlap text because layout, not object-fit
-                math, is what's keeping them apart. From sm: up this is moot — the viewport is
-                wide enough that object-cover (centered) works well on the landscape image
-                directly, so that's all this shows there. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={hero.background_image}
-              alt=""
-              className={
-                hero.background_image_mobile
-                  ? "hidden h-full w-full object-cover object-center sm:block"
-                  : "h-full w-full object-contain object-bottom sm:object-cover sm:object-center"
-              }
-            />
+                When the admin has cropped a dedicated portrait version (hero.background_image_mobile,
+                set at /admin/hero), it's shown full-bleed behind the text below sm: — the same
+                object-cover/object-center treatment as the landscape image gets from sm: up — so
+                mobile and desktop both put text over a full-bleed image rather than mobile getting
+                a visibly different (letterboxed or in-flow) treatment. The trade-off: object-cover
+                scales to *fill* the section, and this section's height is driven by the heading
+                text (which can wrap to 4+ lines on a narrow phone) — a long heading zooms the crop
+                in enough that its illustrated elements can land close to the CTA buttons below,
+                same as the landscape image already accepts on desktop (just less visible there
+                since desktop sections are shorter and wider relative to the image's own aspect).
+                Without a mobile crop, fall back to the original single-image behavior: object-contain
+                below sm: the source image is a wide ~2.3:1 scene with distinct content near both
+                edges, so object-cover on a tall mobile viewport crops down to a thin center strip
+                and cuts both side illustrations entirely; object-contain keeps the whole scene
+                visible instead, with the gradient behind it (matching the image's own background)
+                filling the letterboxed gap seamlessly, and object-bottom anchoring it so a longer
+                heading only pushes it further from the text, never toward it. */}
+            {hero.background_image_mobile ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={hero.background_image_mobile}
+                  alt=""
+                  className="h-full w-full object-cover object-center sm:hidden"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={hero.background_image}
+                  alt=""
+                  className="hidden h-full w-full object-cover object-center sm:block"
+                />
+              </>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={hero.background_image}
+                alt=""
+                className="h-full w-full object-contain object-bottom sm:object-cover sm:object-center"
+              />
+            )}
             {/* Theme-color overlay (not a fixed white/black) so the image stays legible —
                 and readable as the *same* background color — across all 8 color themes and
                 dark mode, rather than only looking right in the one theme it was tuned for.
@@ -305,18 +320,6 @@ export default async function Home({ searchParams }) {
               </a>
             )}
           </div>
-          {hero.background_image_mobile && (
-            // In normal flow (not absolutely positioned behind the text like the desktop
-            // background above) — see this section's background-image comment for why: a
-            // portrait crop can't stay clear of the heading/CTAs as a full-bleed background,
-            // so it renders here instead, after the buttons, where layout guarantees no overlap.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={hero.background_image_mobile}
-              alt=""
-              className="mx-auto mt-10 max-w-xs rounded-2xl sm:hidden"
-            />
-          )}
         </div>
       </section>
         );
