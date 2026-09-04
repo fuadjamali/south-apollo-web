@@ -134,6 +134,13 @@ export default async function Home({ searchParams }) {
   // Hero and Footer are never in this map — they get hardcoded order values below instead,
   // -1 and 999, so they always stay first/last regardless of what's in a custom order.
   const sectionOrder = Object.fromEntries(homeLayout.sectionOrder.map((key, i) => [key, i]));
+  // Sidebar Layout (the third Home Page Layout preset): News & Events moves out of the ordered
+  // main-column flow above and into an aside next to it — the one section on the page that's
+  // already a compact dated feed, and so the natural fit for a narrow column (a grid of product
+  // cards or the pricing table wouldn't read well squeezed into one). Only meaningful, and only
+  // takes a grid column, when News & Events is actually enabled — with the module off there's
+  // nothing to put beside the main column, so it renders as a single column same as Default.
+  const isSidebarLayout = homeLayout.layoutName === "sidebar";
   // Drops any nav item (or child of a group) whose module isn't in this deployment's plan,
   // and drops a group entirely if every one of its children got filtered out — same pattern
   // as the admin nav's filterNav in app/admin/(protected)/layout.js.
@@ -189,6 +196,54 @@ export default async function Home({ searchParams }) {
     isEnabled("portfolio", moduleStates) ? getPortfolioItems() : Promise.resolve([]),
     isEnabled("certifications", moduleStates) ? getCertifications() : Promise.resolve([]),
   ]);
+
+  const showNewsEventsAside =
+    isSidebarLayout && isEnabled("newsEvents", moduleStates) && recentNewsEvents.length > 0;
+  // Built once, placed on whichever side homeLayout.asidePosition picks below — a plain JS
+  // variable holding JSX is safe to reference in two mutually-exclusive branches like this,
+  // since only one of them ever actually renders it.
+  const newsEventsAsideNode = showNewsEventsAside && (
+    <aside className="w-full">
+      <div className="sticky top-24 rounded-xl border border-border bg-surface-alt p-5">
+        <h2 className="text-lg font-bold text-foreground">{newsEvents.heading}</h2>
+        <ul className="mt-4 space-y-4">
+          {recentNewsEvents.map((item) => (
+            <li key={item.slug}>
+              <a href={`/news-events/${item.slug}`} className="block">
+                <div className="flex items-center gap-2 text-xs text-muted">
+                  <span
+                    className={`rounded-full px-2 py-0.5 font-medium ${
+                      item.type === "Event"
+                        ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400"
+                        : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400"
+                    }`}
+                  >
+                    {item.type}
+                  </span>
+                  <span>
+                    {new Date(item.published_date).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm font-semibold text-foreground hover:text-accent">
+                  {item.title}
+                </p>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a
+          href="/news-events"
+          className="mt-4 inline-block text-sm font-medium text-accent hover:underline"
+        >
+          View all news &amp; events &rarr;
+        </a>
+      </div>
+    </aside>
+  );
 
   const footerWhatsappHref = `https://wa.me/${socialSettings.whatsapp_number}?text=${encodeURIComponent(
     socialSettings.footer_whatsapp_message || socialSettings.whatsapp_message || ""
@@ -319,6 +374,30 @@ export default async function Home({ searchParams }) {
       </section>
         );
       })()}
+
+      {/* Sidebar Layout's grid wrapper — everything from Stats through Send an Enquiry lives
+          inside this one flex item (order: 0, between Hero at -1 and Footer at 999). When the
+          aside isn't showing, both this and the inner div below render as `display: contents` —
+          invisible to layout, so their children behave exactly as if they were direct children
+          of <main>'s own flex column, identical to Default/Custom. Only when the aside actually
+          renders does this become a real 2-column grid; grid column order follows JSX order
+          (aside first for "left", main first for "right"), so no extra CSS ordering is needed
+          beyond picking which side matches the grid-template-columns below. */}
+      <div
+        style={{ order: 0 }}
+        className={
+          showNewsEventsAside
+            ? `mx-auto grid w-full max-w-6xl gap-x-10 px-6 ${
+                homeLayout.asidePosition === "left"
+                  ? "lg:grid-cols-[280px_1fr]"
+                  : "lg:grid-cols-[1fr_280px]"
+              }`
+            : "contents"
+        }
+      >
+      {homeLayout.asidePosition === "left" && newsEventsAsideNode}
+
+      <div className={showNewsEventsAside ? "flex min-w-0 flex-col" : "contents"}>
 
       {/* COMPONENT: stats (optional — live from Postgres, editable at /admin/stats) */}
       {statsEnabled && statItems.length > 0 && (
@@ -748,8 +827,9 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: news-events (optional — latest 3 news/event items, live from Postgres,
-          editable at /admin/news-events) */}
-      {isEnabled("newsEvents", moduleStates) && recentNewsEvents.length > 0 && (
+          editable at /admin/news-events). Skipped in Sidebar Layout — it renders in the aside
+          instead (see showNewsEventsAside above), not here in the main column too. */}
+      {!isSidebarLayout && isEnabled("newsEvents", moduleStates) && recentNewsEvents.length > 0 && (
         <section id="news-events" className="py-20" style={{ order: sectionOrder.newsEvents }}>
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-3xl font-bold">{newsEvents.heading}</h2>
@@ -1007,6 +1087,11 @@ export default async function Home({ searchParams }) {
           </div>
         </section>
       )}
+
+      </div>
+
+      {homeLayout.asidePosition === "right" && newsEventsAsideNode}
+      </div>
 
       {/* COMPONENT: contact-footer (optional — toggled from Settings → Feature Config; carries
           the closing WhatsApp CTA, social links, and copyright line, so switching it off removes
