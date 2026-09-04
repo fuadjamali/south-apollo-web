@@ -261,92 +261,106 @@ export default async function Home({ searchParams }) {
       })),
     },
   };
-  const activeAside = ASIDE_SOURCES[homeLayout.asideContent] || ASIDE_SOURCES.newsEvents;
-  const showAside = isSidebarLayout && activeAside.enabled;
+  // homeLayout.asideContent is a checkbox multi-select now, not a single choice — one stacked
+  // card per selected-and-enabled source, always in this fixed order (not selection order,
+  // for predictability) regardless of which order the admin ticked the boxes in.
+  const activeAsideList = ["newsEvents", "blog", "reviews"]
+    .filter((key) => homeLayout.asideContent?.includes(key))
+    .map((key) => ({ key, ...ASIDE_SOURCES[key] }))
+    .filter((source) => source.enabled);
+  const showAside = isSidebarLayout && activeAsideList.length > 0;
   const asideTypeIcon = { event: IconCalendarEvent, news: IconSpeakerphone, article: IconArticle };
 
   // Built once, placed on whichever side homeLayout.asidePosition picks below — a plain JS
   // variable holding JSX is safe to reference in two mutually-exclusive branches like this,
-  // since only one of them ever actually renders it. Ends with a WhatsApp quick-chat CTA (same
-  // link the footer's own button uses) so the sidebar earns its space on every page view, not
-  // just when its feed content happens to be interesting to a given visitor.
+  // since only one of them ever actually renders it. `sticky` sits on the outer stack (not each
+  // card) so multiple cards scroll together as one unit. Ends with a single shared WhatsApp
+  // quick-chat CTA (same link the footer's own button uses) below every card, rather than one
+  // per card, so the sidebar earns its space on every page view without repeating itself.
   const asideNode = showAside && (
     <aside className="w-full">
-      <div className="sticky top-24 overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
-        <div className="border-b border-border bg-surface-alt px-5 py-4">
-          <h2 className="text-lg font-bold text-foreground">{activeAside.heading}</h2>
-        </div>
-        <ul className="divide-y divide-border">
-          {activeAside.items.map((item) => {
-            const Content =
-              item.icon === "star" ? (
-                <div className="flex gap-3 px-5 py-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <IconStar size={18} className="fill-current" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm text-foreground">&ldquo;{item.quote}&rdquo;</p>
-                    <p className="mt-1 text-xs font-medium text-muted">— {item.author}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex gap-3 px-5 py-4">
-                  <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <span className="text-[10px] font-bold uppercase leading-none">
-                      {new Date(item.date).toLocaleDateString(undefined, { month: "short" })}
-                    </span>
-                    <span className="text-base font-bold leading-none">
-                      {new Date(item.date).getDate()}
-                    </span>
-                  </div>
-                  <div className="min-w-0">
-                    {item.badge && (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-muted">
-                        {(() => {
-                          const Icon = asideTypeIcon[item.icon];
-                          return Icon ? <Icon size={12} /> : null;
-                        })()}
-                        {item.badge}
-                      </span>
-                    )}
-                    <p className="mt-0.5 truncate text-sm font-semibold text-foreground group-hover:text-accent">
-                      {item.title}
-                    </p>
-                  </div>
-                </div>
-              );
-            return (
-              <li key={item.key} className="group">
-                {item.href ? (
-                  <a href={item.href} className="block hover:bg-surface-alt">
-                    {Content}
-                  </a>
-                ) : (
-                  Content
-                )}
-              </li>
-            );
-          })}
-        </ul>
-        <div className="space-y-2 border-t border-border p-4">
-          <a
-            href={activeAside.viewAllHref}
-            className="block rounded-lg border border-border py-2 text-center text-sm font-medium text-foreground hover:bg-surface-alt"
+      <div className="sticky top-24 space-y-4">
+        {activeAsideList.map((source) => (
+          <div
+            key={source.key}
+            className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm"
           >
-            {activeAside.viewAllLabel} &rarr;
+            <div className="border-b border-border bg-surface-alt px-5 py-4">
+              <h2 className="text-lg font-bold text-foreground">{source.heading}</h2>
+            </div>
+            <ul className="divide-y divide-border">
+              {source.items.map((item) => {
+                const Content =
+                  item.icon === "star" ? (
+                    <div className="flex gap-3 px-5 py-4">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <IconStar size={18} className="fill-current" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-foreground">&ldquo;{item.quote}&rdquo;</p>
+                        <p className="mt-1 text-xs font-medium text-muted">— {item.author}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-3 px-5 py-4">
+                      <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <span className="text-[10px] font-bold uppercase leading-none">
+                          {new Date(item.date).toLocaleDateString(undefined, { month: "short" })}
+                        </span>
+                        <span className="text-base font-bold leading-none">
+                          {new Date(item.date).getDate()}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        {item.badge && (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-muted">
+                            {(() => {
+                              const Icon = asideTypeIcon[item.icon];
+                              return Icon ? <Icon size={12} /> : null;
+                            })()}
+                            {item.badge}
+                          </span>
+                        )}
+                        <p className="mt-0.5 truncate text-sm font-semibold text-foreground group-hover:text-accent">
+                          {item.title}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                return (
+                  <li key={item.key} className="group">
+                    {item.href ? (
+                      <a href={item.href} className="block hover:bg-surface-alt">
+                        {Content}
+                      </a>
+                    ) : (
+                      Content
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="border-t border-border p-4">
+              <a
+                href={source.viewAllHref}
+                className="block rounded-lg border border-border py-2 text-center text-sm font-medium text-foreground hover:bg-surface-alt"
+              >
+                {source.viewAllLabel} &rarr;
+              </a>
+            </div>
+          </div>
+        ))}
+        {socialSettings.whatsapp_number && (
+          <a
+            href={footerWhatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+          >
+            <IconBrandWhatsapp size={16} />
+            Chat on WhatsApp
           </a>
-          {socialSettings.whatsapp_number && (
-            <a
-              href={footerWhatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
-            >
-              <IconBrandWhatsapp size={16} />
-              Chat on WhatsApp
-            </a>
-          )}
-        </div>
+        )}
       </div>
     </aside>
   );
@@ -808,7 +822,7 @@ export default async function Home({ searchParams }) {
           this and the testimonials block below it are skipped here together when Sidebar Layout
           has Reviews feeding the aside instead — same "reviews" section/order value covers both,
           so they move (or don't) as one unit, same as they always have. */}
-      {!(isSidebarLayout && homeLayout.asideContent === "reviews") &&
+      {!(isSidebarLayout && homeLayout.asideContent?.includes("reviews")) &&
         isEnabled("reviews", moduleStates) &&
         reviewItems.length > 0 && (
         <section
@@ -845,7 +859,7 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: testimonials (optional — customer-submitted, admin-moderated; shown
           alongside third-party ratings when Reviews is enabled) */}
-      {!(isSidebarLayout && homeLayout.asideContent === "reviews") &&
+      {!(isSidebarLayout && homeLayout.asideContent?.includes("reviews")) &&
         isEnabled("reviews", moduleStates) && (
         <section
           className="mx-auto max-w-6xl px-6 pb-20"
@@ -886,7 +900,7 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: recent-posts (optional — latest 3 blog posts, only shown if Blog is enabled).
           Skipped here when Sidebar Layout has Blog feeding the aside instead. */}
-      {!(isSidebarLayout && homeLayout.asideContent === "blog") &&
+      {!(isSidebarLayout && homeLayout.asideContent?.includes("blog")) &&
         isEnabled("blog", moduleStates) &&
         recentPosts.length > 0 && (
         <section
@@ -945,7 +959,7 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: news-events (optional — latest 3 news/event items, live from Postgres,
           editable at /admin/news-events). Skipped here when Sidebar Layout has it feeding the
           aside instead (see activeAside/showAside above) — not rendered in both places at once. */}
-      {!(isSidebarLayout && homeLayout.asideContent === "newsEvents") &&
+      {!(isSidebarLayout && homeLayout.asideContent?.includes("newsEvents")) &&
         isEnabled("newsEvents", moduleStates) &&
         recentNewsEvents.length > 0 && (
         <section id="news-events" className="py-20" style={{ order: sectionOrder.newsEvents }}>

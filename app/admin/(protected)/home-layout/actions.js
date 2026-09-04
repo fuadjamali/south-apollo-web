@@ -21,8 +21,14 @@ export async function updateHomeLayoutAction(prevState, formData) {
   }
 
   const asidePosition = formData.get("asidePosition")?.toString();
-  const asideContent = formData.get("asideContent")?.toString();
   const contentWidth = formData.get("contentWidth")?.toString();
+  let asideContent = [];
+  try {
+    const parsed = JSON.parse(formData.get("asideContent")?.toString() || "[]");
+    if (Array.isArray(parsed)) asideContent = parsed;
+  } catch {
+    // setHomeLayout falls back to DEFAULT_ASIDE_CONTENT for an empty/invalid array.
+  }
 
   await setHomeLayout({ layoutName, sectionOrder, asidePosition, asideContent, contentWidth });
 

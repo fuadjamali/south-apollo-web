@@ -26,7 +26,7 @@ export default async function AdminHomeLayoutPage() {
           layoutName={layout.layoutName}
           sectionOrder={layout.sectionOrder}
           asidePosition={layout.asidePosition || "right"}
-          asideContent={layout.asideContent || "newsEvents"}
+          asideContent={layout.asideContent || ["newsEvents"]}
           contentWidth={layout.contentWidth || "contained"}
           sections={HOME_LAYOUT_SECTIONS}
           asideContentOptions={ASIDE_CONTENT_OPTIONS}

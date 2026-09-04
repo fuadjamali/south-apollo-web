@@ -83,11 +83,14 @@ export default function HomeLayoutForm({
   const [customOrder, setCustomOrder] = useState(
     layoutName === "custom" ? sectionOrder : defaultSectionOrder
   );
+  const initialContent = asideContent?.length ? asideContent : ["newsEvents"];
   const [sidebarOrder, setSidebarOrder] = useState(
-    layoutName === "sidebar" ? sectionOrder : defaultSectionOrder.filter((k) => k !== asideContent)
+    layoutName === "sidebar"
+      ? sectionOrder
+      : defaultSectionOrder.filter((k) => !initialContent.includes(k))
   );
   const [aside, setAside] = useState(asidePosition || "right");
-  const [content, setContent] = useState(asideContent || "newsEvents");
+  const [content, setContent] = useState(initialContent);
   const [fill, setFill] = useState(contentWidth === "fill");
   const dragIndex = useRef(null);
 
@@ -111,18 +114,27 @@ export default function HomeLayoutForm({
     dragIndex.current = null;
   }
 
-  // Switching which section feeds the aside: put the previously-pinned section back into the
-  // main-column list, and pull the newly-chosen one out — preserving the rest of the order
-  // rather than resetting it, so picking Blog instead of News & Events doesn't throw away a
-  // custom arrangement of everything else.
-  function changeAsideContent(nextKey) {
-    setContent(nextKey);
-    setSidebarOrder((prev) => {
-      const withoutNext = prev.filter((k) => k !== nextKey);
-      const missing = defaultSectionOrder.filter(
-        (k) => k !== nextKey && !withoutNext.includes(k)
-      );
-      return [...withoutNext, ...missing];
+  // Toggling one aside-content checkbox: recompute the main-column list from scratch against
+  // the new set of excluded keys — drop any that just got pinned to the aside, add back (in
+  // default relative position) any that just got un-pinned — rather than resetting the whole
+  // order, so ticking Blog on alongside News & Events doesn't throw away a custom arrangement
+  // of everything else. At least one content type must stay selected, so unticking the last one
+  // is a no-op rather than leaving the aside empty.
+  function toggleAsideContent(key) {
+    setContent((prevContent) => {
+      const isSelected = prevContent.includes(key);
+      if (isSelected && prevContent.length === 1) return prevContent;
+      const nextContent = isSelected
+        ? prevContent.filter((k) => k !== key)
+        : [...prevContent, key];
+      setSidebarOrder((prevOrder) => {
+        const withoutExcluded = prevOrder.filter((k) => !nextContent.includes(k));
+        const missing = defaultSectionOrder.filter(
+          (k) => !nextContent.includes(k) && !withoutExcluded.includes(k)
+        );
+        return [...withoutExcluded, ...missing];
+      });
+      return nextContent;
     });
   }
 
@@ -131,7 +143,7 @@ export default function HomeLayoutForm({
       <input type="hidden" name="layoutName" value={mode} />
       <input type="hidden" name="sectionOrder" value={JSON.stringify(order)} />
       <input type="hidden" name="asidePosition" value={aside} />
-      <input type="hidden" name="asideContent" value={content} />
+      <input type="hidden" name="asideContent" value={JSON.stringify(content)} />
       <input type="hidden" name="contentWidth" value={fill ? "fill" : "contained"} />
 
       <div className="grid gap-3 sm:grid-cols-3">
@@ -172,17 +184,18 @@ export default function HomeLayoutForm({
               {asideContentOptions.map((opt) => (
                 <label key={opt.key} className="flex items-center gap-2 text-sm text-foreground">
                   <input
-                    type="radio"
-                    checked={content === opt.key}
-                    onChange={() => changeAsideContent(opt.key)}
-                    className="h-4 w-4 border-border"
+                    type="checkbox"
+                    checked={content.includes(opt.key)}
+                    onChange={() => toggleAsideContent(opt.key)}
+                    className="h-4 w-4 rounded border-border"
                   />
                   {opt.label}
                 </label>
               ))}
             </div>
             <p className="mt-1 text-xs text-muted">
-              This feed moves into the sidebar and drops out of the reorderable list below.
+              Pick one or more — each becomes its own stacked card in the sidebar, and drops out
+              of the reorderable list below. At least one must stay selected.
             </p>
           </div>
 
