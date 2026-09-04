@@ -30,8 +30,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — everything ignored except the .example templates, which are meant to be
+# committed so a fresh clone has documented placeholders to copy from.
 .env*
+!.env.example
+!.env.local.example
 
 # vercel
 .vercel
@@ -43,7 +46,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-.vercel
-
-.env*
