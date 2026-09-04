@@ -3,14 +3,18 @@
 import { useActionState } from "react";
 import { updateNavItemAction, deleteNavItemAction } from "@/app/admin/(protected)/nav/actions";
 import DeleteButton from "@/components/DeleteButton";
+import NavDestinationField from "@/components/NavDestinationField";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
 // One row's inline edit form. `isGroup` = top-level dropdown header (no href/cta/highlight).
 // `isChild` = link inside a group (no cta/highlight, but has href). Otherwise it's a plain
-// top-level link (has href, cta, highlight).
-export default function NavItemEditForm({ item, isGroup, isChild, confirmMessage }) {
+// top-level link (has href, cta, highlight). `status` is "hidden" when this item's destination
+// (per lib/navDestinations.js) resolves to a module/section that's currently switched off —
+// null when the destination is enabled, or unknown (an external/custom link this admin page
+// has no way to check). Order is handled by the drag handle in NavReorderableList, not here.
+export default function NavItemEditForm({ item, isGroup, isChild, confirmMessage, status }) {
   const [state, formAction, pending] = useActionState(updateNavItemAction, {});
 
   return (
@@ -31,27 +35,7 @@ export default function NavItemEditForm({ item, isGroup, isChild, confirmMessage
           />
         </div>
 
-        {!isGroup && (
-          <div className="min-w-[10rem] flex-1">
-            <input
-              type="text"
-              name="href"
-              required
-              defaultValue={item.href || ""}
-              placeholder="/page or #anchor"
-              className={fieldClass}
-            />
-          </div>
-        )}
-
-        <div className="w-20">
-          <input
-            type="number"
-            name="displayOrder"
-            defaultValue={item.display_order}
-            className={fieldClass}
-          />
-        </div>
+        {!isGroup && <NavDestinationField defaultValue={item.href || ""} />}
 
         {!isGroup && !isChild && (
           <label className="mt-2 flex items-center gap-1.5 text-xs text-muted">
@@ -72,6 +56,12 @@ export default function NavItemEditForm({ item, isGroup, isChild, confirmMessage
           {pending ? "Saving…" : "Save"}
         </button>
 
+        {status === "hidden" && (
+          <p className="w-full text-xs font-medium text-amber-600 dark:text-amber-400">
+            ⚠ Points to a section/page that&apos;s currently switched off — this link won&apos;t
+            go anywhere live until it&apos;s turned back on.
+          </p>
+        )}
         {state?.error && (
           <p className="w-full text-xs text-red-600 dark:text-red-400">{state.error}</p>
         )}

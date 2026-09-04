@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useRef, useEffect } from "react";
+import { useActionState, useRef, useEffect, useState } from "react";
 import { createNavItemAction } from "@/app/admin/(protected)/nav/actions";
+import NavDestinationField from "@/components/NavDestinationField";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -11,9 +12,17 @@ const fieldClass =
 export default function NavAddForm({ kind, parentId, submitLabel }) {
   const [state, formAction, pending] = useActionState(createNavItemAction, {});
   const formRef = useRef(null);
+  // Bumped on every successful add to force NavDestinationField to fully remount alongside the
+  // native form.reset() below — that field has its own internal "custom link vs. picker" state
+  // that a plain DOM reset doesn't touch, so without this a form used once for a custom link
+  // would stay stuck in custom-text mode for the next add too.
+  const [fieldGeneration, setFieldGeneration] = useState(0);
 
   useEffect(() => {
-    if (state?.success) formRef.current?.reset();
+    if (state?.success) {
+      formRef.current?.reset();
+      setFieldGeneration((g) => g + 1);
+    }
   }, [state]);
 
   return (
@@ -25,17 +34,7 @@ export default function NavAddForm({ kind, parentId, submitLabel }) {
         <input type="text" name="label" required placeholder="Label" className={fieldClass} />
       </div>
 
-      {kind !== "group" && (
-        <div className="min-w-[10rem] flex-1">
-          <input
-            type="text"
-            name="href"
-            required
-            placeholder="/page or #anchor"
-            className={fieldClass}
-          />
-        </div>
-      )}
+      {kind !== "group" && <NavDestinationField key={fieldGeneration} />}
 
       {kind === "link" && (
         <>

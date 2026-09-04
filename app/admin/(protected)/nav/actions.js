@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createNavItem, updateNavItem, deleteNavItem } from "@/lib/navItems";
+import { createNavItem, updateNavItem, deleteNavItem, setNavItemOrder } from "@/lib/navItems";
 
 function refresh() {
   revalidatePath("/");
@@ -46,7 +46,6 @@ export async function updateNavItemAction(prevState, formData) {
     href: isGroup ? null : href,
     cta: !isGroup && !isChild && formData.get("cta") === "on",
     highlight: !isGroup && !isChild && formData.get("highlight") === "on",
-    displayOrder: Number(formData.get("displayOrder")) || 0,
   });
 
   refresh();
@@ -56,5 +55,13 @@ export async function updateNavItemAction(prevState, formData) {
 export async function deleteNavItemAction(formData) {
   const id = Number(formData.get("id"));
   await deleteNavItem(id);
+  refresh();
+}
+
+// Called directly from NavReorderableList (a client component), not via a <form action>, so it
+// isn't bound by useActionState's (prevState, formData) shape — a drag-and-drop reorder isn't a
+// form submission, it's an immediate save the moment a row is dropped, same as a kanban board.
+export async function reorderNavItemsAction(parentId, orderedIds) {
+  await setNavItemOrder(parentId, orderedIds);
   refresh();
 }
