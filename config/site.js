@@ -13,9 +13,10 @@ const siteConfig = {
 
   // The header nav menu is admin-editable at /admin/nav (lib/navItems.js) — no config here.
 
-  // Hero heading/subheading/background image/buttons are admin-editable at /admin/hero
-  // (lib/heroInfo.js) — no config here. Whether the section shows at all is controlled by the
-  // "hero" toggle in Settings → Feature Config, same as every other Core section.
+  // Hero slides (heading/subheading/background image or video/buttons, one or many, playing as
+  // a carousel once there's more than one) are admin-editable at /admin/hero (lib/heroSlides.js)
+  // — no config here. Whether the section shows at all is controlled by the "hero" toggle in
+  // Settings → Feature Config, same as every other Core section.
 
   // The stat list itself lives in Postgres (lib/stats.js), editable via /admin/stats — that
   // section has no heading of its own, just an on/off toggle in Settings → Feature Config.

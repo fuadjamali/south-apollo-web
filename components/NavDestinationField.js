@@ -12,7 +12,12 @@ const fieldClass =
 // (lib/navDestinations.js) makes that mistake impossible for anything it covers; "Custom link"
 // is the deliberate escape hatch for anything it doesn't (an external URL, a specific product
 // page, etc.) — freeform text is still allowed there, just no longer the default/only option.
-export default function NavDestinationField({ defaultValue = "" }) {
+export default function NavDestinationField({
+  name = "href",
+  defaultValue = "",
+  required = true,
+  noneLabel = "— No link —",
+}) {
   const known = defaultValue ? findDestination(defaultValue) : null;
   const [customMode, setCustomMode] = useState(!!defaultValue && !known);
 
@@ -21,8 +26,8 @@ export default function NavDestinationField({ defaultValue = "" }) {
       <div className="min-w-[12rem] flex-1">
         <input
           type="text"
-          name="href"
-          required
+          name={name}
+          required={required}
           defaultValue={defaultValue}
           placeholder="https://... or /path or #anchor"
           className={fieldClass}
@@ -41,17 +46,21 @@ export default function NavDestinationField({ defaultValue = "" }) {
   return (
     <div className="min-w-[12rem] flex-1">
       <select
-        name="href"
-        required
+        name={name}
+        required={required}
         defaultValue={defaultValue || ""}
         onChange={(e) => {
           if (e.target.value === "__custom__") setCustomMode(true);
         }}
         className={fieldClass}
       >
-        <option value="" disabled>
-          Select a destination…
-        </option>
+        {required ? (
+          <option value="" disabled>
+            Select a destination…
+          </option>
+        ) : (
+          <option value="">{noneLabel}</option>
+        )}
         <optgroup label="Pages">
           {PAGE_DESTINATIONS.map((d) => (
             <option key={d.href} value={d.href}>

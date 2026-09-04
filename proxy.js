@@ -41,7 +41,6 @@ const PUBLIC_PREFIXES = [
 // (401 Site Unavailable) rather than silently 404ing via Next's default page.
 const PROTECTED_ROUTES = [
   "/admin",
-  "/admin/hero",
   "/admin/section-text",
   "/admin/nav",
   "/admin/site-text",
@@ -72,6 +71,7 @@ const PROTECTED_ROUTES = [
 // an exact-match list doesn't work — use a prefix match instead, scoped to just that subtree.
 // "/admin/team" also covers "/admin/team-members*" (string prefix match), so one entry protects both.
 const PROTECTED_PREFIXES = [
+  "/admin/hero",
   "/admin/products",
   "/admin/blog",
   "/admin/reviews",

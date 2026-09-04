@@ -24,7 +24,8 @@ import { getProducts, getProductCategories } from "@/lib/products";
 import { getContactInfo } from "@/lib/contactInfo";
 import { getSocialSettings } from "@/lib/socialSettings";
 import { getBusinessInfo } from "@/lib/businessInfo";
-import { getHeroInfo } from "@/lib/heroInfo";
+import { getActiveHeroSlides } from "@/lib/heroSlides";
+import HeroCarousel from "@/components/HeroCarousel";
 import { getAllLegalPages } from "@/lib/legalPages";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
 import { getNavTree } from "@/lib/navItems";
@@ -45,7 +46,6 @@ import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
 import { getModuleStates, isEnabled, isPublicPathEnabled } from "@/lib/plan";
 import { getHomeLayout } from "@/lib/homeLayout";
-import { OVERLAY_OPACITY_CLASSES, TEXT_STYLE_CLASSES } from "@/lib/overlaySettings";
 import { TIERS } from "@/lib/planFeatures";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
@@ -88,7 +88,7 @@ export default async function Home({ searchParams }) {
     contactInfo,
     socialSettings,
     business,
-    hero,
+    heroSlides,
     legalPages,
     sectionHeadings,
     navTree,
@@ -99,7 +99,7 @@ export default async function Home({ searchParams }) {
     getContactInfo(),
     getSocialSettings(),
     getBusinessInfo(),
-    getHeroInfo(),
+    getActiveHeroSlides(),
     getAllLegalPages(),
     getSectionHeadings(),
     getNavTree(),
@@ -395,110 +395,12 @@ export default async function Home({ searchParams }) {
 
       <main className="flex flex-col">
       {/* COMPONENT: hero (optional — toggled from Settings → Feature Config; content itself
-          lives in Postgres, editable at /admin/hero) */}
-      {isEnabled("hero", moduleStates) && (() => {
-        const overlayClass = OVERLAY_OPACITY_CLASSES[hero.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium;
-        const heroStyle = TEXT_STYLE_CLASSES[hero.text_style] || TEXT_STYLE_CLASSES.auto;
-        return (
-      <section className="relative isolate overflow-hidden" style={{ order: -1 }}>
-        {hero.background_image && (
-          // No z-index here, deliberately — `isolate` on the section already gives this
-          // whole hero its own stacking context, so plain DOM order (image div first, text
-          // content div second) is enough to paint the image behind the text. A `-z-10`
-          // here previously pushed the image behind the *page's* base background instead of
-          // just behind this section's text, since `position: relative` alone (no z-index)
-          // doesn't establish a stacking context — the negative z-index escaped upward past
-          // the section entirely and rendered invisible under the body background.
-          <div className="absolute inset-0 bg-gradient-to-br from-[#c7dcff] to-[#93b8f5]">
-            {/* Admin-editable image source — plain <img>, same reasoning as products/blog.
-                When the admin has cropped a dedicated portrait version (hero.background_image_mobile,
-                set at /admin/hero), it's shown full-bleed behind the text below sm: — the same
-                object-cover/object-center treatment as the landscape image gets from sm: up — so
-                mobile and desktop both put text over a full-bleed image rather than mobile getting
-                a visibly different (letterboxed or in-flow) treatment. The trade-off: object-cover
-                scales to *fill* the section, and this section's height is driven by the heading
-                text (which can wrap to 4+ lines on a narrow phone) — a long heading zooms the crop
-                in enough that its illustrated elements can land close to the CTA buttons below,
-                same as the landscape image already accepts on desktop (just less visible there
-                since desktop sections are shorter and wider relative to the image's own aspect).
-                Without a mobile crop, fall back to the original single-image behavior: object-contain
-                below sm: the source image is a wide ~2.3:1 scene with distinct content near both
-                edges, so object-cover on a tall mobile viewport crops down to a thin center strip
-                and cuts both side illustrations entirely; object-contain keeps the whole scene
-                visible instead, with the gradient behind it (matching the image's own background)
-                filling the letterboxed gap seamlessly, and object-bottom anchoring it so a longer
-                heading only pushes it further from the text, never toward it. */}
-            {hero.background_image_mobile ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={hero.background_image_mobile}
-                  alt=""
-                  className="h-full w-full object-cover object-center sm:hidden"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={hero.background_image}
-                  alt=""
-                  className="hidden h-full w-full object-cover object-center sm:block"
-                />
-              </>
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={hero.background_image}
-                alt=""
-                className="h-full w-full object-contain object-bottom sm:object-cover sm:object-center"
-              />
-            )}
-            {/* Theme-color overlay (not a fixed white/black) so the image stays legible —
-                and readable as the *same* background color — across all 8 color themes and
-                dark mode, rather than only looking right in the one theme it was tuned for.
-                Strength is admin-adjustable (hero.overlay_strength) for images that need more
-                or less scrim; still theme-derived either way, never a fixed color. */}
-            <div className={`absolute inset-0 ${overlayClass}`} />
-          </div>
-        )}
-        <div className={`relative mx-auto ${sectionMaxW} px-6 py-24 text-center`}>
-          <h1 className={`text-4xl font-extrabold tracking-tight sm:text-6xl ${heroStyle.heading}`}>
-            {/* A heading written as two short statements ("X. Y.") reads better as two
-                lines than left to the browser's natural wrap, which can break mid-phrase
-                depending on viewport width. Falls back to one line if there's no ". " split. */}
-            {hero.heading.includes(". ") ? (
-              <>
-                {hero.heading.slice(0, hero.heading.indexOf(". ") + 1)}
-                <br />
-                {hero.heading.slice(hero.heading.indexOf(". ") + 2)}
-              </>
-            ) : (
-              hero.heading
-            )}
-          </h1>
-          <p className={`mx-auto mt-6 max-w-2xl text-lg ${heroStyle.subheading}`}>
-            {hero.subheading}
-          </p>
-          <div className="mt-8 flex justify-center gap-4">
-            {hero.primary_cta_label && (
-              <a
-                href={hero.primary_cta_href || "#"}
-                className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
-              >
-                {hero.primary_cta_label}
-              </a>
-            )}
-            {hero.secondary_cta_label && (
-              <a
-                href={hero.secondary_cta_href || "#"}
-                className={`rounded-full border px-6 py-3 text-sm font-semibold ${heroStyle.secondaryBtn}`}
-              >
-                {hero.secondary_cta_label}
-              </a>
-            )}
-          </div>
-        </div>
-      </section>
-        );
-      })()}
+          lives in Postgres, editable at /admin/hero). One slide = no carousel chrome, behaves
+          exactly like the original single hero; two or more play as a sliding carousel — see
+          components/HeroCarousel.js. */}
+      {isEnabled("hero", moduleStates) && heroSlides.length > 0 && (
+        <HeroCarousel slides={heroSlides} sectionMaxW={sectionMaxW} />
+      )}
 
       {/* Sidebar Layout's grid wrapper — everything from Stats through Send an Enquiry lives
           inside this one flex item (order: 0, between Hero at -1 and Footer at 999). When the
