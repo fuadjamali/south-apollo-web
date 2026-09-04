@@ -63,6 +63,7 @@ const PROTECTED_ROUTES = [
   "/admin/subscription/compare",
   "/admin/ai-settings",
   "/admin/features",
+  "/admin/home-layout",
   "/admin/member-resets",
   "/admin/account-closures",
 ];

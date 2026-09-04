@@ -35,6 +35,7 @@ import { getRecentPhotos } from "@/lib/gallery";
 import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
 import { getModuleStates, isEnabled, isPublicPathEnabled } from "@/lib/plan";
+import { getHomeLayout } from "@/lib/homeLayout";
 import { OVERLAY_OPACITY_CLASSES, TEXT_STYLE_CLASSES } from "@/lib/overlaySettings";
 import { TIERS } from "@/lib/planFeatures";
 
@@ -83,6 +84,7 @@ export default async function Home({ searchParams }) {
     sectionHeadings,
     navTree,
     siteText,
+    homeLayout,
   ] = await Promise.all([
     getModuleStates(),
     getContactInfo(),
@@ -93,6 +95,7 @@ export default async function Home({ searchParams }) {
     getSectionHeadings(),
     getNavTree(),
     getSiteText(),
+    getHomeLayout(),
   ]);
   const publishedLegalPages = legalPages.filter((p) => p.enabled);
   const { plans } = siteConfig;
@@ -119,6 +122,18 @@ export default async function Home({ searchParams }) {
   const productsEnabled = isEnabled("products", moduleStates);
   const statsEnabled = isEnabled("stats", moduleStates);
   const partnersEnabled = isEnabled("partners", moduleStates);
+  // Home Page Layout (Settings → Home Page Layout, lib/homeLayout.js): a CSS `order` per
+  // section rather than actually rearranging the JSX below — every section stays exactly where
+  // it already was in the file, in Default order; a Custom layout just gives each one a
+  // different `order` value via this map, and <main> below is a column flexbox so `order` is
+  // what actually decides visual position. Deliberately not real DOM reordering: with ~18
+  // sections each carrying nontrivial markup, moving the JSX itself would have meant a much
+  // larger, much riskier rewrite for the same visual result. The trade-off is real and worth
+  // knowing: assistive tech and keyboard tab order follow DOM order, not this CSS order, so a
+  // heavily reordered Custom layout can read/tab in a different sequence than it displays.
+  // Hero and Footer are never in this map — they get hardcoded order values below instead,
+  // -1 and 999, so they always stay first/last regardless of what's in a custom order.
+  const sectionOrder = Object.fromEntries(homeLayout.sectionOrder.map((key, i) => [key, i]));
   // Drops any nav item (or child of a group) whose module isn't in this deployment's plan,
   // and drops a group entirely if every one of its children got filtered out — same pattern
   // as the admin nav's filterNav in app/admin/(protected)/layout.js.
@@ -198,14 +213,14 @@ export default async function Home({ searchParams }) {
         footerEnabled={footerEnabled}
       />
 
-      <main>
+      <main className="flex flex-col">
       {/* COMPONENT: hero (optional — toggled from Settings → Feature Config; content itself
           lives in Postgres, editable at /admin/hero) */}
       {isEnabled("hero", moduleStates) && (() => {
         const overlayClass = OVERLAY_OPACITY_CLASSES[hero.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium;
         const heroStyle = TEXT_STYLE_CLASSES[hero.text_style] || TEXT_STYLE_CLASSES.auto;
         return (
-      <section className="relative isolate overflow-hidden">
+      <section className="relative isolate overflow-hidden" style={{ order: -1 }}>
         {hero.background_image && (
           // No z-index here, deliberately — `isolate` on the section already gives this
           // whole hero its own stacking context, so plain DOM order (image div first, text
@@ -307,7 +322,7 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: stats (optional — live from Postgres, editable at /admin/stats) */}
       {statsEnabled && statItems.length > 0 && (
-        <section className="border-y border-border py-10">
+        <section className="border-y border-border py-10" style={{ order: sectionOrder.stats }}>
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center sm:grid-cols-4">
             {statItems.map((stat) => (
               <div key={stat.id}>
@@ -322,7 +337,10 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: trusted-by (optional — live from Postgres, editable at /admin/partners;
           only status "Active" partners shown) */}
       {partnersEnabled && partnerItems.length > 0 && (
-        <section className="border-b border-border bg-surface-alt py-12">
+        <section
+          className="border-b border-border bg-surface-alt py-12"
+          style={{ order: sectionOrder.trustedBy }}
+        >
           <div className="mx-auto max-w-6xl px-6 text-center">
             <p className="text-sm font-medium text-muted">{partners.heading}</p>
             <div className="mt-8 grid grid-cols-2 items-center gap-8 sm:grid-cols-3 md:grid-cols-5">
@@ -353,7 +371,11 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: how-it-works (optional — live from Postgres, editable at /admin/how-it-works) */}
       {isEnabled("howItWorks", moduleStates) && howItWorksSteps.length > 0 && (
-        <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20">
+        <section
+          id="how-it-works"
+          className="mx-auto max-w-6xl px-6 py-20"
+          style={{ order: sectionOrder.howItWorks }}
+        >
           <h2 className="text-center text-3xl font-bold">{howItWorks.heading}</h2>
           <p className="mt-2 text-center text-muted">{howItWorks.subheading}</p>
 
@@ -374,7 +396,11 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: products (optional — toggled from Settings → Feature Config; content
           itself lives in Postgres, editable at /admin/products) */}
       {productsEnabled && (
-      <section id="products" className="mx-auto max-w-6xl px-6 py-20">
+      <section
+        id="products"
+        className="mx-auto max-w-6xl px-6 py-20"
+        style={{ order: sectionOrder.products }}
+      >
         <h2 className="text-3xl font-bold">{products.heading}</h2>
         <p className="mt-2 text-muted">{products.subheading}</p>
 
@@ -426,7 +452,11 @@ export default async function Home({ searchParams }) {
           Basic/Plus/Premium tiers to its visitors, so this should be `null` in config/site.js
           for every client deployment — see lib/planFeatures.js for the shared tier data. */}
       {plans && (
-        <section id="plans" className="bg-surface-alt py-20">
+        <section
+          id="plans"
+          className="bg-surface-alt py-20"
+          style={{ order: sectionOrder.plans }}
+        >
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-center text-3xl font-bold">{plans.heading}</h2>
             <p className="mt-2 text-center text-muted">{plans.subheading}</p>
@@ -508,7 +538,11 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: portfolio (optional — live from Postgres, editable at /admin/portfolio) */}
       {isEnabled("portfolio", moduleStates) && portfolioItems.length > 0 && (
-        <section id="portfolio" className="bg-surface-alt py-20">
+        <section
+          id="portfolio"
+          className="bg-surface-alt py-20"
+          style={{ order: sectionOrder.portfolio }}
+        >
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-3xl font-bold">{portfolio.heading}</h2>
             <p className="mt-2 text-muted">{portfolio.subheading}</p>
@@ -544,7 +578,11 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: gallery (optional — live from Postgres, editable at /admin/gallery; the 3
           most recent photos show here, the full set lives at /gallery) */}
       {isEnabled("gallery", moduleStates) && recentPhotos.length > 0 && (
-        <section id="gallery" className="mx-auto max-w-6xl px-6 py-20">
+        <section
+          id="gallery"
+          className="mx-auto max-w-6xl px-6 py-20"
+          style={{ order: sectionOrder.gallery }}
+        >
           <h2 className="text-3xl font-bold">{gallery.heading}</h2>
           <p className="mt-2 text-muted">{gallery.subheading}</p>
 
@@ -582,7 +620,11 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: reviews (optional — live from Postgres, editable at /admin/reviews) */}
       {isEnabled("reviews", moduleStates) && reviewItems.length > 0 && (
-        <section id="reviews" className="mx-auto max-w-6xl px-6 py-20">
+        <section
+          id="reviews"
+          className="mx-auto max-w-6xl px-6 py-20"
+          style={{ order: sectionOrder.reviews }}
+        >
           <h2 className="text-center text-3xl font-bold">{reviews.heading}</h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {reviewItems.map((platform) => (
@@ -613,7 +655,10 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: testimonials (optional — customer-submitted, admin-moderated; shown
           alongside third-party ratings when Reviews is enabled) */}
       {isEnabled("reviews", moduleStates) && (
-        <section className="mx-auto max-w-6xl px-6 pb-20">
+        <section
+          className="mx-auto max-w-6xl px-6 pb-20"
+          style={{ order: sectionOrder.reviews }}
+        >
           {testimonialStats.count > 0 && (
             <p className="mb-6 text-center text-sm text-muted">
               <span className="font-semibold text-foreground">
@@ -649,7 +694,11 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: recent-posts (optional — latest 3 blog posts, only shown if Blog is enabled) */}
       {isEnabled("blog", moduleStates) && recentPosts.length > 0 && (
-        <section id="recent-posts" className="bg-surface-alt py-20">
+        <section
+          id="recent-posts"
+          className="bg-surface-alt py-20"
+          style={{ order: sectionOrder.blog }}
+        >
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-3xl font-bold">{blog.heading}</h2>
             <p className="mt-2 text-muted">{blog.subheading}</p>
@@ -701,7 +750,7 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: news-events (optional — latest 3 news/event items, live from Postgres,
           editable at /admin/news-events) */}
       {isEnabled("newsEvents", moduleStates) && recentNewsEvents.length > 0 && (
-        <section id="news-events" className="py-20">
+        <section id="news-events" className="py-20" style={{ order: sectionOrder.newsEvents }}>
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-3xl font-bold">{newsEvents.heading}</h2>
             <p className="mt-2 text-muted">{newsEvents.subheading}</p>
@@ -766,27 +815,37 @@ export default async function Home({ searchParams }) {
           image_position, including the hero-style "behind the text" full-bleed background) is
           shared with vision-mission/history below via components/ImageTextSection.js — see that
           file for why each layout looks the way it does. */}
-      {isEnabled("about", moduleStates) && <ImageTextSection id="about" data={aboutInfo} />}
+      {isEnabled("about", moduleStates) && (
+        <ImageTextSection id="about" data={aboutInfo} sectionStyle={{ order: sectionOrder.about }} />
+      )}
 
       {/* COMPONENT: vision-mission (optional, off by default — toggled from Settings → Feature
           Config; content lives in Postgres, editable at /admin/vision-mission). Only renders
           once an admin has written a body — a client who switches the module on before filling
           it in gets nothing rather than an empty heading. */}
       {isEnabled("visionMission", moduleStates) && visionMissionInfo?.body && (
-        <ImageTextSection id="vision-mission" data={visionMissionInfo} />
+        <ImageTextSection
+          id="vision-mission"
+          data={visionMissionInfo}
+          sectionStyle={{ order: sectionOrder.visionMission }}
+        />
       )}
 
       {/* COMPONENT: history (optional, off by default — same reasoning as vision-mission
           directly above; editable at /admin/history) */}
       {isEnabled("history", moduleStates) && historyInfo?.body && (
-        <ImageTextSection id="history" data={historyInfo} />
+        <ImageTextSection
+          id="history"
+          data={historyInfo}
+          sectionStyle={{ order: sectionOrder.history }}
+        />
       )}
 
       {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and
           /admin/team-members; only active members from teams/members with "Show on home"
           enabled are shown here, grouped by team — the full roster lives at /team) */}
       {isEnabled("team", moduleStates) && teamGroups.length > 0 && (
-        <section id="team" className="bg-surface-alt py-20">
+        <section id="team" className="bg-surface-alt py-20" style={{ order: sectionOrder.team }}>
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-center text-3xl font-bold">{team.heading}</h2>
             {team.subheading && (
@@ -836,7 +895,11 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: certifications (optional — live from Postgres, editable at
           /admin/certifications) */}
       {isEnabled("certifications", moduleStates) && certificationItems.length > 0 && (
-        <section id="certifications" className="bg-surface-alt py-16">
+        <section
+          id="certifications"
+          className="bg-surface-alt py-16"
+          style={{ order: sectionOrder.certifications }}
+        >
           <div className="mx-auto max-w-6xl px-6 text-center">
             <p className="text-sm font-medium text-muted">{certifications.heading}</p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-10">
@@ -867,7 +930,10 @@ export default async function Home({ searchParams }) {
           same admin-editable value shown in the Contact Us section below, rather than a
           second independent address that could drift out of sync with it) */}
       {isEnabled("map", moduleStates) && contactInfo.address && (
-        <section className="mx-auto max-w-6xl px-6 py-20">
+        <section
+          className="mx-auto max-w-6xl px-6 py-20"
+          style={{ order: sectionOrder.map }}
+        >
           <h2 className="text-center text-3xl font-bold">{map.heading}</h2>
           <p className="mt-2 text-center text-muted">{contactInfo.address}</p>
           <div className="mt-10 aspect-16/6 w-full overflow-hidden rounded-xl border border-border">
@@ -884,7 +950,11 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: contact-info (optional — admin-editable at /admin/contact, singleton with an enable/disable toggle) */}
       {contactInfo?.enabled && (
-        <section id="contact-info" className="bg-surface-alt py-20">
+        <section
+          id="contact-info"
+          className="bg-surface-alt py-20"
+          style={{ order: sectionOrder.contactInfo }}
+        >
           <div className="mx-auto max-w-2xl px-6 text-center">
             <h2 className="text-3xl font-bold">{contactInfo.heading}</h2>
             {contactInfo.subheading && (
@@ -924,7 +994,11 @@ export default async function Home({ searchParams }) {
 
       {/* COMPONENT: enquiry-form (optional — submits to /api/enquiries, viewable at /admin/enquiries) */}
       {isEnabled("enquiryForm", moduleStates) && (
-        <section id="enquiry" className="bg-surface-alt py-20">
+        <section
+          id="enquiry"
+          className="bg-surface-alt py-20"
+          style={{ order: sectionOrder.enquiryForm }}
+        >
           <div className="mx-auto max-w-xl px-6">
             <h2 className="text-center text-3xl font-bold">{enquiryForm.heading}</h2>
             <p className="mt-2 text-center text-muted">{enquiryForm.subheading}</p>
@@ -944,6 +1018,7 @@ export default async function Home({ searchParams }) {
       <footer
         id="contact"
         className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center bg-gray-900 dark:bg-black py-16 text-center text-white"
+        style={{ order: 999 }}
       >
         <h2 className="text-2xl font-bold">{footer.heading}</h2>
         <p className="mt-2 text-gray-300">{footer.subheading}</p>
