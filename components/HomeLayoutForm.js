@@ -160,7 +160,7 @@ export default function HomeLayoutForm({
           >
             <LayoutDiagram
               aside={m.key === "sidebar" ? (mode === "sidebar" ? aside : m.aside) : null}
-              fill={m.key === "sidebar" && mode === "sidebar" ? fill : false}
+              fill={fill}
               className="h-20 w-full"
             />
             <p className="mt-2 text-sm font-semibold text-foreground">{m.title}</p>
@@ -222,35 +222,37 @@ export default function HomeLayoutForm({
               </label>
             </div>
           </div>
-
-          <div>
-            <label className="flex items-center justify-between gap-3">
-              <span>
-                <span className="block text-sm font-medium text-foreground">Fill browser width</span>
-                <span className="mt-0.5 block text-xs text-muted">
-                  {fill
-                    ? "On — no side margin, the sidebar sits flush against the browser edge."
-                    : "Off — centered with a margin, capped at 1980px wide."}
-                </span>
-              </span>
-              <span
-                role="switch"
-                aria-checked={fill}
-                onClick={() => setFill((v) => !v)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
-                  fill ? "bg-primary" : "bg-border"
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    fill ? "translate-x-6" : "translate-x-1"
-                  }`}
-                />
-              </span>
-            </label>
-          </div>
         </div>
       )}
+
+      {/* Fill applies to all three modes — a common width setting, not just Sidebar's own —
+          shown once here rather than duplicated per mode. */}
+      <div className="rounded-lg border border-border bg-surface-alt p-4">
+        <label className="flex items-center justify-between gap-3">
+          <span>
+            <span className="block text-sm font-medium text-foreground">Fill browser width</span>
+            <span className="mt-0.5 block text-xs text-muted">
+              {fill
+                ? "On — sections stretch edge to edge on a wide browser window, no side margin."
+                : "Off — sections keep their normal centered width, same as today."}
+            </span>
+          </span>
+          <span
+            role="switch"
+            aria-checked={fill}
+            onClick={() => setFill((v) => !v)}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
+              fill ? "bg-primary" : "bg-border"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                fill ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </span>
+        </label>
+      </div>
 
       {(mode === "custom" || mode === "sidebar") && (
         <ol className="divide-y divide-border rounded-lg border border-border">

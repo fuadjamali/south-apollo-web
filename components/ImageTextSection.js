@@ -17,8 +17,12 @@ import { OVERLAY_OPACITY_CLASSES, TEXT_STYLE_CLASSES } from "@/lib/overlaySettin
 // the heading grew — object-contain avoids that regardless of section height.
 // `sectionStyle` is a passthrough for app/page.js's Home Page Layout `order` value (see that
 // file's sectionOrder comment) — applied to whichever root <section> below actually renders,
-// same as every other reorderable section on the page.
-export default function ImageTextSection({ id, data, sectionStyle }) {
+// same as every other reorderable section on the page. `maxW` is the same file's Fill-toggle
+// width class (see its sectionMaxW comment) — only used by the image+text grid layout below;
+// the text-only layouts (no image, and the "behind" full-bleed one) keep their own narrower
+// max-w-4xl regardless of Fill, since a solid paragraph of body text reading edge-to-edge on a
+// wide monitor is a readability regression, not a win, unlike a two-column image+text layout.
+export default function ImageTextSection({ id, data, sectionStyle, maxW = "max-w-6xl" }) {
   if (data.image && data.image_position === "behind") {
     const overlayClass = OVERLAY_OPACITY_CLASSES[data.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium;
     const textStyle = TEXT_STYLE_CLASSES[data.text_style] || TEXT_STYLE_CLASSES.auto;
@@ -43,7 +47,7 @@ export default function ImageTextSection({ id, data, sectionStyle }) {
 
   if (data.image) {
     return (
-      <section id={id} className="mx-auto max-w-6xl px-6 py-20" style={sectionStyle}>
+      <section id={id} className={`mx-auto ${maxW} px-6 py-20`} style={sectionStyle}>
         <div className="grid items-center gap-10 md:grid-cols-2">
           <div className={data.image_position === "right" ? "md:order-2" : ""}>
             {/* eslint-disable-next-line @next/next/no-img-element */}

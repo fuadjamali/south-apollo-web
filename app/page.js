@@ -152,6 +152,15 @@ export default async function Home({ searchParams }) {
   // it renders as a single column same as Default.
   const isSidebarLayout = homeLayout.layoutName === "sidebar";
   const isFillWidth = homeLayout.contentWidth === "fill";
+  // Fill (Home Page Layout → Fill browser width) is common to all three layouts. "Contained"
+  // (off) is every section's existing max-w-6xl, pixel-identical to how the page has always
+  // rendered — this toggle is additive, never a silent change to the current default look.
+  // "Fill" swaps that to max-w-none so the same sections stretch edge to edge on a wide monitor.
+  // Deliberately NOT applied to sections with their own narrower reading-width choice regardless
+  // of Fill — Contact Info and Send an Enquiry (a form/short info block, not a grid, has no
+  // business spanning 1900px) and the text-only fallback inside ImageTextSection.js (About/
+  // Vision/History with no image — a paragraph of body text, same reasoning).
+  const sectionMaxW = isFillWidth ? "max-w-none" : "max-w-6xl";
   // Drops any nav item (or child of a group) whose module isn't in this deployment's plan,
   // and drops a group entirely if every one of its children got filtered out — same pattern
   // as the admin nav's filterNav in app/admin/(protected)/layout.js.
@@ -450,7 +459,7 @@ export default async function Home({ searchParams }) {
             <div className={`absolute inset-0 ${overlayClass}`} />
           </div>
         )}
-        <div className="relative mx-auto max-w-6xl px-6 py-24 text-center">
+        <div className={`relative mx-auto ${sectionMaxW} px-6 py-24 text-center`}>
           <h1 className={`text-4xl font-extrabold tracking-tight sm:text-6xl ${heroStyle.heading}`}>
             {/* A heading written as two short statements ("X. Y.") reads better as two
                 lines than left to the browser's natural wrap, which can break mid-phrase
@@ -523,7 +532,7 @@ export default async function Home({ searchParams }) {
       {/* COMPONENT: stats (optional — live from Postgres, editable at /admin/stats) */}
       {statsEnabled && statItems.length > 0 && (
         <section className="border-y border-border py-10" style={{ order: sectionOrder.stats }}>
-          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 text-center sm:grid-cols-4">
+          <div className={`mx-auto grid ${sectionMaxW} grid-cols-2 gap-8 px-6 text-center sm:grid-cols-4`}>
             {statItems.map((stat) => (
               <div key={stat.id}>
                 <p className="text-3xl font-extrabold">{stat.value}</p>
@@ -541,7 +550,7 @@ export default async function Home({ searchParams }) {
           className="border-b border-border bg-surface-alt py-12"
           style={{ order: sectionOrder.trustedBy }}
         >
-          <div className="mx-auto max-w-6xl px-6 text-center">
+          <div className={`mx-auto ${sectionMaxW} px-6 text-center`}>
             <p className="text-sm font-medium text-muted">{partners.heading}</p>
             <div className="mt-8 grid grid-cols-2 items-center gap-8 sm:grid-cols-3 md:grid-cols-5">
               {partnerItems.map((partner) =>
@@ -573,7 +582,7 @@ export default async function Home({ searchParams }) {
       {isEnabled("howItWorks", moduleStates) && howItWorksSteps.length > 0 && (
         <section
           id="how-it-works"
-          className="mx-auto max-w-6xl px-6 py-20"
+          className={`mx-auto ${sectionMaxW} px-6 py-20`}
           style={{ order: sectionOrder.howItWorks }}
         >
           <h2 className="text-center text-3xl font-bold">{howItWorks.heading}</h2>
@@ -598,7 +607,7 @@ export default async function Home({ searchParams }) {
       {productsEnabled && (
       <section
         id="products"
-        className="mx-auto max-w-6xl px-6 py-20"
+        className={`mx-auto ${sectionMaxW} px-6 py-20`}
         style={{ order: sectionOrder.products }}
       >
         <h2 className="text-3xl font-bold">{products.heading}</h2>
@@ -657,7 +666,7 @@ export default async function Home({ searchParams }) {
           className="bg-surface-alt py-20"
           style={{ order: sectionOrder.plans }}
         >
-          <div className="mx-auto max-w-6xl px-6">
+          <div className={`mx-auto ${sectionMaxW} px-6`}>
             <h2 className="text-center text-3xl font-bold">{plans.heading}</h2>
             <p className="mt-2 text-center text-muted">{plans.subheading}</p>
 
@@ -743,7 +752,7 @@ export default async function Home({ searchParams }) {
           className="bg-surface-alt py-20"
           style={{ order: sectionOrder.portfolio }}
         >
-          <div className="mx-auto max-w-6xl px-6">
+          <div className={`mx-auto ${sectionMaxW} px-6`}>
             <h2 className="text-3xl font-bold">{portfolio.heading}</h2>
             <p className="mt-2 text-muted">{portfolio.subheading}</p>
 
@@ -780,7 +789,7 @@ export default async function Home({ searchParams }) {
       {isEnabled("gallery", moduleStates) && recentPhotos.length > 0 && (
         <section
           id="gallery"
-          className="mx-auto max-w-6xl px-6 py-20"
+          className={`mx-auto ${sectionMaxW} px-6 py-20`}
           style={{ order: sectionOrder.gallery }}
         >
           <h2 className="text-3xl font-bold">{gallery.heading}</h2>
@@ -827,7 +836,7 @@ export default async function Home({ searchParams }) {
         reviewItems.length > 0 && (
         <section
           id="reviews"
-          className="mx-auto max-w-6xl px-6 py-20"
+          className={`mx-auto ${sectionMaxW} px-6 py-20`}
           style={{ order: sectionOrder.reviews }}
         >
           <h2 className="text-center text-3xl font-bold">{reviews.heading}</h2>
@@ -862,7 +871,7 @@ export default async function Home({ searchParams }) {
       {!(isSidebarLayout && homeLayout.asideContent?.includes("reviews")) &&
         isEnabled("reviews", moduleStates) && (
         <section
-          className="mx-auto max-w-6xl px-6 pb-20"
+          className={`mx-auto ${sectionMaxW} px-6 pb-20`}
           style={{ order: sectionOrder.reviews }}
         >
           {testimonialStats.count > 0 && (
@@ -908,7 +917,7 @@ export default async function Home({ searchParams }) {
           className="bg-surface-alt py-20"
           style={{ order: sectionOrder.blog }}
         >
-          <div className="mx-auto max-w-6xl px-6">
+          <div className={`mx-auto ${sectionMaxW} px-6`}>
             <h2 className="text-3xl font-bold">{blog.heading}</h2>
             <p className="mt-2 text-muted">{blog.subheading}</p>
 
@@ -963,7 +972,7 @@ export default async function Home({ searchParams }) {
         isEnabled("newsEvents", moduleStates) &&
         recentNewsEvents.length > 0 && (
         <section id="news-events" className="py-20" style={{ order: sectionOrder.newsEvents }}>
-          <div className="mx-auto max-w-6xl px-6">
+          <div className={`mx-auto ${sectionMaxW} px-6`}>
             <h2 className="text-3xl font-bold">{newsEvents.heading}</h2>
             <p className="mt-2 text-muted">{newsEvents.subheading}</p>
 
@@ -1028,7 +1037,12 @@ export default async function Home({ searchParams }) {
           shared with vision-mission/history below via components/ImageTextSection.js — see that
           file for why each layout looks the way it does. */}
       {isEnabled("about", moduleStates) && (
-        <ImageTextSection id="about" data={aboutInfo} sectionStyle={{ order: sectionOrder.about }} />
+        <ImageTextSection
+          id="about"
+          data={aboutInfo}
+          sectionStyle={{ order: sectionOrder.about }}
+          maxW={sectionMaxW}
+        />
       )}
 
       {/* COMPONENT: vision-mission (optional, off by default — toggled from Settings → Feature
@@ -1040,6 +1054,7 @@ export default async function Home({ searchParams }) {
           id="vision-mission"
           data={visionMissionInfo}
           sectionStyle={{ order: sectionOrder.visionMission }}
+          maxW={sectionMaxW}
         />
       )}
 
@@ -1050,6 +1065,7 @@ export default async function Home({ searchParams }) {
           id="history"
           data={historyInfo}
           sectionStyle={{ order: sectionOrder.history }}
+          maxW={sectionMaxW}
         />
       )}
 
@@ -1058,7 +1074,7 @@ export default async function Home({ searchParams }) {
           enabled are shown here, grouped by team — the full roster lives at /team) */}
       {isEnabled("team", moduleStates) && teamGroups.length > 0 && (
         <section id="team" className="bg-surface-alt py-20" style={{ order: sectionOrder.team }}>
-          <div className="mx-auto max-w-6xl px-6">
+          <div className={`mx-auto ${sectionMaxW} px-6`}>
             <h2 className="text-center text-3xl font-bold">{team.heading}</h2>
             {team.subheading && (
               <p className="mt-2 text-center text-muted">{team.subheading}</p>
@@ -1112,7 +1128,7 @@ export default async function Home({ searchParams }) {
           className="bg-surface-alt py-16"
           style={{ order: sectionOrder.certifications }}
         >
-          <div className="mx-auto max-w-6xl px-6 text-center">
+          <div className={`mx-auto ${sectionMaxW} px-6 text-center`}>
             <p className="text-sm font-medium text-muted">{certifications.heading}</p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-10">
               {certificationItems.map((cert) =>
@@ -1143,7 +1159,7 @@ export default async function Home({ searchParams }) {
           second independent address that could drift out of sync with it) */}
       {isEnabled("map", moduleStates) && contactInfo.address && (
         <section
-          className="mx-auto max-w-6xl px-6 py-20"
+          className={`mx-auto ${sectionMaxW} px-6 py-20`}
           style={{ order: sectionOrder.map }}
         >
           <h2 className="text-center text-3xl font-bold">{map.heading}</h2>
