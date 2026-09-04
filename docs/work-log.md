@@ -1,6 +1,6 @@
 # Work Log
 
-Reconstructed from the full commit history (`git log`, 67 commits, 2026-08-11 to present) —
+Reconstructed from the full commit history (`git log`, 81 commits, 2026-08-11 to present) —
 **not a real timer**. Methodology: commits on the same date within 60 minutes of each other are
 grouped into one working session; each session gets a 20-minute buffer before its first commit
 and 10 minutes after its last (time spent before the first save and wrapping up after the last);
@@ -12,6 +12,34 @@ no timestamp trail for the clustering to see. Days flagged ⚠️ below contain 
 that almost certainly represents more real work than its cluster's estimate shows. Treat every
 number here as a floor, not a precise record — useful for a rough sense of where the time went,
 not for billing to the hour.
+
+## 2026-09-04 (~2h 48m) ⚠️
+
+- **11:40 – 13:27** (~1h 47m) — Built the Home Page Layout system (Default/Custom/Sidebar
+  presets, drag-and-drop section reorder, a Fill-browser-width toggle shared across all three
+  layouts); added the Sidebar Layout preset with an adjustable aside position and multi-select
+  aside content (News & Events/Blog/Reviews); grouped Home Page Layout, Section Text, and Site
+  Navigation under one "Layout" admin menu; made "Products" the generic label everywhere
+  (Feature Config, Home Page Layout, Section Text) instead of the old "(Add-ons)" wording;
+  overhauled Site Navigation with drag-and-drop reorder, a typo-proof destination picker, and
+  live "switched off" status flags on nav items.
+- **17:20 – 18:21** (~1h 01m) — Replaced the single hero with a full multi-slide carousel
+  (`hero_slides` table; admin list/reorder/new/edit; autoplay, swipe, keyboard nav, Ken Burns
+  pan, a segmented progress bar) with optional per-slide background video; caught and fixed two
+  real bugs during end-to-end testing (a shared reorder component silently breaking its own
+  aria-labels for a different data shape; a migration that could poison its own transaction on a
+  brand-new deployment); moved local Postgres to port 5436 to resolve a clash with another
+  project's container; pushed 11 commits and deployed to Vercel production for the first time
+  this session; added two more production hero slides (a generated News & Events image, a
+  generated Blog video) directly against the live database, since Vercel's Secret-type env vars
+  aren't retrievable via the CLI; mirrored production's full database down to local for parity,
+  which surfaced a Postgres 16 vs. 17 version mismatch; built `npm run db:pull-prod` to make that
+  repeatable on demand; fixed a `.gitignore` bug that had silently excluded
+  `.env.example`/`.env.local.example` from version control since the project began. **This
+  session's commit count badly understates the real time** — most of the second block was
+  interactive production verification (deploys, smoke tests, live browser testing, a manual
+  database dump/restore) that leaves no commit trail at all, on top of the usual squashed-commit
+  undercount.
 
 ## 2026-09-03 (~3h 49m)
 
@@ -109,8 +137,9 @@ not for billing to the hour.
 | 2026-08-19 | 0h 30m | 11h 28m |
 | 2026-08-20 | 1h 22m | 12h 50m |
 | 2026-09-02 | 2h 14m | 15h 04m |
-| 2026-09-03 | 3h 49m | **18h 53m** |
+| 2026-09-03 | 3h 49m | 18h 53m |
+| 2026-09-04 | 2h 48m | **21h 41m** |
 
-**Running total: ~18h 53m** across 10 working days (2026-08-11 → 2026-09-03) — a floor, not a
+**Running total: ~21h 41m** across 11 working days (2026-08-11 → 2026-09-04) — a floor, not a
 ceiling, per the caveats above. Add a new dated entry per work session going forward; keep the
 newest at the top.
