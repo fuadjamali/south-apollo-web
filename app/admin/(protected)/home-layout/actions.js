@@ -21,8 +21,10 @@ export async function updateHomeLayoutAction(prevState, formData) {
   }
 
   const asidePosition = formData.get("asidePosition")?.toString();
+  const asideContent = formData.get("asideContent")?.toString();
+  const contentWidth = formData.get("contentWidth")?.toString();
 
-  await setHomeLayout({ layoutName, sectionOrder, asidePosition });
+  await setHomeLayout({ layoutName, sectionOrder, asidePosition, asideContent, contentWidth });
 
   // Only the home page's section order changes — revalidate that, not "layout" broadly.
   revalidatePath("/");

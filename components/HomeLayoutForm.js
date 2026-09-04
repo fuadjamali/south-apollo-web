@@ -4,39 +4,44 @@ import { useActionState, useRef, useState } from "react";
 import { IconGripVertical, IconChevronUp, IconChevronDown } from "@tabler/icons-react";
 
 // Small wireframe diagram of a layout mode, purely illustrative (not to scale, no real data) —
-// the point is letting a non-technical admin/client see the shape of "sidebar, left" vs "sidebar,
-// right" vs the plain stack at a glance, without needing to preview the live site. `aside` is
-// null for the single-column Default/Custom shape, or "left"/"right" for the Sidebar shape.
-function LayoutDiagram({ aside, className = "" }) {
+// the point is letting a non-technical admin/client see the shape of "sidebar, left" vs
+// "sidebar, right" vs the plain stack at a glance, without needing to preview the live site.
+// `aside` is null for the single-column Default/Custom shape, or "left"/"right" for the Sidebar
+// shape; `fill` draws the bars flush to the diagram's own edges instead of leaving a margin,
+// mirroring what the Fill toggle does to the real page.
+function LayoutDiagram({ aside, fill, className = "" }) {
   const bar = "fill-border";
   const accent = "fill-accent";
   const dark = "fill-gray-700 dark:fill-gray-500";
+  const edge = fill ? 0 : 4;
+  const w = 100 - edge * 2;
 
   if (!aside) {
     return (
       <svg viewBox="0 0 100 130" className={className} aria-hidden>
-        <rect x="4" y="4" width="92" height="18" rx="3" className={accent} />
+        <rect x={edge} y="4" width={w} height="18" rx="3" className={accent} />
         {[26, 40, 54, 68, 82, 96].map((y) => (
-          <rect key={y} x="4" y={y} width="92" height="10" rx="2" className={bar} />
+          <rect key={y} x={edge} y={y} width={w} height="10" rx="2" className={bar} />
         ))}
-        <rect x="4" y="112" width="92" height="14" rx="3" className={dark} />
+        <rect x={edge} y="112" width={w} height="14" rx="3" className={dark} />
       </svg>
     );
   }
 
-  const asideBox = (
-    <rect x={aside === "left" ? 4 : 68} y="26" width="28" height="86" rx="3" className={accent} opacity="0.55" />
-  );
-  const mainX = aside === "left" ? 36 : 4;
+  const asideW = 26;
+  const gap = fill ? 4 : 6;
+  const asideX = aside === "left" ? edge : 100 - edge - asideW;
+  const mainX = aside === "left" ? edge + asideW + gap : edge;
+  const mainW = w - asideW - gap;
 
   return (
     <svg viewBox="0 0 100 130" className={className} aria-hidden>
-      <rect x="4" y="4" width="92" height="18" rx="3" className={accent} />
-      {asideBox}
+      <rect x={edge} y="4" width={w} height="18" rx="3" className={accent} />
+      <rect x={asideX} y="26" width={asideW} height="86" rx="3" className={accent} opacity="0.55" />
       {[26, 44, 62, 80, 98].map((y) => (
-        <rect key={y} x={mainX} y={y} width="60" height="12" rx="2" className={bar} />
+        <rect key={y} x={mainX} y={y} width={mainW} height="12" rx="2" className={bar} />
       ))}
-      <rect x="4" y="112" width="92" height="14" rx="3" className={dark} />
+      <rect x={edge} y="112" width={w} height="14" rx="3" className={dark} />
     </svg>
   );
 }
@@ -47,7 +52,7 @@ const MODES = [
   {
     key: "sidebar",
     title: "Sidebar Layout",
-    blurb: "News & Events in an aside next to everything else.",
+    blurb: "A feed in an aside next to everything else.",
     aside: "right",
   },
 ];
@@ -58,18 +63,19 @@ const MODES = [
 // pointer (keyboard/touch-a11y fallback that drag-and-drop alone doesn't give you).
 //
 // Custom and Sidebar each keep their own independent order array in state (customOrder /
-// sidebarOrder) rather than one shared array, since Sidebar's list is one section shorter (News
-// & Events lives in the aside, not the reorderable main column) — switching between modes never
-// has to reconcile two different-shaped arrays against each other, each just remembers its own
-// last arrangement.
+// sidebarOrder) rather than one shared array, since Sidebar's list is one section shorter
+// (whichever section is feeding the aside isn't in the reorderable main column) — switching
+// between modes never has to reconcile two different-shaped arrays against each other, each
+// just remembers its own last arrangement.
 export default function HomeLayoutForm({
   layoutName,
   sectionOrder,
   asidePosition,
+  asideContent,
+  contentWidth,
   sections,
-  asideSection,
+  asideContentOptions,
   defaultSectionOrder,
-  defaultSidebarMainOrder,
   action,
 }) {
   const [state, formAction, pending] = useActionState(action, {});
@@ -78,9 +84,11 @@ export default function HomeLayoutForm({
     layoutName === "custom" ? sectionOrder : defaultSectionOrder
   );
   const [sidebarOrder, setSidebarOrder] = useState(
-    layoutName === "sidebar" ? sectionOrder : defaultSidebarMainOrder
+    layoutName === "sidebar" ? sectionOrder : defaultSectionOrder.filter((k) => k !== asideContent)
   );
   const [aside, setAside] = useState(asidePosition || "right");
+  const [content, setContent] = useState(asideContent || "newsEvents");
+  const [fill, setFill] = useState(contentWidth === "fill");
   const dragIndex = useRef(null);
 
   const labelByKey = Object.fromEntries(sections.map((s) => [s.key, s.label]));
@@ -103,11 +111,28 @@ export default function HomeLayoutForm({
     dragIndex.current = null;
   }
 
+  // Switching which section feeds the aside: put the previously-pinned section back into the
+  // main-column list, and pull the newly-chosen one out — preserving the rest of the order
+  // rather than resetting it, so picking Blog instead of News & Events doesn't throw away a
+  // custom arrangement of everything else.
+  function changeAsideContent(nextKey) {
+    setContent(nextKey);
+    setSidebarOrder((prev) => {
+      const withoutNext = prev.filter((k) => k !== nextKey);
+      const missing = defaultSectionOrder.filter(
+        (k) => k !== nextKey && !withoutNext.includes(k)
+      );
+      return [...withoutNext, ...missing];
+    });
+  }
+
   return (
     <form action={formAction} className="mt-6 space-y-5">
       <input type="hidden" name="layoutName" value={mode} />
       <input type="hidden" name="sectionOrder" value={JSON.stringify(order)} />
       <input type="hidden" name="asidePosition" value={aside} />
+      <input type="hidden" name="asideContent" value={content} />
+      <input type="hidden" name="contentWidth" value={fill ? "fill" : "contained"} />
 
       <div className="grid gap-3 sm:grid-cols-3">
         {MODES.map((m) => (
@@ -123,6 +148,7 @@ export default function HomeLayoutForm({
           >
             <LayoutDiagram
               aside={m.key === "sidebar" ? (mode === "sidebar" ? aside : m.aside) : null}
+              fill={m.key === "sidebar" && mode === "sidebar" ? fill : false}
               className="h-20 w-full"
             />
             <p className="mt-2 text-sm font-semibold text-foreground">{m.title}</p>
@@ -139,34 +165,77 @@ export default function HomeLayoutForm({
       )}
 
       {mode === "sidebar" && (
-        <div>
-          <span className="block text-sm font-medium text-foreground">
-            {asideSection?.label || "News & Events"} sidebar position
-          </span>
-          <div className="mt-1 flex gap-4">
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="radio"
-                checked={aside === "left"}
-                onChange={() => setAside("left")}
-                className="h-4 w-4 border-border"
-              />
-              Left
-            </label>
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input
-                type="radio"
-                checked={aside === "right"}
-                onChange={() => setAside("right")}
-                className="h-4 w-4 border-border"
-              />
-              Right
+        <div className="space-y-4 rounded-lg border border-border bg-surface-alt p-4">
+          <div>
+            <span className="block text-sm font-medium text-foreground">Aside content</span>
+            <div className="mt-1 flex flex-wrap gap-4">
+              {asideContentOptions.map((opt) => (
+                <label key={opt.key} className="flex items-center gap-2 text-sm text-foreground">
+                  <input
+                    type="radio"
+                    checked={content === opt.key}
+                    onChange={() => changeAsideContent(opt.key)}
+                    className="h-4 w-4 border-border"
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+            <p className="mt-1 text-xs text-muted">
+              This feed moves into the sidebar and drops out of the reorderable list below.
+            </p>
+          </div>
+
+          <div>
+            <span className="block text-sm font-medium text-foreground">Sidebar position</span>
+            <div className="mt-1 flex gap-4">
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="radio"
+                  checked={aside === "left"}
+                  onChange={() => setAside("left")}
+                  className="h-4 w-4 border-border"
+                />
+                Left
+              </label>
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="radio"
+                  checked={aside === "right"}
+                  onChange={() => setAside("right")}
+                  className="h-4 w-4 border-border"
+                />
+                Right
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center justify-between gap-3">
+              <span>
+                <span className="block text-sm font-medium text-foreground">Fill browser width</span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {fill
+                    ? "On — no side margin, the sidebar sits flush against the browser edge."
+                    : "Off — centered with a margin, capped at 1980px wide."}
+                </span>
+              </span>
+              <span
+                role="switch"
+                aria-checked={fill}
+                onClick={() => setFill((v) => !v)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
+                  fill ? "bg-primary" : "bg-border"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                    fill ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </span>
             </label>
           </div>
-          <p className="mt-1 text-xs text-muted">
-            {asideSection?.label || "News & Events"} moves into the sidebar; everything below is
-            the order for the rest of the page, next to it.
-          </p>
         </div>
       )}
 

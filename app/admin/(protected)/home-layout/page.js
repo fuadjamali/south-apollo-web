@@ -1,9 +1,8 @@
 import {
   getHomeLayout,
   HOME_LAYOUT_SECTIONS,
-  ASIDE_SECTION_KEY,
+  ASIDE_CONTENT_OPTIONS,
   DEFAULT_SECTION_ORDER,
-  DEFAULT_SIDEBAR_MAIN_ORDER,
 } from "@/lib/homeLayout";
 import { updateHomeLayoutAction } from "./actions";
 import HomeLayoutForm from "@/components/HomeLayoutForm";
@@ -12,7 +11,6 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminHomeLayoutPage() {
   const layout = await getHomeLayout();
-  const asideSection = HOME_LAYOUT_SECTIONS.find((s) => s.key === ASIDE_SECTION_KEY);
 
   return (
     <div className="w-full max-w-2xl px-6">
@@ -28,10 +26,11 @@ export default async function AdminHomeLayoutPage() {
           layoutName={layout.layoutName}
           sectionOrder={layout.sectionOrder}
           asidePosition={layout.asidePosition || "right"}
+          asideContent={layout.asideContent || "newsEvents"}
+          contentWidth={layout.contentWidth || "contained"}
           sections={HOME_LAYOUT_SECTIONS}
-          asideSection={asideSection}
+          asideContentOptions={ASIDE_CONTENT_OPTIONS}
           defaultSectionOrder={DEFAULT_SECTION_ORDER}
-          defaultSidebarMainOrder={DEFAULT_SIDEBAR_MAIN_ORDER}
           action={updateHomeLayoutAction}
         />
       </div>
