@@ -294,6 +294,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* A single element rendering even slightly wider than the viewport (a fixed-width table, an
+   un-wrapped long word, a slightly-too-wide flex row) silently gives the WHOLE page horizontal
+   scroll on mobile — not just that element. html+body both need the guard: body alone still lets
+   a wide descendant push html's own scrollable width out, so a horizontal drag can still occur
+   even with body's own overflow clipped. */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
