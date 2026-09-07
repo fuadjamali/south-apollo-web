@@ -11,7 +11,11 @@ export default function GalleryPhotoForm({ action, photo, submitLabel }) {
         label="Image"
         currentImage={photo?.image}
         required={!photo}
-        helpText={photo ? undefined : "Required."}
+        helpText={
+          photo
+            ? "Choose a file to replace it, or leave blank to keep it. Crop to Square, Portrait, or Landscape in the next step — whichever you pick is respected on the gallery page."
+            : "Required. Crop to Square, Portrait, or Landscape in the next step — whichever you pick is respected on the gallery page. Compressed automatically on upload."
+        }
       />
 
       <div>
@@ -23,6 +27,34 @@ export default function GalleryPhotoForm({ action, photo, submitLabel }) {
           placeholder="Short caption shown under the photo"
           className={fieldClass}
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-foreground">Tags</label>
+        <input
+          type="text"
+          name="tags"
+          defaultValue={(photo?.tags || []).join(", ")}
+          placeholder="wedding, outdoor, summer"
+          className={fieldClass}
+        />
+        <p className="mt-1 text-xs text-muted">
+          Comma-separated. Shown as filter chips on the gallery page.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-foreground">Photo date</label>
+        <input
+          type="date"
+          name="takenAt"
+          defaultValue={photo?.taken_at ? String(photo.taken_at).slice(0, 10) : ""}
+          className={fieldClass}
+        />
+        <p className="mt-1 text-xs text-muted">
+          Optional — when the photo was actually taken, if different from today. Used for the
+          gallery&apos;s date filter and sorting; falls back to the upload date if left blank.
+        </p>
       </div>
 
       <div className="flex gap-3">

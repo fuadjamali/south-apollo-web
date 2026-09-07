@@ -8,6 +8,7 @@ import {
   IconStar,
   IconBrandWhatsapp,
 } from "@tabler/icons-react";
+import { HOW_IT_WORKS_ICONS } from "@/lib/howItWorksIcons";
 import SiteHeader from "@/components/SiteHeader";
 import EnquiryForm from "@/components/EnquiryForm";
 import VisitTracker from "@/components/VisitTracker";
@@ -35,6 +36,8 @@ import { getApprovedTestimonials, getTestimonialStats } from "@/lib/testimonials
 import { getAboutInfo } from "@/lib/aboutInfo";
 import { getVisionMissionInfo } from "@/lib/visionMissionInfo";
 import { getHistoryInfo } from "@/lib/historyInfo";
+import { getMilestones } from "@/lib/historyMilestones";
+import HistoryTimeline from "@/components/HistoryTimeline";
 import { getRecentPosts } from "@/lib/blog";
 import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
 import { getActivePartners } from "@/lib/partners";
@@ -42,6 +45,7 @@ import { getRecentItems } from "@/lib/newsEvents";
 import { getStats } from "@/lib/stats";
 import { getSteps } from "@/lib/howItWorks";
 import { getRecentPhotos } from "@/lib/gallery";
+import GalleryPreviewCarousel from "@/components/GalleryPreviewCarousel";
 import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
 import { getModuleStates, isEnabled, isPublicPathEnabled } from "@/lib/plan";
@@ -186,6 +190,7 @@ export default async function Home({ searchParams }) {
     aboutInfo,
     visionMissionInfo,
     historyInfo,
+    historyMilestones,
     recentPosts,
     teamGroups,
     partnerItems,
@@ -206,13 +211,14 @@ export default async function Home({ searchParams }) {
     getAboutInfo(),
     isEnabled("visionMission", moduleStates) ? getVisionMissionInfo() : Promise.resolve(null),
     isEnabled("history", moduleStates) ? getHistoryInfo() : Promise.resolve(null),
+    isEnabled("history", moduleStates) ? getMilestones() : Promise.resolve([]),
     isEnabled("blog", moduleStates) ? getRecentPosts(3) : Promise.resolve([]),
     getActiveTeamsWithMembers(),
     getActivePartners(),
     isEnabled("newsEvents", moduleStates) ? getRecentItems(3) : Promise.resolve([]),
     statsEnabled ? getStats() : Promise.resolve([]),
     isEnabled("howItWorks", moduleStates) ? getSteps() : Promise.resolve([]),
-    isEnabled("gallery", moduleStates) ? getRecentPhotos(3) : Promise.resolve([]),
+    isEnabled("gallery", moduleStates) ? getRecentPhotos(6) : Promise.resolve([]),
     isEnabled("portfolio", moduleStates) ? getPortfolioItems() : Promise.resolve([]),
     isEnabled("certifications", moduleStates) ? getCertifications() : Promise.resolve([]),
   ]);
@@ -454,27 +460,27 @@ export default async function Home({ searchParams }) {
         >
           <div className={`mx-auto ${sectionMaxW} px-6 text-center`}>
             <p className="text-sm font-medium text-muted">{partners.heading}</p>
-            <div className="mt-8 grid grid-cols-2 items-center gap-8 sm:grid-cols-3 md:grid-cols-5">
-              {partnerItems.map((partner) =>
-                partner.logo ? (
-                  // Admin-editable image source — plain <img>, same reasoning as
-                  // products/blog/reviews.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={partner.id}
-                    src={partner.logo}
-                    alt={partner.name}
-                    title={partner.name}
-                    className="mx-auto h-8 w-24 object-contain opacity-70"
-                  />
-                ) : (
-                  <div
-                    key={partner.id}
-                    className="mx-auto h-8 w-24 rounded bg-gray-200 dark:bg-gray-700 opacity-70"
-                    title={partner.name}
-                  />
-                )
-              )}
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+              {partnerItems.map((partner) => (
+                <div
+                  key={partner.id}
+                  title={partner.description || partner.name}
+                  className="flex h-24 items-center justify-center rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:shadow-md"
+                >
+                  {partner.logo ? (
+                    // Admin-editable image source — plain <img>, same reasoning as
+                    // products/blog/reviews.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={partner.logo}
+                      alt={partner.name}
+                      className="max-h-10 w-full object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0"
+                    />
+                  ) : (
+                    <span className="text-sm font-medium text-muted">{partner.name}</span>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -491,15 +497,25 @@ export default async function Home({ searchParams }) {
           <p className="mt-2 text-center text-muted">{howItWorks.subheading}</p>
 
           <div className="mt-10 grid gap-8 sm:grid-cols-3">
-            {howItWorksSteps.map((step, index) => (
-              <div key={step.id} className="text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                  {index + 1}
+            {howItWorksSteps.map((step, index) => {
+              const StepIcon = HOW_IT_WORKS_ICONS[step.icon]?.Icon;
+              return (
+                <div
+                  key={step.id}
+                  className="rounded-xl border border-border bg-surface p-6 text-center shadow-sm"
+                >
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    {StepIcon ? (
+                      <StepIcon size={26} stroke={1.75} />
+                    ) : (
+                      <span className="text-lg font-bold">{index + 1}</span>
+                    )}
+                  </div>
+                  <h3 className="mt-4 font-semibold">{step.title}</h3>
+                  <p className="mt-1 text-sm text-muted">{step.description}</p>
                 </div>
-                <h3 className="mt-4 font-semibold">{step.title}</h3>
-                <p className="mt-1 text-sm text-muted">{step.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -686,8 +702,8 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
-      {/* COMPONENT: gallery (optional — live from Postgres, editable at /admin/gallery; the 3
-          most recent photos show here, the full set lives at /gallery) */}
+      {/* COMPONENT: gallery (optional — live from Postgres, editable at /admin/gallery; the 6
+          most recent photos auto-advance here, the full masonry gallery lives at /gallery) */}
       {isEnabled("gallery", moduleStates) && recentPhotos.length > 0 && (
         <section
           id="gallery"
@@ -697,25 +713,8 @@ export default async function Home({ searchParams }) {
           <h2 className="text-3xl font-bold">{gallery.heading}</h2>
           <p className="mt-2 text-muted">{gallery.subheading}</p>
 
-          <div className="mt-10 grid gap-6 sm:grid-cols-3">
-            {recentPhotos.map((photo) => (
-              <figure
-                key={photo.id}
-                className="overflow-hidden rounded-xl border border-border shadow-sm"
-              >
-                <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={photo.image}
-                    alt={photo.caption || ""}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                {photo.caption && (
-                  <figcaption className="p-3 text-sm text-muted">{photo.caption}</figcaption>
-                )}
-              </figure>
-            ))}
+          <div className="mx-auto mt-10 max-w-2xl">
+            <GalleryPreviewCarousel photos={recentPhotos} />
           </div>
 
           <div className="mt-10 text-center">
@@ -961,14 +960,28 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: history (optional, off by default — same reasoning as vision-mission
-          directly above; editable at /admin/history) */}
-      {isEnabled("history", moduleStates) && historyInfo?.body && (
-        <ImageTextSection
-          id="history"
-          data={historyInfo}
+          directly above; editable at /admin/history, milestones at /admin/history-milestones).
+          Renders as a real timeline once the admin has added milestones; falls back to the
+          plain heading/body/image block (same as About/Vision & Mission) otherwise, so a site
+          that never adds milestones sees no change. */}
+      {isEnabled("history", moduleStates) && historyMilestones.length > 0 ? (
+        <HistoryTimeline
+          heading={historyInfo.heading}
+          subheading={historyInfo.body}
+          milestones={historyMilestones}
           sectionStyle={{ order: sectionOrder.history }}
           maxW={sectionMaxW}
         />
+      ) : (
+        isEnabled("history", moduleStates) &&
+        historyInfo?.body && (
+          <ImageTextSection
+            id="history"
+            data={historyInfo}
+            sectionStyle={{ order: sectionOrder.history }}
+            maxW={sectionMaxW}
+          />
+        )
       )}
 
       {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and

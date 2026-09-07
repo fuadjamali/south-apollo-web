@@ -44,6 +44,11 @@ export default async function AdminGalleryDetailPage({ params }) {
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <DetailField label="Caption" value={photo.caption} />
+          <DetailField
+            label="Photo date"
+            value={photo.taken_at ? new Date(photo.taken_at).toLocaleDateString() : null}
+          />
+          <DetailField label="Tags" value={photo.tags?.length > 0 ? photo.tags.join(", ") : null} />
         </div>
 
         <p className="mt-6 border-t border-border pt-4 text-xs text-muted">

@@ -9,6 +9,7 @@ function readForm(formData) {
     title: formData.get("title")?.toString().trim() || "",
     description: formData.get("description")?.toString().trim() || "",
     displayOrder: parseInt(formData.get("displayOrder"), 10) || 0,
+    icon: formData.get("icon")?.toString() || null,
   };
 }
 

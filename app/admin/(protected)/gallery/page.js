@@ -47,7 +47,10 @@ export default async function AdminGalleryPage() {
                       {photo.caption || "(no caption)"}
                     </p>
                     <p className="text-sm text-muted">
-                      Added {new Date(photo.created_at).toLocaleDateString()}
+                      {photo.taken_at
+                        ? new Date(photo.taken_at).toLocaleDateString()
+                        : new Date(photo.created_at).toLocaleDateString()}
+                      {photo.tags?.length > 0 && ` · ${photo.tags.join(", ")}`}
                     </p>
                   </div>
                 </div>

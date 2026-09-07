@@ -3,18 +3,25 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createPhoto, updatePhoto, deletePhoto, getPhoto } from "@/lib/gallery";
-import { uploadImage, deleteImage } from "@/lib/blob";
+import { uploadImageCompressed, deleteImage } from "@/lib/blob";
 
 function readForm(formData) {
   return {
     caption: formData.get("caption")?.toString().trim() || "",
+    tags: formData
+      .get("tags")
+      ?.toString()
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean) || [],
+    takenAt: formData.get("takenAt")?.toString() || null,
   };
 }
 
 export async function createPhotoAction(formData) {
   const data = readForm(formData);
 
-  const image = await uploadImage(formData.get("imageFile"), "gallery");
+  const image = await uploadImageCompressed(formData.get("imageFile"), "gallery");
   if (!image) return;
   data.image = image;
 
@@ -30,7 +37,7 @@ export async function updatePhotoAction(id, formData) {
   const data = readForm(formData);
 
   const existing = await getPhoto(id);
-  const uploaded = await uploadImage(formData.get("imageFile"), "gallery");
+  const uploaded = await uploadImageCompressed(formData.get("imageFile"), "gallery");
   if (uploaded) {
     await deleteImage(existing?.image);
     data.image = uploaded;
