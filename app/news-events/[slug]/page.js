@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getItemBySlug } from "@/lib/newsEvents";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -12,7 +13,13 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const item = await getItemBySlug(slug);
   if (!item) return {};
-  return { title: item.title, description: item.summary };
+  return buildPageMetadata({
+    title: item.title,
+    description: item.summary,
+    path: `/news-events/${item.slug}`,
+    image: item.image,
+    type: item.type === "Event" ? "website" : "article",
+  });
 }
 
 export default async function NewsEventDetailPage({ params }) {

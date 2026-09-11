@@ -2,8 +2,15 @@ import { notFound } from "next/navigation";
 import Logo from "@/components/Logo";
 import { getBookingByNumber } from "@/lib/bookings";
 import { getBusinessInfo } from "@/lib/businessInfo";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+// noIndex: a real customer's booking details behind a guessable-ish URL — never appropriate to
+// surface in search results.
+export async function generateMetadata() {
+  return buildPageMetadata({ title: "Booking Confirmed", path: "/booking-confirmation", noIndex: true });
+}
 
 function formatTime(t) {
   return t?.slice(0, 5);

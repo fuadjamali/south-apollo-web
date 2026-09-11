@@ -11,6 +11,11 @@ const PUBLIC_ROUTES = [
   "/compare-plans",
   "/privacy-policy",
   "/terms-of-service",
+  // Next's dynamic OG image convention (app/opengraph-image.js) — served at this exact path
+  // with no file extension, so it isn't caught by the matcher's own extension exclusions below
+  // the way a static .png/.svg would be. Without this, every social-preview crawler's request
+  // for it 401s.
+  "/opengraph-image",
 ];
 const PUBLIC_PREFIXES = [
   "/api/auth",

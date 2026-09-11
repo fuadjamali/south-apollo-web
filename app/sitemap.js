@@ -3,10 +3,11 @@ import { getProducts } from "@/lib/products";
 import { getItems } from "@/lib/newsEvents";
 import { getPhotos } from "@/lib/gallery";
 import { getModuleStates, isEnabled } from "@/lib/plan";
+import { getAllLegalPages } from "@/lib/legalPages";
 
 export default async function sitemap() {
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-  const moduleStates = await getModuleStates();
+  const [moduleStates, legalPages] = await Promise.all([getModuleStates(), getAllLegalPages()]);
 
   const entries = [
     {
@@ -15,14 +16,56 @@ export default async function sitemap() {
       changeFrequency: "monthly",
       priority: 1,
     },
+    // Always public regardless of plan/module (proxy.js's PUBLIC_ROUTES) — the pricing
+    // comparison page every visitor can reach.
+    {
+      url: `${baseUrl}/compare-plans`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
   ];
 
-  entries.push({
-    url: `${baseUrl}/membership`,
-    lastModified: new Date(),
-    changeFrequency: "yearly",
-    priority: 0.4,
-  });
+  // Was previously unconditional — membership lookup is a Premium-only feature
+  // (lib/plan.js's PREMIUM_MODULES), so a Basic/Plus deployment was listing a page that 401s.
+  if (isEnabled("members", moduleStates)) {
+    entries.push({
+      url: `${baseUrl}/membership`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.4,
+    });
+  }
+
+  if (isEnabled("booking", moduleStates)) {
+    entries.push({
+      url: `${baseUrl}/booking`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    });
+  }
+
+  if (isEnabled("reviews", moduleStates)) {
+    entries.push({
+      url: `${baseUrl}/leave-a-review`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
+    });
+  }
+
+  // Only the ones an admin has actually filled in and switched on — LegalPageView itself
+  // refuses to render an unfilled one, so listing it in the sitemap would just 404 a crawler.
+  for (const page of legalPages) {
+    if (!page.enabled) continue;
+    entries.push({
+      url: `${baseUrl}/${page.slug}`,
+      lastModified: new Date(page.updated_at),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    });
+  }
 
   const products = await getProducts();
   for (const product of products) {

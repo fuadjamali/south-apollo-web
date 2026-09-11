@@ -51,6 +51,7 @@ import { getCertifications } from "@/lib/certifications";
 import { getModuleStates, isEnabled, isPublicPathEnabled } from "@/lib/plan";
 import { getHomeLayout } from "@/lib/homeLayout";
 import { TIERS } from "@/lib/planFeatures";
+import { buildPageMetadata } from "@/lib/seo";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -60,23 +61,12 @@ export const revalidate = 3600;
 export async function generateMetadata() {
   const business = await getBusinessInfo();
   const title = `${business.name} — ${business.tagline}`;
-  return {
+  return buildPageMetadata({
     title,
     description: business.description,
-    openGraph: {
-      type: "website",
-      title,
-      description: business.description,
-      images: ["/og-image.svg"],
-      url: business.domain ? `https://${business.domain}` : undefined,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description: business.description,
-      images: ["/og-image.svg"],
-    },
-  };
+    path: "/",
+    titleAbsolute: true,
+  });
 }
 
 export default async function Home({ searchParams }) {

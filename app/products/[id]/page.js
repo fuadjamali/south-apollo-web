@@ -5,6 +5,8 @@ import AddToCartButton from "@/components/AddToCartButton";
 import ProductGallery from "@/components/ProductGallery";
 import { isModuleEnabled } from "@/lib/plan";
 import { getBusinessInfo } from "@/lib/businessInfo";
+import { buildPageMetadata } from "@/lib/seo";
+import { buildProductJsonLd } from "@/lib/structuredData";
 
 export const revalidate = 3600;
 
@@ -12,7 +14,12 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const product = await getProduct(id);
   if (!product) return {};
-  return { title: product.name, description: product.description };
+  return buildPageMetadata({
+    title: product.name,
+    description: product.description,
+    path: `/products/${product.id}`,
+    image: product.image,
+  });
 }
 
 export default async function ProductDetailPage({ params }) {
@@ -31,9 +38,14 @@ export default async function ProductDetailPage({ params }) {
   // Falls back to the single legacy `image` column for products that predate the photo
   // gallery (no product_photos rows yet), so they still render exactly as before.
   const galleryPhotos = photos.length > 0 ? photos : product.image ? [{ image: product.image }] : [];
+  const jsonLd = buildProductJsonLd({ product, business });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <a href="/" className="text-sm font-medium hover:text-muted">

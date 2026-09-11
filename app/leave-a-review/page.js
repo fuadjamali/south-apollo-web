@@ -2,8 +2,17 @@ import Logo from "@/components/Logo";
 import TestimonialForm from "@/components/TestimonialForm";
 import { getActiveMemberSession } from "@/lib/memberSession";
 import { getBusinessInfo } from "@/lib/businessInfo";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  return buildPageMetadata({
+    title: "Leave a Review",
+    description: "Share your experience — leave us a review.",
+    path: "/leave-a-review",
+  });
+}
 
 export default async function LeaveAReviewPage() {
   const [member, business] = await Promise.all([getActiveMemberSession(), getBusinessInfo()]);

@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/blog";
+import { getBusinessInfo } from "@/lib/businessInfo";
+import { buildPageMetadata } from "@/lib/seo";
+import { buildArticleJsonLd } from "@/lib/structuredData";
 
 export const revalidate = 3600;
 
@@ -7,21 +10,32 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return {};
-  return { title: post.title, description: post.excerpt };
+  return buildPageMetadata({
+    title: post.title,
+    description: post.excerpt,
+    path: `/blog/${post.slug}`,
+    image: post.image,
+    type: "article",
+  });
 }
 
 export default async function BlogPostPage({ params }) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const [post, business] = await Promise.all([getPostBySlug(slug), getBusinessInfo()]);
 
   if (!post) {
     notFound();
   }
 
   const paragraphs = (post.body || "").split(/\n\s*\n/).filter(Boolean);
+  const jsonLd = buildArticleJsonLd({ post, business });
 
   return (
     <article>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <a href="/blog" className="text-sm text-accent hover:underline">
         &larr; Back to blog
       </a>

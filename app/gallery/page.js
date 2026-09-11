@@ -1,12 +1,18 @@
-import { getPhotosPage, getAllTags, getAllPhotoMonths } from "@/lib/gallery";
+import { getPhotosPage, getAllTags, getAllPhotoMonths, getRecentPhotos } from "@/lib/gallery";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
 import GalleryGrid from "@/components/GalleryGrid";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
-  const headings = await getSectionHeadings();
-  return { title: "Gallery", description: headings.gallery.subheading };
+  const [headings, [recentPhoto]] = await Promise.all([getSectionHeadings(), getRecentPhotos(1)]);
+  return buildPageMetadata({
+    title: "Gallery",
+    description: headings.gallery.subheading,
+    path: "/gallery",
+    image: recentPhoto?.image,
+  });
 }
 
 export default async function GalleryPage() {

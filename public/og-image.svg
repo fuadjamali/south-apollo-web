@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#111827"/>
-  <g transform="translate(500,235)" fill="#ffffff" fill-rule="evenodd">
-    <path d="M50,10 L85,20 L92,50 L80,80 L55,92 L40,92 L48,70 L35,66 L12,72 L25,56 L5,48 L25,38 L18,26 L32,18 Z M38,34 A6,6 0 1,1 37.99,34 Z" transform="scale(2)"/>
-  </g>
-  <text x="600" y="440" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="bold" fill="#ffffff" text-anchor="middle">YOUR_BUSINESS_NAME</text>
-  <text x="600" y="485" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#9ca3af" text-anchor="middle">YOUR_TAGLINE_HERE</text>
-</svg>

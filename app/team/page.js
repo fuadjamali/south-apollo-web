@@ -1,11 +1,16 @@
 import { getAllTeamsWithActiveMembers } from "@/lib/teamMembers";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
   const headings = await getSectionHeadings();
-  return { title: "Team", description: headings.team.subheading };
+  return buildPageMetadata({
+    title: "Team",
+    description: headings.team.subheading,
+    path: "/team",
+  });
 }
 
 export default async function TeamPage() {

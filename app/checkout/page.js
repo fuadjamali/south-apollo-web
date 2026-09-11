@@ -2,6 +2,14 @@ import Logo from "@/components/Logo";
 import CheckoutForm from "@/components/CheckoutForm";
 import { getActiveMemberSession } from "@/lib/memberSession";
 import { getBusinessInfo } from "@/lib/businessInfo";
+import { buildPageMetadata } from "@/lib/seo";
+
+// noIndex: a mid-purchase form page, not a landing page — nothing here is worth ranking for,
+// and indexing it risks surfacing an empty/broken cart state to search visitors who never
+// actually started a purchase.
+export async function generateMetadata() {
+  return buildPageMetadata({ title: "Checkout", path: "/checkout", noIndex: true });
+}
 
 export default async function CheckoutPage() {
   const [member, business] = await Promise.all([getActiveMemberSession(), getBusinessInfo()]);

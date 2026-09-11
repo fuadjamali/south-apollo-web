@@ -1,11 +1,16 @@
 import { getItems } from "@/lib/newsEvents";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
   const headings = await getSectionHeadings();
-  return { title: "News & Events", description: headings.newsEvents.subheading };
+  return buildPageMetadata({
+    title: "News & Events",
+    description: headings.newsEvents.subheading,
+    path: "/news-events",
+  });
 }
 
 const TYPE_BADGE = {

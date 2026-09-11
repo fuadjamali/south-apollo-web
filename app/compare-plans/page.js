@@ -2,6 +2,15 @@ import { Fragment } from "react";
 import Logo from "@/components/Logo";
 import { FEATURES, TIERS } from "@/lib/planFeatures";
 import { getBusinessInfo } from "@/lib/businessInfo";
+import { buildPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata() {
+  return buildPageMetadata({
+    title: "Compare Plans",
+    description: "Compare Basic, Plus, and Premium plans to find the right fit for your business.",
+    path: "/compare-plans",
+  });
+}
 
 function Check({ included }) {
   return included ? (

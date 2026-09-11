@@ -5,6 +5,11 @@ import { getSiteText } from "@/lib/siteText";
 
 export const dynamic = "force-dynamic";
 
+// Already served with a 401 status by proxy.js's rewrite (which alone keeps search engines from
+// indexing it) — the explicit noindex here is just defense in depth, same reasoning as the
+// transactional pages.
+export const metadata = { robots: { index: false, follow: false } };
+
 export default async function SiteUnavailablePage() {
   const siteText = await getSiteText();
   const errorCodeLabel = siteText.unavailable_error_code_label;

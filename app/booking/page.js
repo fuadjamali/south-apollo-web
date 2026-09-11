@@ -3,8 +3,17 @@ import BookingFlow from "@/components/BookingFlow";
 import { getActiveMemberSession } from "@/lib/memberSession";
 import { getActiveBookingServices } from "@/lib/bookingServices";
 import { getBusinessInfo } from "@/lib/businessInfo";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  return buildPageMetadata({
+    title: "Book Online",
+    description: "Book an appointment online — pick a service, choose a time, and confirm instantly.",
+    path: "/booking",
+  });
+}
 
 export default async function BookingPage() {
   const [member, services, business] = await Promise.all([

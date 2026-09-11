@@ -1,11 +1,16 @@
 import { getPosts } from "@/lib/blog";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
   const headings = await getSectionHeadings();
-  return { title: "Blog", description: headings.blog.subheading };
+  return buildPageMetadata({
+    title: "Blog",
+    description: headings.blog.subheading,
+    path: "/blog",
+  });
 }
 
 export default async function BlogIndexPage() {

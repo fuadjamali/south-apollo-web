@@ -3,10 +3,12 @@
  *
  * Takes one source logo image (PNG/JPG/SVG, ideally square and at least 512x512) and
  * generates a full set of favicon/touch-icon/OG-image variants from it. Writes everything
- * into public/generated/ rather than overwriting the site's current app/icon.svg or
- * public/og-image.svg directly — review the output, then manually swap in whichever files
- * you want to adopt. This keeps running the script from silently changing the site's current
- * branding.
+ * into public/generated/ rather than overwriting the site's current app/icon.svg directly —
+ * review the output, then manually swap in whichever files you want to adopt. This keeps
+ * running the script from silently changing the site's current branding. Adopting the
+ * generated og-image.png as a fixed replacement for the site's current default (the dynamic
+ * app/opengraph-image.js route, which already renders the real admin-edited business name/
+ * tagline) means deleting that route, not just adding the PNG to public/.
  *
  * Usage:
  *   node scripts/generate-identity.js --source path/to/logo.png [--bg "#ffffff"]
@@ -100,7 +102,8 @@ async function main() {
   console.log(
     `\nDone. Nothing in app/ or public/ was overwritten — review the files in ` +
       `${path.relative(process.cwd(), outDir)} and manually copy whichever ones you want ` +
-      `to adopt over app/icon.svg / public/og-image.svg / a real favicon.ico.`
+      `to adopt over app/icon.svg / a real favicon.ico. Adopting og-image.png instead of the ` +
+      `dynamic app/opengraph-image.js default means deleting that route, not just adding the PNG.`
   );
 }
 

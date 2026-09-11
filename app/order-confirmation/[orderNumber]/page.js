@@ -3,8 +3,15 @@ import Logo from "@/components/Logo";
 import { getOrderByNumber } from "@/lib/orders";
 import { formatCurrency } from "@/lib/currency";
 import { getBusinessInfo } from "@/lib/businessInfo";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+// noIndex: a real customer's order details behind a guessable-ish URL — never appropriate to
+// surface in search results.
+export async function generateMetadata() {
+  return buildPageMetadata({ title: "Order Confirmed", path: "/order-confirmation", noIndex: true });
+}
 
 export default async function OrderConfirmationPage({ params }) {
   const { orderNumber } = await params;
