@@ -11,10 +11,13 @@ export default function GalleryPhotoForm({ action, photo, submitLabel }) {
         label="Image"
         currentImage={photo?.image}
         required={!photo}
+        cropAspectRatio={photo?.aspect_ratio || "16:9"}
+        cropRatioKeys={["9:16", "16:9"]}
+        aspectRatioFieldName="aspectRatio"
         helpText={
           photo
-            ? "Choose a file to replace it, or leave blank to keep it. Crop to Square, Portrait, or Landscape in the next step — whichever you pick is respected on the gallery page."
-            : "Required. Crop to Square, Portrait, or Landscape in the next step — whichever you pick is respected on the gallery page. Compressed automatically on upload."
+            ? "Choose a file to replace it, or leave blank to keep it. Crop to Portrait or Landscape in the next step — whichever you pick is respected on the gallery page."
+            : "Required. Crop to Portrait or Landscape in the next step — whichever you pick is respected on the gallery page. Compressed automatically on upload."
         }
       />
 

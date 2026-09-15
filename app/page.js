@@ -36,8 +36,6 @@ import { getApprovedTestimonials, getTestimonialStats } from "@/lib/testimonials
 import { getAboutInfo } from "@/lib/aboutInfo";
 import { getVisionMissionInfo } from "@/lib/visionMissionInfo";
 import { getHistoryInfo } from "@/lib/historyInfo";
-import { getMilestones } from "@/lib/historyMilestones";
-import HistoryTimeline from "@/components/HistoryTimeline";
 import { getRecentPosts } from "@/lib/blog";
 import { getActiveTeamsWithMembers } from "@/lib/teamMembers";
 import { getActivePartners } from "@/lib/partners";
@@ -45,7 +43,7 @@ import { getRecentItems } from "@/lib/newsEvents";
 import { getStats } from "@/lib/stats";
 import { getSteps } from "@/lib/howItWorks";
 import { getRecentPhotos } from "@/lib/gallery";
-import GalleryPreviewCarousel from "@/components/GalleryPreviewCarousel";
+import GalleryMarquee from "@/components/GalleryMarquee";
 import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
 import { getModuleStates, isEnabled, isPublicPathEnabled } from "@/lib/plan";
@@ -180,7 +178,6 @@ export default async function Home({ searchParams }) {
     aboutInfo,
     visionMissionInfo,
     historyInfo,
-    historyMilestones,
     recentPosts,
     teamGroups,
     partnerItems,
@@ -201,7 +198,6 @@ export default async function Home({ searchParams }) {
     getAboutInfo(),
     isEnabled("visionMission", moduleStates) ? getVisionMissionInfo() : Promise.resolve(null),
     isEnabled("history", moduleStates) ? getHistoryInfo() : Promise.resolve(null),
-    isEnabled("history", moduleStates) ? getMilestones() : Promise.resolve([]),
     isEnabled("blog", moduleStates) ? getRecentPosts(3) : Promise.resolve([]),
     getActiveTeamsWithMembers(),
     getActivePartners(),
@@ -451,26 +447,44 @@ export default async function Home({ searchParams }) {
           <div className={`mx-auto ${sectionMaxW} px-6 text-center`}>
             <p className="text-sm font-medium text-muted">{partners.heading}</p>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-              {partnerItems.map((partner) => (
-                <div
-                  key={partner.id}
-                  title={partner.description || partner.name}
-                  className="flex h-24 items-center justify-center rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:shadow-md"
-                >
-                  {partner.logo ? (
-                    // Admin-editable image source — plain <img>, same reasoning as
-                    // products/blog/reviews.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={partner.logo}
-                      alt={partner.name}
-                      className="max-h-10 w-full object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0"
-                    />
-                  ) : (
-                    <span className="text-sm font-medium text-muted">{partner.name}</span>
-                  )}
-                </div>
-              ))}
+              {partnerItems.map((partner) => {
+                // Conditional element type, not always an <a> disabled by CSS — a no-link card
+                // never renders an inert href-less link (bad for keyboard/screen-reader users,
+                // who'd tab into a link that goes nowhere), and there's no second near-duplicate
+                // card component needed for the "not clickable" case.
+                const CardTag = partner.link_url ? "a" : "div";
+                const cardProps = partner.link_url
+                  ? {
+                      href: partner.link_url,
+                      ...(partner.link_url.startsWith("http")
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {}),
+                    }
+                  : {};
+                return (
+                  <CardTag
+                    key={partner.id}
+                    {...cardProps}
+                    title={partner.description || partner.name}
+                    className={`flex h-24 items-center justify-center rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:shadow-md ${
+                      partner.link_url ? "hover:border-primary focus-visible:border-primary" : ""
+                    }`}
+                  >
+                    {partner.logo ? (
+                      // Admin-editable image source — plain <img>, same reasoning as
+                      // products/blog/reviews.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={partner.logo}
+                        alt={partner.name}
+                        className="max-h-10 w-full object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0"
+                      />
+                    ) : (
+                      <span className="text-sm font-medium text-muted">{partner.name}</span>
+                    )}
+                  </CardTag>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -703,8 +717,8 @@ export default async function Home({ searchParams }) {
           <h2 className="text-3xl font-bold">{gallery.heading}</h2>
           <p className="mt-2 text-muted">{gallery.subheading}</p>
 
-          <div className="mx-auto mt-10 max-w-2xl">
-            <GalleryPreviewCarousel photos={recentPhotos} />
+          <div className="mt-10">
+            <GalleryMarquee photos={recentPhotos} />
           </div>
 
           <div className="mt-10 text-center">
@@ -950,28 +964,18 @@ export default async function Home({ searchParams }) {
       )}
 
       {/* COMPONENT: history (optional, off by default — same reasoning as vision-mission
-          directly above; editable at /admin/history, milestones at /admin/history-milestones).
-          Renders as a real timeline once the admin has added milestones; falls back to the
-          plain heading/body/image block (same as About/Vision & Mission) otherwise, so a site
-          that never adds milestones sees no change. */}
-      {isEnabled("history", moduleStates) && historyMilestones.length > 0 ? (
-        <HistoryTimeline
-          heading={historyInfo.heading}
-          subheading={historyInfo.body}
-          milestones={historyMilestones}
+          directly above; editable at /admin/history). Same shared renderer as About/Vision &
+          Mission — writing the body as two or more consecutive dated paragraphs ("August 5,
+          2024: ...") is what upgrades it to a connected vertical timeline, via
+          ImageTextSection.js's parseTimeline content-shape detection; anything else renders as
+          a plain paragraph. */}
+      {isEnabled("history", moduleStates) && historyInfo?.body && (
+        <ImageTextSection
+          id="history"
+          data={historyInfo}
           sectionStyle={{ order: sectionOrder.history }}
           maxW={sectionMaxW}
         />
-      ) : (
-        isEnabled("history", moduleStates) &&
-        historyInfo?.body && (
-          <ImageTextSection
-            id="history"
-            data={historyInfo}
-            sectionStyle={{ order: sectionOrder.history }}
-            maxW={sectionMaxW}
-          />
-        )
       )}
 
       {/* COMPONENT: team (optional — live from Postgres, editable at /admin/team and

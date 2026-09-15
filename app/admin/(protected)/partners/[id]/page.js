@@ -61,6 +61,8 @@ export default async function AdminPartnerDetailPage({ params }) {
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <DetailField label="Partnered since" value={formatDate(partner.partnership_from)} />
           <DetailField label="Partnership ended" value={formatDate(partner.partnership_ended)} />
+          <DetailField label="Display order" value={partner.display_order} />
+          <DetailField label="Link" value={partner.link_url} />
         </div>
         <DetailField label="Description" value={partner.description} className="mt-4" />
 

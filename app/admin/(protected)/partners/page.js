@@ -59,6 +59,8 @@ export default async function AdminPartnersPage() {
                       </span>
                     </p>
                     <p className="text-sm text-muted">
+                      order {partner.display_order}
+                      {partner.link_url ? " · linked" : ""} ·{" "}
                       {partner.partnership_from
                         ? new Date(partner.partnership_from).toLocaleDateString()
                         : "No start date"}

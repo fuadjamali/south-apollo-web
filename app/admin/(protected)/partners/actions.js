@@ -15,6 +15,8 @@ function readForm(formData) {
     status: VALID_STATUSES.includes(status) ? status : "Active",
     partnershipFrom: formData.get("partnershipFrom")?.toString().trim() || "",
     partnershipEnded: formData.get("partnershipEnded")?.toString().trim() || "",
+    displayOrder: parseInt(formData.get("displayOrder"), 10) || 0,
+    linkUrl: formData.get("linkUrl")?.toString().trim() || "",
   };
 }
 

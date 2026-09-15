@@ -1,4 +1,5 @@
 import ImageFileInput from "@/components/ImageFileInput";
+import NavDestinationField from "@/components/NavDestinationField";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -74,6 +75,30 @@ export default function PartnerForm({ action, partner, submitLabel }) {
             name="partnershipEnded"
             defaultValue={toDateInputValue(partner?.partnership_ended)}
             className={fieldClass}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="block text-sm font-medium text-foreground">Display order</label>
+          <input
+            type="number"
+            name="displayOrder"
+            defaultValue={partner?.display_order ?? 0}
+            className={fieldClass}
+          />
+          <p className="mt-1 text-xs text-muted">
+            Lower shows first in the &quot;Trusted by&quot; strip.
+          </p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-foreground">Link</label>
+          <NavDestinationField
+            name="linkUrl"
+            defaultValue={partner?.link_url || ""}
+            required={false}
+            noneLabel="— No link (card isn't clickable) —"
           />
         </div>
       </div>

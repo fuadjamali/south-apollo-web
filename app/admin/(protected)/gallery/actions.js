@@ -15,6 +15,7 @@ function readForm(formData) {
       .map((t) => t.trim())
       .filter(Boolean) || [],
     takenAt: formData.get("takenAt")?.toString() || null,
+    aspectRatio: formData.get("aspectRatio")?.toString() || "1:1",
   };
 }
 

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { IconSearch } from "@tabler/icons-react";
-import { loadGalleryPageAction } from "@/app/gallery/actions";
 import GalleryLightbox from "@/components/GalleryLightbox";
 
 const MONTH_NAMES = [
@@ -13,11 +12,25 @@ const MONTH_NAMES = [
 const fieldClass =
   "rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
+// Calls the /api/gallery-photos route (app/api/gallery-photos/route.js), which wraps
+// lib/gallery.js's getPhotosPage() — a plain GET rather than a Server Action, so pagination is
+// reachable the same way from outside this Next app if that's ever needed.
+async function fetchGalleryPage(params) {
+  const query = new URLSearchParams();
+  if (params.cursor) query.set("cursor", params.cursor);
+  if (params.tag) query.set("tag", params.tag);
+  if (params.year) query.set("year", params.year);
+  if (params.month) query.set("month", params.month);
+  if (params.search) query.set("search", params.search);
+  const res = await fetch(`/api/gallery-photos?${query.toString()}`);
+  if (!res.ok) throw new Error("Failed to load photos");
+  return res.json();
+}
+
 // Pinterest-style masonry via CSS multi-column layout (columns-N + break-inside-avoid on each
 // item) rather than a JS masonry library — no measuring/layout-thrashing, and it degrades to a
 // perfectly normal single column on mobile for free. Infinite scroll watches a sentinel div with
-// IntersectionObserver and calls the loadGalleryPageAction server action directly (same pattern
-// as HeroCarousel/NavReorderableList's direct server-action calls) rather than a route handler.
+// IntersectionObserver and fetches the next page from /api/gallery-photos.
 export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags, allMonths }) {
   const [photos, setPhotos] = useState(initialPhotos);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
@@ -29,6 +42,13 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
   const [isPending, startTransition] = useTransition();
   const sentinelRef = useRef(null);
   const requestId = useRef(0);
+  const searchDebounceRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    };
+  }, []);
 
   const [year, month] = yearMonth ? yearMonth.split("-").map(Number) : [null, null];
 
@@ -42,7 +62,7 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
       };
       const myRequest = ++requestId.current;
       startTransition(async () => {
-        const { photos: page, nextCursor: cursor } = await loadGalleryPageAction(params);
+        const { photos: page, nextCursor: cursor } = await fetchGalleryPage(params);
         if (myRequest !== requestId.current) return; // a newer filter change superseded this one
         setPhotos(page);
         setNextCursor(cursor);
@@ -55,7 +75,7 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
     if (!nextCursor || isPending) return;
     const myRequest = requestId.current;
     startTransition(async () => {
-      const { photos: page, nextCursor: cursor } = await loadGalleryPageAction({
+      const { photos: page, nextCursor: cursor } = await fetchGalleryPage({
         cursor: nextCursor,
         tag,
         year,
@@ -75,15 +95,28 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
       (entries) => {
         if (entries[0].isIntersecting) loadMore();
       },
-      { rootMargin: "400px" }
+      { rootMargin: "800px" }
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextCursor, tag, year, month, search]);
 
+  // Typing debounces (350ms) into an automatic search — the submit button/Enter is a "search
+  // now" shortcut that clears any pending debounce first, so a fast typist who hits Enter never
+  // gets a stale debounced fetch landing after the immediate one.
+  function handleSearchInputChange(value) {
+    setSearchInput(value);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setSearch(value);
+      applyFilters({ search: value });
+    }, 350);
+  }
+
   function handleSearchSubmit(e) {
     e.preventDefault();
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
     setSearch(searchInput);
     applyFilters({ search: searchInput });
   }
@@ -95,7 +128,7 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
           <input
             type="search"
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) => handleSearchInputChange(e.target.value)}
             placeholder="Search captions & tags…"
             className={`${fieldClass} w-56`}
           />
@@ -142,7 +175,7 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
           >
             All
           </button>
-          {allTags.map((t) => (
+          {allTags.map(({ tag: t, count }) => (
             <button
               key={t}
               type="button"
@@ -154,7 +187,7 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
                 tag === t ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground hover:bg-surface-alt"
               }`}
             >
-              {t}
+              {t} <span className="opacity-70">{count}</span>
             </button>
           ))}
         </div>

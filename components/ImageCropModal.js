@@ -6,7 +6,7 @@ import { IconRotate, IconRotate2 } from "@tabler/icons-react";
 import { getCroppedImageBlob, minZoomForRotation } from "@/lib/cropImage";
 import { ASPECT_RATIOS } from "@/lib/photoAspectRatios";
 
-const RATIO_KEYS = Object.keys(ASPECT_RATIOS);
+const ALL_RATIO_KEYS = Object.keys(ASPECT_RATIOS);
 
 function normalizeRotation(deg) {
   return ((deg % 360) + 360) % 360;
@@ -16,9 +16,13 @@ function normalizeRotation(deg) {
 // image/photo field (components/ImageFileInput.js for the 11 single-image forms,
 // components/ProductPhotoManager.js for the product photo gallery). Only the final
 // cropped/rotated result ever reaches the server; `onUseOriginal` bypasses all of this and
-// passes the picked file through untouched. `onSkip` is optional — only meaningful for a
-// multi-file queue (Products) where "skip" means "don't add this one at all", not "use
-// uncropped" (that's what onUseOriginal is for).
+// passes the picked file through untouched (still reporting which ratio button was selected at
+// the time, same as `onDone`, for a caller that wants to persist the chosen ratio either way —
+// see Gallery's `aspect_ratio` column). `onSkip` is optional — only meaningful for a multi-file
+// queue (Products) where "skip" means "don't add this one at all", not "use uncropped" (that's
+// what onUseOriginal is for). `ratioKeys` restricts which ratio buttons show — defaults to every
+// ratio in lib/photoAspectRatios.js; a caller that only wants to offer a subset (Gallery: just
+// Portrait/Landscape) passes its own list.
 export default function ImageCropModal({
   imageSrc,
   fileName,
@@ -26,6 +30,7 @@ export default function ImageCropModal({
   onUseOriginal,
   onSkip,
   initialRatioKey = "1:1",
+  ratioKeys = ALL_RATIO_KEYS,
 }) {
   const [ratioKey, setRatioKey] = useState(initialRatioKey);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -90,7 +95,7 @@ export default function ImageCropModal({
         </div>
 
         <div className="mt-3 flex gap-2">
-          {RATIO_KEYS.map((key) => (
+          {ratioKeys.map((key) => (
             <button
               key={key}
               type="button"
@@ -188,7 +193,7 @@ export default function ImageCropModal({
           )}
           <button
             type="button"
-            onClick={onUseOriginal}
+            onClick={() => onUseOriginal(ratioKey)}
             className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-alt"
           >
             Use original, uncropped
