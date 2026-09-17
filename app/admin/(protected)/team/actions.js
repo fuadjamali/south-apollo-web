@@ -10,6 +10,7 @@ function readForm(formData) {
     description: formData.get("description")?.toString().trim() || "",
     displayOrder: parseInt(formData.get("displayOrder"), 10) || 0,
     showOnHome: formData.get("showOnHome") === "on",
+    isFormer: formData.get("isFormer") === "on",
   };
 }
 

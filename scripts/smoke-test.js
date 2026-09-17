@@ -1,13 +1,24 @@
-// Fast, no-auth smoke test: checks public route availability, that route protection
+// Fast, mostly-no-auth smoke test: checks public route availability, that route protection
 // (proxy.js) is doing its job, and that plan/tier gating (lib/plan.js) matches what's
 // expected for the target deployment. Doesn't exercise CRUD, cart/checkout, or member/admin
-// auth flows — those need a real session and are best driven by hand or a browser-automation
-// tool. Run with: npm run smoke-test
+// auth flows via real HTTP/session — those need a real session and are best driven by hand or
+// a browser-automation tool. Run with: npm run smoke-test
 //
 // BASE_URL — point at a deployed environment instead of localhost.
 // TEST_PLAN — which tier the target server is expected to be running (basic|plus|premium,
 //   default premium). Must match that server's own PLAN env var, or the gated-route checks
 //   below will fail for the wrong reason (testing expectations, not the server, being wrong).
+//
+// One exception to the "no CRUD" rule: the data-integrity section near the bottom calls real
+// lib/*.js functions directly against DATABASE_URL (skipped if that's not set — e.g. testing a
+// remote BASE_URL with no local DB access). Server Actions have no stable, scriptable HTTP
+// contract to drive from outside a real Next.js client (the action reference id is a
+// build-specific hash, not a REST endpoint), so this is the only practical way to regression-test
+// what a Server Action's own save logic does, short of a full browser-automation run.
+
+const { register } = require("node:module");
+const { pathToFileURL } = require("node:url");
+register("./smoke-test-alias-loader.mjs", pathToFileURL(__filename));
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 const TEST_PLAN = (process.env.TEST_PLAN || "premium").toLowerCase();
@@ -122,6 +133,57 @@ async function statusOf(path, { redirect = "manual" } = {}) {
   return res.status;
 }
 
+// Regression test for a real bug: updateProduct() used to always write `image` (a denormalized
+// pointer to whichever product_photos row is the cover), and since its only caller —
+// components/ProductForm.js's basic-info save, which has no image field — never provided one,
+// every single name/price/category save silently nulled the product's cover photo. The product
+// detail page was unaffected (it reads product_photos directly), so the only visible symptom
+// was the homepage grid's thumbnail randomly going blank after an unrelated edit. See
+// lib/products.js's createProduct/updateProduct comments for the fix and the ownership rule
+// (that column belongs exclusively to lib/productPhotos.js from here on).
+async function checkProductCoverSurvivesBasicInfoSave() {
+  const { createProduct, updateProduct, deleteProduct, getProduct } = await import(
+    "../lib/products.js"
+  );
+  const { addProductPhoto } = await import("../lib/productPhotos.js");
+
+  const product = await createProduct({
+    name: "__smoke_test_product__",
+    description: "temporary — created and deleted by npm run smoke-test",
+    price: "£1",
+    priceAmount: 1,
+    category: "smoke-test",
+    displayOrder: 0,
+  });
+
+  try {
+    const photo = await addProductPhoto(product.id, "https://example.com/smoke-test-cover.jpg");
+    const beforeSave = await getProduct(product.id);
+    if (beforeSave.image !== photo.image) {
+      throw new Error("addProductPhoto did not set products.image to the new (first) photo");
+    }
+
+    // The exact shape components/ProductForm.js's save action passes — no `image` key at all.
+    await updateProduct(product.id, {
+      name: "__smoke_test_product__ (edited)",
+      description: beforeSave.description,
+      price: beforeSave.price,
+      priceAmount: beforeSave.price_amount,
+      category: beforeSave.category,
+      displayOrder: beforeSave.display_order,
+    });
+
+    const afterSave = await getProduct(product.id);
+    if (afterSave.image !== photo.image) {
+      throw new Error(
+        `updateProduct wiped products.image — was "${photo.image}", now "${afterSave.image}"`
+      );
+    }
+  } finally {
+    await deleteProduct(product.id); // cascades to product_photos
+  }
+}
+
 async function main() {
   console.log(`Smoke testing ${BASE_URL} (expecting plan: ${TEST_PLAN})\n`);
 
@@ -169,8 +231,18 @@ async function main() {
     });
   }
 
+  if (process.env.DATABASE_URL) {
+    console.log("\nData integrity (direct DB, requires DATABASE_URL):");
+    await check("product cover photo survives a basic-info save", checkProductCoverSurvivesBasicInfoSave);
+  } else {
+    console.log("\nData integrity checks skipped (no DATABASE_URL — remote BASE_URL run?)");
+  }
+
   console.log(`\n${pass} passed, ${fail} failed`);
-  if (fail > 0) process.exit(1);
+  // Explicit exit rather than letting the event loop drain naturally: the data-integrity
+  // section above opens lib/db.js's pg.Pool singleton when it runs, which otherwise keeps the
+  // process alive indefinitely.
+  process.exit(fail > 0 ? 1 : 0);
 }
 
 main().catch((err) => {

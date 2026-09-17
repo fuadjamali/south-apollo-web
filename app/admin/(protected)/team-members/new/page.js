@@ -1,11 +1,13 @@
 import { getTeams } from "@/lib/teams";
+import { getPeople } from "@/lib/people";
 import TeamMemberForm from "@/components/TeamMemberForm";
 import { createTeamMemberAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewTeamMemberPage() {
-  const teams = await getTeams();
+export default async function NewTeamMemberPage({ searchParams }) {
+  const { team } = await searchParams;
+  const [teams, people] = await Promise.all([getTeams(), getPeople()]);
 
   return (
     <div className="w-full max-w-lg px-6">
@@ -20,7 +22,13 @@ export default async function NewTeamMemberPage() {
             .
           </p>
         ) : (
-          <TeamMemberForm action={createTeamMemberAction} teams={teams} submitLabel="Create member" />
+          <TeamMemberForm
+            action={createTeamMemberAction}
+            teams={teams}
+            people={people}
+            returnTeam={team}
+            submitLabel="Create member"
+          />
         )}
       </div>
     </div>

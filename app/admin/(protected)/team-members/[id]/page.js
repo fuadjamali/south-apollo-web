@@ -27,7 +27,12 @@ export default async function AdminTeamMemberDetailPage({ params }) {
                 Inactive
               </span>
             )}
-            {member.active && member.show_on_home && (
+            {(member.is_former || member.team_is_former) && (
+              <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+                Former
+              </span>
+            )}
+            {member.active && !member.is_former && !member.team_is_former && member.show_on_home && (
               <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/40 dark:text-green-400">
                 Home
               </span>
@@ -59,13 +64,23 @@ export default async function AdminTeamMemberDetailPage({ params }) {
         )}
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <DetailField label="ID No" value={member.id_no} />
+          <DetailField label="Person" value={member.person_id ? member.name : "— deleted person —"} />
+          <DetailField label="Team" value={member.team_name} />
           <DetailField label="Title / role" value={member.title} />
+          <DetailField label="ID No" value={member.id_no} />
           <DetailField label="Contact number" value={member.contact_no} />
           <DetailField label="Email" value={member.email} />
           <DetailField label="Service join date" value={formatDate(member.service_join_date)} />
           <DetailField label="Service end date" value={formatDate(member.service_end_date)} />
         </div>
+
+        {member.person_id && (
+          <p className="mt-4 text-sm">
+            <a href={`/admin/people/${member.person_id}`} className="underline">
+              View this person&apos;s full record →
+            </a>
+          </p>
+        )}
 
         <p className="mt-6 border-t border-border pt-4 text-xs text-muted">
           Added {new Date(member.created_at).toLocaleString()} · Updated{" "}

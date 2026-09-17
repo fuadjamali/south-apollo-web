@@ -54,6 +54,23 @@ export default function TeamForm({ action, team, submitLabel }) {
         page, not the home page.
       </p>
 
+      <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <input
+          type="checkbox"
+          name="isFormer"
+          defaultChecked={team?.is_former ?? false}
+          className="h-4 w-4 rounded border-border"
+        />
+        Former team (whole team&apos;s term has ended)
+      </label>
+      <p className="-mt-3 text-xs text-muted">
+        Moves every member of this team to the &quot;Former&quot; section on{" "}
+        <a href="/team" className="underline">
+          /team
+        </a>{" "}
+        and off the home page, regardless of each member&apos;s own flags.
+      </p>
+
       <div className="flex gap-3">
         <button
           type="submit"

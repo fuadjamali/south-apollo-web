@@ -19,6 +19,7 @@ import SocialLinks from "@/components/SocialLinks";
 import CategoryFilter from "@/components/CategoryFilter";
 import Logo from "@/components/Logo";
 import ImageTextSection from "@/components/ImageTextSection";
+import MemberCard from "@/components/MemberCard";
 import siteConfig from "@/config/site";
 import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
 import { getProducts, getProductCategories } from "@/lib/products";
@@ -995,22 +996,7 @@ export default async function Home({ searchParams }) {
                   <h3 className="text-lg font-semibold text-foreground">{group.name}</h3>
                   <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {group.members.map((member) => (
-                      <div
-                        key={member.id}
-                        className="rounded-xl border border-border bg-background p-4"
-                      >
-                        {member.photo && (
-                          <img
-                            src={member.photo}
-                            alt=""
-                            className="mb-3 h-16 w-16 rounded-full object-cover"
-                          />
-                        )}
-                        <p className="font-semibold text-foreground">{member.name}</p>
-                        {member.title && (
-                          <p className="mt-1 text-sm text-muted">{member.title}</p>
-                        )}
-                      </div>
+                      <MemberCard key={member.id} member={member} className="bg-background" />
                     ))}
                   </div>
                 </div>

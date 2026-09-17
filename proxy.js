@@ -82,6 +82,7 @@ const PROTECTED_PREFIXES = [
   "/admin/blog",
   "/admin/reviews",
   "/admin/team",
+  "/admin/people",
   "/admin/members",
   "/admin/partners",
   "/admin/news-events",
