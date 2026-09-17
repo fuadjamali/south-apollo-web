@@ -1,6 +1,6 @@
 # Work Log
 
-Reconstructed from the full commit history (`git log`, 81 commits, 2026-08-11 to present) —
+Reconstructed from the full commit history (`git log`, 88 commits, 2026-08-11 to present) —
 **not a real timer**. Methodology: commits on the same date within 60 minutes of each other are
 grouped into one working session; each session gets a 20-minute buffer before its first commit
 and 10 minutes after its last (time spent before the first save and wrapping up after the last);
@@ -12,6 +12,72 @@ no timestamp trail for the clustering to see. Days flagged ⚠️ below contain 
 that almost certainly represents more real work than its cluster's estimate shows. Treat every
 number here as a floor, not a precise record — useful for a rough sense of where the time went,
 not for billing to the hour.
+
+## 2026-09-17 (~38m) ⚠️
+
+- **08:30 – 09:08** (~38m) — Fixed a real bug in `lib/products.js`: `updateProduct()` always
+  wrote `image` even though its only caller (the basic-info save form) never supplied one,
+  silently nulling a product's cover photo on every unrelated name/price/category save; added a
+  real regression test to `scripts/smoke-test.js` (via a small module-alias loader) that
+  exercises the actual product code directly instead of duplicating its logic. Compared
+  `docs/site-content-sections-extended.md` against the live codebase and corrected two
+  inaccuracies found in it. Read `docs/team-people-internals.md` and built the People/Teams/Team
+  Members split for real: a standalone people directory, a `PersonSelect` type-to-search
+  combobox, a duplicate-active-membership guard, independent team-level/member-level "former"
+  flags with a current/former switcher on the public `/team` page, a URL-persisted team filter on
+  the admin list, and a shared `MemberCard` — backfilling every existing `team_members` row into
+  its own `people` row idempotently, verified against both local and live production data. Read
+  `docs/whatsapp-cta-internals.md` and added a WhatsApp group-invite-link override across all
+  three "Chat on WhatsApp" call sites, fixing a latent broken-link edge case in the footer CTA
+  along the way. **Two commits 8 minutes apart badly understate this session** — it covered two
+  full feature builds (a real relational schema split with a live data migration, plus a separate
+  settings feature), each independently built, local-tested (build/lint/smoke-test/live browser),
+  and verified on production before moving to the next.
+
+## 2026-09-15 (~30m) ⚠️
+
+- **~08:17** — Compared `docs/hero-partners-about-gallery-internals.md` against the live codebase
+  and closed every gap found, in 5 separately-approved steps: client-side image compression
+  before crop (fixing a pre-existing object-URL bug along the way); Partners gained
+  `display_order` and a clickable-card link field; Gallery's crop pipeline was restricted to
+  9:16/16:9 with a new `aspect_ratio` column, tag usage counts, debounced search, and a wider
+  infinite-scroll margin; Gallery's home preview was rebuilt as a doubled-track marquee
+  (replacing the old fade carousel) and its lightbox rewritten with scroll-zoom,
+  double-click-to-2.2×, drag-to-pan, pinch, and a real focus trap, backed by a new
+  `/api/gallery-photos` route; About/Vision & Mission/History gained three content-shape parsers
+  that upgrade plain admin-typed text into card/timeline/icon-list layouts when it matches that
+  shape, retiring History's manual milestones CRUD in favor of detecting dated paragraphs
+  directly in the body. Single commit floored at 30 minutes — this was a full day's work across
+  five independently built-and-verified sub-projects, each tested live in a real browser session
+  and cleaned up before the next began; the real time here is easily several times what the
+  single commit implies.
+
+## 2026-09-11 (~30m) ⚠️
+
+- **~16:04** — Overhauled SEO metadata site-wide: every public route now goes through one shared
+  `buildPageMetadata()` builder instead of each hand-rolling its own subset, adding canonical URLs
+  and Open Graph/Twitter images to most of the site for the first time. Replaced a static OG
+  placeholder image that had literally been shipping "YOUR_BUSINESS_NAME" to anyone who shared a
+  link with a real dynamic PNG route rendering the actual business name/tagline. Added Article and
+  Product JSON-LD structured data. Caught and fixed two real bugs during the work: the sitemap
+  listed the Premium-only Membership page unconditionally, pointing crawlers at a page that 401s
+  on lower tiers; and the new OG-image route itself 401'd because its extensionless URL fell
+  through `proxy.js`'s static-asset matcher. Single commit floored at 30 minutes — likely
+  understates the real time given the number of routes touched and the two bugs chased down.
+
+## 2026-09-08 (~30m) ⚠️
+
+- **~00:44** — Rebuilt the Gallery feature: tags and an optional taken date, automatic upload
+  compression, a Pinterest-style masonry public page with infinite scroll/filter chips/search and
+  a zoomable lightbox, and an auto-advancing home page preview carousel. How It Works steps
+  gained a curated icon picker; Partners' "Trusted By" strip became bordered cards with a hover
+  effect; History gained a real vertical timeline once milestones are added, falling back to the
+  plain block otherwise. Separately, made the Home Page Layout "Fill browser width" setting apply
+  to Gallery/Blog/Team/News & Events (previously home-page-only), and added a global
+  horizontal-scroll safeguard that immediately caught and fixed a real mobile nav overflow on all
+  four pages. Two commits 28 seconds apart, floored as one 30-minute session — the commit's own
+  description of everything verified live through the real admin UI makes clear this was a much
+  longer session than that.
 
 ## 2026-09-04 (~2h 48m) ⚠️
 
@@ -138,8 +204,12 @@ not for billing to the hour.
 | 2026-08-20 | 1h 22m | 12h 50m |
 | 2026-09-02 | 2h 14m | 15h 04m |
 | 2026-09-03 | 3h 49m | 18h 53m |
-| 2026-09-04 | 2h 48m | **21h 41m** |
+| 2026-09-04 | 2h 48m | 21h 41m |
+| 2026-09-08 | 0h 30m | 22h 11m |
+| 2026-09-11 | 0h 30m | 22h 41m |
+| 2026-09-15 | 0h 30m | 23h 11m |
+| 2026-09-17 | 0h 38m | **23h 49m** |
 
-**Running total: ~21h 41m** across 11 working days (2026-08-11 → 2026-09-04) — a floor, not a
+**Running total: ~23h 49m** across 15 working days (2026-08-11 → 2026-09-17) — a floor, not a
 ceiling, per the caveats above. Add a new dated entry per work session going forward; keep the
 newest at the top.
