@@ -38,6 +38,21 @@ export default function SocialSettingsForm({ settings }) {
         </p>
         <div className="mt-3 space-y-3">
           <div>
+            <label className={labelClass}>Group chat invite link (optional)</label>
+            <input
+              type="url"
+              name="whatsappGroupUrl"
+              defaultValue={settings.whatsapp_group_url || ""}
+              placeholder="https://chat.whatsapp.com/XXXXXXXXXXXXXXXXXXXXXX"
+              className={fieldClass}
+            />
+            <p className="mt-1 text-xs text-muted">
+              When set, every &quot;Chat on WhatsApp&quot; button opens this group instead of a
+              one-to-one chat — the number and messages below are ignored while this is filled
+              in. Get an invite link from WhatsApp: group info → Invite via link.
+            </p>
+          </div>
+          <div>
             <label className={labelClass}>Number (with country code, no + or spaces)</label>
             <input
               type="text"
@@ -46,6 +61,10 @@ export default function SocialSettingsForm({ settings }) {
               placeholder="447488382205"
               className={fieldClass}
             />
+            <p className="mt-1 text-xs text-muted">
+              Used only when no group link is set above — opens a one-to-one chat with this
+              number instead.
+            </p>
           </div>
           <div>
             <label className={labelClass}>Floating button message</label>

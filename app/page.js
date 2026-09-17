@@ -24,7 +24,7 @@ import siteConfig from "@/config/site";
 import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
 import { getProducts, getProductCategories } from "@/lib/products";
 import { getContactInfo } from "@/lib/contactInfo";
-import { getSocialSettings } from "@/lib/socialSettings";
+import { getSocialSettings, getWhatsappHref } from "@/lib/socialSettings";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { getActiveHeroSlides } from "@/lib/heroSlides";
 import HeroCarousel from "@/components/HeroCarousel";
@@ -210,9 +210,10 @@ export default async function Home({ searchParams }) {
     isEnabled("certifications", moduleStates) ? getCertifications() : Promise.resolve([]),
   ]);
 
-  const footerWhatsappHref = `https://wa.me/${socialSettings.whatsapp_number}?text=${encodeURIComponent(
-    socialSettings.footer_whatsapp_message || socialSettings.whatsapp_message || ""
-  )}`;
+  const footerWhatsappHref = getWhatsappHref(
+    socialSettings,
+    socialSettings.footer_whatsapp_message || socialSettings.whatsapp_message
+  );
 
   // Sidebar Layout's aside content — one of three already-feed-shaped sections, admin's choice
   // (homeLayout.asideContent). Each has its own item shape (dated + typed for News & Events,
@@ -352,7 +353,7 @@ export default async function Home({ searchParams }) {
             </div>
           </div>
         ))}
-        {socialSettings.whatsapp_number && (
+        {footerWhatsappHref && (
           <a
             href={footerWhatsappHref}
             target="_blank"
@@ -1150,14 +1151,16 @@ export default async function Home({ searchParams }) {
       >
         <h2 className="text-2xl font-bold">{footer.heading}</h2>
         <p className="mt-2 text-gray-300">{footer.subheading}</p>
-        <a
-          href={footerWhatsappHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-200"
-        >
-          Chat on WhatsApp
-        </a>
+        {footerWhatsappHref && (
+          <a
+            href={footerWhatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-200"
+          >
+            Chat on WhatsApp
+          </a>
+        )}
 
         {/* COMPONENT: social-links (optional) */}
         <SocialLinks />

@@ -1,13 +1,11 @@
 import { IconBrandWhatsapp } from "@tabler/icons-react";
-import { getSocialSettings } from "@/lib/socialSettings";
+import { getSocialSettings, getWhatsappHref } from "@/lib/socialSettings";
 
-// Admin-editable at /admin/social — hidden entirely if no number is configured.
+// Admin-editable at /admin/social — hidden entirely if no number or group link is configured.
 export default async function FloatingWhatsApp() {
-  const { whatsapp_number: whatsappNumber, whatsapp_message: whatsappMessage } =
-    await getSocialSettings();
-  if (!whatsappNumber) return null;
-
-  const href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage || "")}`;
+  const settings = await getSocialSettings();
+  const href = getWhatsappHref(settings);
+  if (!href) return null;
 
   return (
     <a

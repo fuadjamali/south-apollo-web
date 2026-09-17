@@ -7,6 +7,7 @@ export async function updateSocialSettingsAction(prevState, formData) {
   const whatsappNumber = formData.get("whatsappNumber")?.toString().trim();
   const whatsappMessage = formData.get("whatsappMessage")?.toString().trim();
   const footerWhatsappMessage = formData.get("footerWhatsappMessage")?.toString().trim();
+  const whatsappGroupUrl = formData.get("whatsappGroupUrl")?.toString().trim();
 
   const socialUrls = {};
   const socialEnabled = {};
@@ -19,6 +20,7 @@ export async function updateSocialSettingsAction(prevState, formData) {
     whatsappNumber,
     whatsappMessage,
     footerWhatsappMessage,
+    whatsappGroupUrl,
     socialUrls,
     socialEnabled,
   });
