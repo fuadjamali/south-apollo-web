@@ -184,51 +184,64 @@ export default function ProductPhotoManager({ productId, photos: initialPhotos }
         </label>
       </div>
       <p className="mt-1 text-xs text-muted">
-        The star marks the cover photo shown on the home page and product list. Up to {MAX_PHOTOS}{" "}
-        photos, 8MB each. Each photo is cropped before it's added.
+        The cover photo (marked ★) is shown on the home page and product list. Up to {MAX_PHOTOS}{" "}
+        photos, 8MB each. Each photo is cropped before it&apos;s added.
       </p>
 
       {photos.length > 0 && (
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {photos.map((photo) => (
-            <div key={photo.id} className="rounded-lg border border-border p-2">
+            <div
+              key={photo.id}
+              className={`rounded-lg border p-2 ${
+                photo.is_cover ? "border-primary ring-1 ring-primary" : "border-border"
+              }`}
+            >
               <div className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={photo.image}
                   alt=""
-                  className="h-24 w-full rounded-md object-cover"
+                  className="aspect-video w-full rounded-md object-cover"
                 />
                 {photo.is_cover && (
-                  <span className="absolute left-1 top-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                    Cover
+                  <span className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground shadow">
+                    ★ Cover
                   </span>
                 )}
               </div>
 
-              <div className="mt-2 flex items-center gap-1">
-                <input
-                  type="number"
-                  defaultValue={photo.display_order}
-                  onBlur={(e) => handleOrderChange(photo.id, e.target.value)}
-                  className="w-14 rounded-md border border-border bg-surface px-1.5 py-1 text-xs text-foreground"
-                  title="Display order"
-                />
-                {!photo.is_cover && (
+              <div className="mt-2 space-y-1.5">
+                <label className="block text-xs text-muted">
+                  Order
+                  <input
+                    type="number"
+                    defaultValue={photo.display_order}
+                    onBlur={(e) => handleOrderChange(photo.id, e.target.value)}
+                    className="mt-1 w-full rounded-md border border-border bg-surface px-1.5 py-1 text-xs text-foreground"
+                    title="Display order"
+                  />
+                </label>
+
+                {photo.is_cover ? (
+                  <p className="rounded-md bg-surface-alt px-2 py-1 text-center text-[11px] font-medium text-muted">
+                    ★ This is the cover photo
+                  </p>
+                ) : (
                   <button
                     type="button"
                     onClick={() => handleSetCover(photo.id)}
                     disabled={mutating}
-                    className="flex-1 rounded-md border border-border px-1.5 py-1 text-[11px] font-medium text-foreground hover:bg-surface-alt disabled:opacity-50"
+                    className="w-full rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-surface-alt disabled:opacity-50"
                   >
-                    Set cover
+                    Set as cover
                   </button>
                 )}
                 <button
                   type="button"
                   onClick={() => handleDelete(photo)}
                   disabled={mutating}
-                  className="rounded-md border border-border px-1.5 py-1 text-[11px] font-medium text-red-600 hover:bg-surface-alt disabled:opacity-50 dark:text-red-400"
+                  className="w-full rounded-md border border-border px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-surface-alt disabled:opacity-50 dark:text-red-400"
                 >
                   Delete
                 </button>
