@@ -1,5 +1,6 @@
 import ImageFileInput from "@/components/ImageFileInput";
 import AIAssistantButton from "@/components/AIAssistantButton";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -45,14 +46,14 @@ export default function BlogPostForm({ action, post, submitLabel, aiEnabled = fa
 
       <div>
         <label className="block text-sm font-medium text-foreground">Body</label>
-        <textarea
-          id="blog-body"
-          name="body"
-          rows={8}
-          defaultValue={post?.body}
-          placeholder="Write the post here. Leave a blank line between paragraphs."
-          className={fieldClass}
-        />
+        <div className="mt-1">
+          <RichTextEditor
+            id="blog-body"
+            name="body"
+            defaultValue={post?.body}
+            placeholder="Write the post here..."
+          />
+        </div>
         {aiEnabled && <AIAssistantButton targetId="blog-body" fieldLabel="blog post body" />}
       </div>
 

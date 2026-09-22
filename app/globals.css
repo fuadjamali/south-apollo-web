@@ -324,3 +324,44 @@ html {
     scroll-behavior: auto;
   }
 }
+
+/* Shared by the blog body's RichTextEditor (components/RichTextEditor.js) and the public
+   post page's rendered output — same class, same rules, so what an admin sees while writing
+   matches what a visitor sees on /blog/[slug]. Only styles the tags lib/sanitizeBlogBody.js's
+   allowlist can actually produce. */
+.blog-rich-content {
+  color: var(--foreground);
+  line-height: 1.7;
+}
+.blog-rich-content h1 {
+  font-size: 1.875em;
+  font-weight: 700;
+  margin: 1em 0 0.5em;
+}
+.blog-rich-content h2 {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 1em 0 0.5em;
+}
+.blog-rich-content h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin: 1em 0 0.5em;
+}
+.blog-rich-content h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 1em 0 0.5em;
+}
+.blog-rich-content p {
+  margin: 0 0 1em;
+}
+.blog-rich-content p:last-child {
+  margin-bottom: 0;
+}
+.blog-rich-content strong {
+  font-weight: 700;
+}
+.blog-rich-content em {
+  font-style: italic;
+}

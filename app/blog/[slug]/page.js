@@ -3,6 +3,7 @@ import { getPostBySlug } from "@/lib/blog";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { buildPageMetadata } from "@/lib/seo";
 import { buildArticleJsonLd } from "@/lib/structuredData";
+import { isLegacyPlainTextBody, legacyPlainTextToHtml } from "@/lib/blogBodyFormat";
 
 export const revalidate = 3600;
 
@@ -27,7 +28,12 @@ export default async function BlogPostPage({ params }) {
     notFound();
   }
 
-  const paragraphs = (post.body || "").split(/\n\s*\n/).filter(Boolean);
+  // Posts saved before the rich text editor existed have a plain-text body — rendered the same
+  // way the page always used to. Posts saved since carry real (already-sanitized, see
+  // lib/sanitizeBlogBody.js) HTML from the editor and are rendered as-is.
+  const bodyHtml = isLegacyPlainTextBody(post.body)
+    ? legacyPlainTextToHtml(post.body)
+    : post.body || "";
   const jsonLd = buildArticleJsonLd({ post, business });
 
   return (
@@ -56,11 +62,7 @@ export default async function BlogPostPage({ params }) {
         </div>
       )}
 
-      <div className="mt-8 space-y-4 text-foreground">
-        {paragraphs.map((paragraph, i) => (
-          <p key={i}>{paragraph}</p>
-        ))}
-      </div>
+      <div className="blog-rich-content mt-8" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
     </article>
   );
 }
