@@ -25,6 +25,11 @@ it affects a tier) and delete it from here.
   (per-resource availability, per-resource conflict checks, choosing a staff member as part of
   the public flow) — don't attempt this as a quick add-on.
 
+- **Multilingual (EN/BN) support.** Discussed but not started — see
+  `docs/multilingual-i18n-plan.md` for the full write-up: URL routing strategy (path-prefix vs.
+  cookie-based), a JSONB-overlay approach for translated content, a small hand-rolled dictionary
+  for interface strings, and a phased rollout. Two architectural decisions are still open there.
+
 ## Small, contained — good next pick-ups
 
 - **Add-to-calendar link on booking confirmation.** A "Add to Google/Apple Calendar" link

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { IconSearch } from "@tabler/icons-react";
 import GalleryLightbox from "@/components/GalleryLightbox";
 
 const MONTH_NAMES = [
@@ -9,8 +8,18 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-const fieldClass =
-  "rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
+const searchFieldClass =
+  "w-full max-w-sm rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
+const selectFieldClass =
+  "rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-foreground focus:border-accent focus:outline-none";
+
+function pillClassName(active) {
+  return `rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+    active
+      ? "border-primary bg-primary text-primary-foreground"
+      : "border-border text-foreground hover:bg-surface-alt"
+  }`;
+}
 
 // Calls the /api/gallery-photos route (app/api/gallery-photos/route.js), which wraps
 // lib/gallery.js's getPhotosPage() — a plain GET rather than a Server Action, so pagination is
@@ -35,7 +44,8 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
   const [photos, setPhotos] = useState(initialPhotos);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [tag, setTag] = useState("");
-  const [yearMonth, setYearMonth] = useState(""); // "YYYY-MM" or ""
+  const [year, setYear] = useState(null);
+  const [month, setMonth] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -50,7 +60,11 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
     };
   }, []);
 
-  const [year, month] = yearMonth ? yearMonth.split("-").map(Number) : [null, null];
+  // Year first, Month only once a year is picked (and scoped to that year's own months) —
+  // rather than one combined "March 2026" dropdown, so the Month select can show each month's
+  // own photo count right in the option label.
+  const years = [...new Set(allMonths.map((m) => m.year))];
+  const monthsForYear = year ? allMonths.filter((m) => m.year === year) : [];
 
   const applyFilters = useCallback(
     (overrides = {}) => {
@@ -102,9 +116,8 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextCursor, tag, year, month, search]);
 
-  // Typing debounces (350ms) into an automatic search — the submit button/Enter is a "search
-  // now" shortcut that clears any pending debounce first, so a fast typist who hits Enter never
-  // gets a stale debounced fetch landing after the immediate one.
+  // Typing debounces (350ms) into an automatic search — no separate submit button or Enter
+  // shortcut, matching the plain search-as-you-type input this was matched against.
   function handleSearchInputChange(value) {
     setSearchInput(value);
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
@@ -114,82 +127,88 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
     }, 350);
   }
 
-  function handleSearchSubmit(e) {
-    e.preventDefault();
-    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-    setSearch(searchInput);
-    applyFilters({ search: searchInput });
-  }
-
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3">
-        <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-          <input
-            type="search"
-            value={searchInput}
-            onChange={(e) => handleSearchInputChange(e.target.value)}
-            placeholder="Search captions & tags…"
-            className={`${fieldClass} w-56`}
-          />
-          <button
-            type="submit"
-            aria-label="Search"
-            className="rounded-lg border border-border p-2 text-foreground hover:bg-surface-alt"
-          >
-            <IconSearch size={16} />
-          </button>
-        </form>
-
-        {allMonths.length > 0 && (
-          <select
-            value={yearMonth}
-            onChange={(e) => {
-              setYearMonth(e.target.value);
-              const [y, m] = e.target.value ? e.target.value.split("-").map(Number) : [null, null];
-              applyFilters({ year: y, month: m });
-            }}
-            className={fieldClass}
-          >
-            <option value="">All dates</option>
-            {allMonths.map(({ year: y, month: m }) => (
-              <option key={`${y}-${m}`} value={`${y}-${m}`}>
-                {MONTH_NAMES[m - 1]} {y}
-              </option>
-            ))}
-          </select>
-        )}
+      <div className="flex justify-center">
+        <input
+          type="search"
+          value={searchInput}
+          onChange={(e) => handleSearchInputChange(e.target.value)}
+          placeholder="Search captions and tags…"
+          aria-label="Search photos"
+          className={searchFieldClass}
+        />
       </div>
 
-      {allTags.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setTag("");
-              applyFilters({ tag: "" });
-            }}
-            className={`rounded-full border px-3 py-1 text-xs font-medium ${
-              tag === "" ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground hover:bg-surface-alt"
-            }`}
-          >
-            All
-          </button>
-          {allTags.map(({ tag: t, count }) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => {
-                setTag(t);
-                applyFilters({ tag: t });
-              }}
-              className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                tag === t ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground hover:bg-surface-alt"
-              }`}
-            >
-              {t} <span className="opacity-70">{count}</span>
-            </button>
-          ))}
+      {(allTags.length > 0 || years.length > 0) && (
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          {years.length > 0 && (
+            <div className="flex items-center gap-2">
+              <select
+                value={year ?? ""}
+                onChange={(e) => {
+                  const y = e.target.value ? Number(e.target.value) : null;
+                  setYear(y);
+                  setMonth(null);
+                  applyFilters({ year: y, month: null });
+                }}
+                className={selectFieldClass}
+              >
+                <option value="">Any year</option>
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+              {year && (
+                <select
+                  value={month ?? ""}
+                  onChange={(e) => {
+                    const m = e.target.value ? Number(e.target.value) : null;
+                    setMonth(m);
+                    applyFilters({ month: m });
+                  }}
+                  className={selectFieldClass}
+                >
+                  <option value="">Any month</option>
+                  {monthsForYear.map((m) => (
+                    <option key={m.month} value={m.month}>
+                      {MONTH_NAMES[m.month - 1]} ({m.count})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
+
+          {allTags.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setTag("");
+                  applyFilters({ tag: "" });
+                }}
+                className={pillClassName(tag === "")}
+              >
+                All
+              </button>
+              {allTags.map(({ tag: t, count }) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => {
+                    setTag(t);
+                    applyFilters({ tag: t });
+                  }}
+                  className={pillClassName(tag === t)}
+                >
+                  {t} <span className="opacity-60">({count})</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

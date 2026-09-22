@@ -154,7 +154,14 @@ export default function GalleryLightbox({ photos, index, onIndexChange, onClose 
       }}
     >
       <div className="flex items-center justify-between p-4">
-        <p className="truncate pr-4 text-sm text-white/80">{photo.caption}</p>
+        <p className="truncate pr-4 text-sm text-white/80">
+          {photo.caption}
+          {photos.length > 1 && (
+            <span className={photo.caption ? "ml-2 text-white/50" : "text-white/50"}>
+              {index + 1} / {photos.length}
+            </span>
+          )}
+        </p>
         <button
           ref={closeButtonRef}
           type="button"
