@@ -9,6 +9,7 @@ import {
   deleteHeroSlide,
   setHeroSlideOrder,
   toggleHeroSlideActive,
+  updateHeroSettings,
 } from "@/lib/heroSlides";
 import { uploadImage, uploadVideo, deleteImage } from "@/lib/blob";
 
@@ -93,6 +94,7 @@ function readCommon(formData) {
     overlayStrength: formData.get("overlayStrength")?.toString(),
     textStyle: formData.get("textStyle")?.toString(),
     active: formData.get("active") === "on",
+    focalPosition: formData.get("focalPosition"),
   };
 }
 
@@ -144,4 +146,15 @@ export async function toggleHeroSlideActiveAction(formData) {
   const active = formData.get("active") === "true";
   await toggleHeroSlideActive(id, active);
   refresh();
+}
+
+// The global hero container height (lib/heroSlides.js's hero_settings singleton) — separate
+// from the per-slide form/actions above since it applies to the whole carousel box, not any one
+// slide. Stays on the same list page (app/admin/(protected)/hero/page.js) rather than a
+// standalone route since there's only one field.
+export async function updateHeroSettingsAction(prevState, formData) {
+  const heightPx = formData.get("heightPx")?.toString().trim();
+  await updateHeroSettings({ heightPx });
+  refresh();
+  return { success: "Hero height saved." };
 }

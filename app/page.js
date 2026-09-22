@@ -26,7 +26,7 @@ import { getProducts, getProductCategories } from "@/lib/products";
 import { getContactInfo } from "@/lib/contactInfo";
 import { getSocialSettings, getWhatsappHref } from "@/lib/socialSettings";
 import { getBusinessInfo } from "@/lib/businessInfo";
-import { getActiveHeroSlides } from "@/lib/heroSlides";
+import { getActiveHeroSlides, getHeroSettings } from "@/lib/heroSlides";
 import HeroCarousel from "@/components/HeroCarousel";
 import { getAllLegalPages } from "@/lib/legalPages";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
@@ -82,6 +82,7 @@ export default async function Home({ searchParams }) {
     socialSettings,
     business,
     heroSlides,
+    heroSettings,
     legalPages,
     sectionHeadings,
     navTree,
@@ -93,6 +94,7 @@ export default async function Home({ searchParams }) {
     getSocialSettings(),
     getBusinessInfo(),
     getActiveHeroSlides(),
+    getHeroSettings(),
     getAllLegalPages(),
     getSectionHeadings(),
     getNavTree(),
@@ -393,7 +395,7 @@ export default async function Home({ searchParams }) {
           exactly like the original single hero; two or more play as a sliding carousel — see
           components/HeroCarousel.js. */}
       {isEnabled("hero", moduleStates) && heroSlides.length > 0 && (
-        <HeroCarousel slides={heroSlides} sectionMaxW={sectionMaxW} />
+        <HeroCarousel slides={heroSlides} sectionMaxW={sectionMaxW} heightPx={heroSettings?.height_px} />
       )}
 
       {/* Sidebar Layout's grid wrapper — everything from Stats through Send an Enquiry lives

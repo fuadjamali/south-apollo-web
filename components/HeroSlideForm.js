@@ -14,6 +14,14 @@ const labelClass = "block text-sm font-medium text-foreground";
 // (app/admin/(protected)/hero/page.js) instead, same split as Products.
 export default function HeroSlideForm({ slide, action, submitLabel = "Save" }) {
   const [mediaType, setMediaType] = useState(slide?.media_type || "image");
+  const [focalPosition, setFocalPosition] = useState(slide?.focal_position ?? 50);
+
+  // The desktop background is what the slider previews — the mobile alternate image (when set)
+  // gets the same focal_position applied too (see HeroCarousel.js's SlideMedia), but the single-
+  // image-no-mobile-variant fallback deliberately ignores it below sm: (object-bottom, a fixed
+  // anti-collision measure), so there's nothing meaningfully different to preview for mobile.
+  const previewSrc = mediaType === "video" ? slide?.background_video : slide?.background_image;
+  const previewIsVideo = mediaType === "video";
 
   return (
     <form action={action} className="mt-6 space-y-4">
@@ -129,6 +137,57 @@ export default function HeroSlideForm({ slide, action, submitLabel = "Save" }) {
           )}
         </>
       )}
+
+      <div>
+        <label className={labelClass}>Vertical focus</label>
+        {previewSrc ? (
+          <>
+            <div className="mt-1 h-56 w-full overflow-hidden rounded-lg border border-border bg-gray-100 dark:bg-gray-800">
+              {previewIsVideo ? (
+                <video
+                  src={previewSrc}
+                  muted
+                  autoPlay
+                  loop
+                  playsInline
+                  style={{ objectPosition: `center ${focalPosition}%` }}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={previewSrc}
+                  alt=""
+                  style={{ objectPosition: `center ${focalPosition}%` }}
+                  className="h-full w-full object-cover"
+                />
+              )}
+            </div>
+            <input
+              type="range"
+              name="focalPosition"
+              min={0}
+              max={100}
+              value={focalPosition}
+              onChange={(e) => setFocalPosition(Number(e.target.value))}
+              className="mt-2 w-full"
+            />
+            <p className="mt-1 text-xs text-muted">
+              Which part of the {previewIsVideo ? "video" : "image"} stays in view once it&apos;s
+              cropped to the hero&apos;s height — 0% keeps the top in view, 100% keeps the
+              bottom. Currently {focalPosition}%.
+            </p>
+          </>
+        ) : (
+          <>
+            <input type="hidden" name="focalPosition" value={focalPosition} />
+            <p className="mt-1 text-xs text-muted">
+              Upload and save a background {mediaType} above first — you can come back here
+              afterwards to preview and fine-tune which part of it stays in view.
+            </p>
+          </>
+        )}
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

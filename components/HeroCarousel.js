@@ -10,8 +10,18 @@ const AUTOPLAY_MS = 7000;
 // always used (see the long object-contain/object-bottom comment this was lifted from), plus a
 // video variant. `active` drives the Ken Burns pan/zoom (CSS class further down) and, for video,
 // imperative play()/pause() so only the on-screen slide's video actually decodes/plays.
+//
+// `slide.focal_position` (0-100, lib/heroSlides.js's per-slide vertical anchor, editable in
+// HeroSlideForm's live preview) drives object-position's Y axis on every object-cover render
+// below — the mobile image, the desktop image, and video. It's applied as an inline style
+// rather than a Tailwind object-position utility since those are fixed keywords, not arbitrary
+// admin-chosen percentages. The one exception is the single-image-with-no-mobile-variant case's
+// object-contain/object-bottom fallback below `sm:` — that's a fixed, deliberate anti-collision
+// measure (a long heading previously overlapped a cropped-arbitrarily photo on phones), not a
+// framing choice, so it stays untouched by the focal-position control.
 function SlideMedia({ slide, active, reducedMotion }) {
   const videoRef = useRef(null);
+  const focalStyle = { objectPosition: `center ${slide.focal_position ?? 50}%` };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -36,7 +46,8 @@ function SlideMedia({ slide, active, reducedMotion }) {
         loop
         playsInline
         preload={active ? "auto" : "none"}
-        className={`h-full w-full object-cover object-center ${kenBurnsClass}`}
+        style={focalStyle}
+        className={`h-full w-full object-cover ${kenBurnsClass}`}
       />
     );
   }
@@ -50,13 +61,15 @@ function SlideMedia({ slide, active, reducedMotion }) {
         <img
           src={slide.background_image_mobile}
           alt=""
-          className={`h-full w-full object-cover object-center sm:hidden ${kenBurnsClass}`}
+          style={focalStyle}
+          className={`h-full w-full object-cover sm:hidden ${kenBurnsClass}`}
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={slide.background_image}
           alt=""
-          className={`hidden h-full w-full object-cover object-center sm:block ${kenBurnsClass}`}
+          style={focalStyle}
+          className={`hidden h-full w-full object-cover sm:block ${kenBurnsClass}`}
         />
       </>
     );
@@ -67,7 +80,12 @@ function SlideMedia({ slide, active, reducedMotion }) {
     <img
       src={slide.background_image}
       alt=""
-      className={`h-full w-full object-contain object-bottom sm:object-cover sm:object-center ${kenBurnsClass}`}
+      // A plain inline `style` would apply object-position at every size, including below
+      // `sm:` where object-bottom needs to win untouched — so the focal position is threaded
+      // through as a CSS variable instead, only consumed by the sm:+ arbitrary-value class,
+      // leaving the mobile object-bottom utility alone.
+      style={{ "--hero-focal": `center ${slide.focal_position ?? 50}%` }}
+      className={`h-full w-full object-contain object-bottom sm:object-cover sm:[object-position:var(--hero-focal)] ${kenBurnsClass}`}
     />
   );
 }
@@ -75,8 +93,11 @@ function SlideMedia({ slide, active, reducedMotion }) {
 // The hero banner — one slide behaves exactly like the old single hero always did (no chrome at
 // all, zero visual change); two or more play as an autoplaying carousel. `slides` is already
 // filtered to active-only, in display order (lib/heroSlides.getActiveHeroSlides). `sectionMaxW`
-// is the Home Page Layout Fill-width class, same as every other section on the page.
-export default function HeroCarousel({ slides, sectionMaxW }) {
+// is the Home Page Layout Fill-width class, same as every other section on the page. `heightPx`
+// (lib/heroSlides.js's getHeroSettings(), admin-editable at /admin/hero) fixes the section to an
+// exact height instead of letting it follow its content — null/undefined keeps today's default
+// (auto, content-driven) height.
+export default function HeroCarousel({ slides, sectionMaxW, heightPx }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -127,14 +148,17 @@ export default function HeroCarousel({ slides, sectionMaxW }) {
   }
 
   const slide = slides[index];
-  const overlayClass = OVERLAY_OPACITY_CLASSES[slide.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium;
-  const heroStyle = TEXT_STYLE_CLASSES[slide.text_style] || TEXT_STYLE_CLASSES.auto;
+  // "auto" (the default, and the only option most admins ever pick) renders as "light" — white
+  // text — since the fixed scrim below guarantees enough contrast for it on any photo. Left as
+  // its own TEXT_STYLES entry so an admin can still explicitly force "dark" for a deliberately
+  // light/pastel photo where white text would wash out.
+  const heroStyle = slide.text_style === "dark" ? TEXT_STYLE_CLASSES.dark : TEXT_STYLE_CLASSES.light;
   const textAnimClass = reducedMotion ? "" : "hero-slide-text-enter";
 
   return (
     <section
       className="relative isolate overflow-hidden"
-      style={{ order: -1 }}
+      style={{ order: -1, ...(heightPx ? { height: heightPx, minHeight: heightPx } : {}) }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
@@ -165,7 +189,18 @@ export default function HeroCarousel({ slides, sectionMaxW }) {
           }`}
         >
           <SlideMedia slide={s} active={i === index} reducedMotion={reducedMotion} />
+          {/* A fixed dark scrim guarantees enough contrast for the white heading text (below)
+              on ANY photo, bright/busy ones included — text used to be stamped directly on the
+              raw image with nothing darkening it, a real legibility bug on high-contrast
+              photos. Black rather than a theme token deliberately: this is a photographic
+              darkening treatment, not a themed UI surface, so it stays correct across all 8
+              color themes and both light/dark mode instead of following them. */}
+          <div aria-hidden="true" className="absolute inset-0 bg-black/40" />
+          {/* On top of that, the theme-color wash an admin configures per-slide (Hero Slide
+              form's "overlay strength") — a secondary, subtle brand-color tint rather than the
+              sole contrast mechanism. */}
           <div
+            aria-hidden="true"
             className={`absolute inset-0 ${
               OVERLAY_OPACITY_CLASSES[s.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium
             }`}

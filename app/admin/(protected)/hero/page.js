@@ -1,13 +1,14 @@
-import { getHeroSlides } from "@/lib/heroSlides";
+import { getHeroSlides, getHeroSettings } from "@/lib/heroSlides";
 import { deleteHeroSlideAction, reorderHeroSlidesAction, toggleHeroSlideActiveAction } from "./actions";
 import DeleteButton from "@/components/DeleteButton";
 import NavReorderableList from "@/components/NavReorderableList";
+import HeroHeightForm from "@/components/HeroHeightForm";
 import { IconPhoto, IconVideo } from "@tabler/icons-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminHeroPage() {
-  const slides = await getHeroSlides();
+  const [slides, heroSettings] = await Promise.all([getHeroSlides(), getHeroSettings()]);
 
   return (
     <div className="w-full max-w-4xl px-6">
@@ -27,6 +28,10 @@ export default async function AdminHeroPage() {
           >
             Add slide
           </a>
+        </div>
+
+        <div className="mt-6">
+          <HeroHeightForm settings={heroSettings} />
         </div>
 
         {slides.length === 0 ? (
