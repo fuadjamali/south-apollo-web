@@ -5,6 +5,8 @@
   "author": "Fuad Jamali <fuad06@gmail.com>",
   "scripts": {
     "dev": "next dev",
+    "dev:full": "node scripts/dev.js",
+    "dev:full:ps1": "powershell -ExecutionPolicy Bypass -File scripts/dev.ps1",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
