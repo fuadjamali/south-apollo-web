@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef6fe"/><stop offset="1" stop-color="#d3e6f8"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a7fe8"/><stop offset="1" stop-color="#005bb8"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5a5a"/><stop offset="1" stop-color="#d40000"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f47bab"/><stop offset="1" stop-color="#d63a78"/>
+    </linearGradient>
+    <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fa8dc"/><stop offset="1" stop-color="#1d4f80"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0b4f96" flood-opacity="0.18"/>
+    </filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="50"/>
+    </filter>
+    <clipPath id="avatar"><circle cx="800" cy="430" r="212"/></clipPath>
+  </defs>
+  
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="800" cy="450" r="330" fill="#ffffff" opacity="0.7" filter="url(#soft)"/>
+  <circle cx="200" cy="780" r="220" fill="#bcdcf6" opacity="0.6" filter="url(#soft)"/>
+  <circle cx="1420" cy="140" r="200" fill="#ffffff" opacity="0.6" filter="url(#soft)"/>
+  <g fill="#d63a78" opacity="0.18">
+    <path d="M150 170h18v-18h16v18h18v16h-18v18h-16v-18h-18z"/>
+    <path d="M1440 700h14v-14h12v14h14v12h-14v14h-12v-14h-14z"/>
+    <path d="M560 110h12v-12h10v12h12v10h-12v12h-10v-12h-12z"/>
+    <path d="M1060 820h12v-12h10v12h12v10h-12v12h-10v-12h-12z"/>
+    <path d="M1480 420h12v-12h10v12h12v10h-12v12h-10v-12h-12z"/>
+  </g>
+  
+  <path d="M110 770 H540 L570 720 L605 830 L640 740 L662 770 H1490" stroke="#006ad6" stroke-width="8"
+        fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+  
+  <g filter="url(#shadow)"><circle cx="800" cy="430" r="232" fill="#ffffff"/></g>
+  <circle cx="800" cy="430" r="212" fill="#d3e6f8"/>
+  <g clip-path="url(#avatar)">
+    <path d="M700 400 C690 290 745 262 800 262 C855 262 910 290 900 400 L915 540 C880 565 720 565 685 540 Z" fill="#3a2a1f"/>
+    <path d="M600 660 C600 555 690 505 800 505 C910 505 1000 555 1000 660 Z" fill="url(#pink)"/>
+    <rect x="770" y="450" width="60" height="75" rx="10" fill="#efbf95"/>
+    <path d="M762 507 L800 548 L838 507 Z" fill="#ffffff"/>
+    <ellipse cx="722" cy="392" rx="13" ry="21" fill="#efbf95"/>
+    <ellipse cx="878" cy="392" rx="13" ry="21" fill="#efbf95"/>
+    <ellipse cx="800" cy="382" rx="80" ry="92" fill="#f6d2b0"/>
+    <path d="M720 385 C718 318 760 294 810 298 C858 302 884 330 880 385 C860 350 820 336 790 340 C755 345 732 362 720 385 Z" fill="#3a2a1f"/>
+           <circle cx="722" cy="420" r="7" fill="#f47bab"/><circle cx="878" cy="420" r="7" fill="#f47bab"/>
+    <circle cx="772" cy="388" r="7" fill="#3a2a1f"/>
+    <circle cx="828" cy="388" r="7" fill="#3a2a1f"/>
+    <path d="M780 428 Q800 444 820 428" stroke="#b5734a" stroke-width="5" fill="none" stroke-linecap="round"/>
+    
+  </g>
+
+  <!-- Venus badge -->
+  <g filter="url(#shadow)"><circle cx="990" cy="245" r="58" fill="url(#pink)"/></g>
+  <circle cx="990" cy="232" r="21" stroke="#ffffff" stroke-width="8" fill="none"/>
+  <path d="M990 253 V286 M975 272 H1005" stroke="#ffffff" stroke-width="8" fill="none" stroke-linecap="round"/>
+
+  <!-- Awareness ribbon card (left) -->
+  
+  <g filter="url(#shadow)"><rect x="240" y="280" width="250" height="300" rx="26" fill="#ffffff"/></g>
+  <path d="M365 318 C318 318 312 378 342 418 L296 500 L330 516 L365 452 L400 516 L434 500 L388 418 C418 378 412 318 365 318 Z" fill="url(#pink)"/>
+  <path d="M365 346 C346 346 340 376 356 402 L365 414 L374 402 C390 376 384 346 365 346 Z" fill="#ffffff"/>
+  <rect x="290" y="530" width="150" height="14" rx="7" fill="#dbe8f4"/><rect x="290" y="560" width="110" height="14" rx="7" fill="#dbe8f4"/>
+
+  <!-- Microscope card (right) -->
+  
+  <g filter="url(#shadow)"><rect x="1110" y="280" width="260" height="300" rx="26" fill="#ffffff"/></g>
+  <path d="M1296 520 C1336 470 1328 400 1276 364" stroke="#1a7fe8" stroke-width="22" fill="none" stroke-linecap="round"/>
+  <g transform="rotate(-28 1222 380)">
+    <rect x="1200" y="318" width="46" height="126" rx="14" fill="#006ad6"/>
+    <rect x="1206" y="296" width="34" height="30" rx="8" fill="#005bb8"/>
+    <rect x="1210" y="440" width="26" height="22" rx="6" fill="#005bb8"/>
+  </g>
+  <rect x="1180" y="462" width="118" height="14" rx="7" fill="#9fc3e6"/>
+  <rect x="1206" y="452" width="66" height="10" rx="3" fill="#f7b3cf"/>
+  <rect x="1168" y="520" width="150" height="26" rx="11" fill="#005bb8"/>
+</svg>

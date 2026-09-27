@@ -105,6 +105,24 @@ export default async function sitemap() {
     });
   }
 
+  if (isEnabled("healthPackages", moduleStates)) {
+    entries.push({
+      url: `${baseUrl}/health-checkup`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    });
+  }
+
+  if (isEnabled("doctors", moduleStates)) {
+    entries.push({
+      url: `${baseUrl}/doctors`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    });
+  }
+
   if (isEnabled("gallery", moduleStates)) {
     const photos = await getPhotos();
     entries.push({

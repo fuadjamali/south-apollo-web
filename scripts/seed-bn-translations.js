@@ -15,6 +15,7 @@ const NAV = {
   Contact: "যোগাযোগ",
   Plans: "প্ল্যান",
   "Book Doctor": "ডাক্তার বুকিং",
+  "Find Doctor": "ডাক্তার খুঁজুন",
   "Book Now": "বুক করুন",
   "About Us": "আমাদের সম্পর্কে",
   "Vision & Mission": "ভিশন ও মিশন",

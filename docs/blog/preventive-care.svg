@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef6fe"/>
+      <stop offset="1" stop-color="#d3e6f8"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a7fe8"/>
+      <stop offset="1" stop-color="#005bb8"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5a5a"/>
+      <stop offset="1" stop-color="#d40000"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0b4f96" flood-opacity="0.18"/>
+    </filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="50"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="800" cy="450" r="330" fill="#ffffff" opacity="0.7" filter="url(#soft)"/>
+  <circle cx="200" cy="780" r="220" fill="#bcdcf6" opacity="0.6" filter="url(#soft)"/>
+  <circle cx="1420" cy="140" r="200" fill="#ffffff" opacity="0.6" filter="url(#soft)"/>
+
+  <!-- Decorative plus signs -->
+  <g fill="#006ad6" opacity="0.18">
+    <path d="M150 170h18v-18h16v18h18v16h-18v18h-16v-18h-18z"/>
+    <path d="M1440 700h14v-14h12v14h14v12h-14v14h-12v-14h-14z"/>
+    <path d="M560 110h12v-12h10v12h12v10h-12v12h-10v-12h-12z"/>
+    <path d="M1060 800h12v-12h10v12h12v10h-12v12h-10v-12h-12z"/>
+  </g>
+
+  <!-- Clipboard (left) -->
+  <g filter="url(#shadow)">
+    <rect x="250" y="250" width="250" height="360" rx="26" fill="#ffffff"/>
+  </g>
+  <rect x="320" y="228" width="110" height="48" rx="14" fill="#005bb8"/>
+  <circle cx="375" cy="244" r="8" fill="#ffffff"/>
+  <g>
+    <rect x="286" y="300" width="178" height="16" rx="8" fill="#006ad6" opacity="0.85"/>
+    <circle cx="302" cy="370" r="18" fill="#2fb47a"/>
+    <path d="M293 370l7 7 12-13" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="334" y="362" width="130" height="14" rx="7" fill="#dbe8f4"/>
+    <circle cx="302" cy="440" r="18" fill="#2fb47a"/>
+    <path d="M293 440l7 7 12-13" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="334" y="432" width="110" height="14" rx="7" fill="#dbe8f4"/>
+    <circle cx="302" cy="510" r="18" fill="#2fb47a"/>
+    <path d="M293 510l7 7 12-13" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="334" y="502" width="124" height="14" rx="7" fill="#dbe8f4"/>
+    <circle cx="302" cy="572" r="18" fill="none" stroke="#c7d9ea" stroke-width="4"/>
+    <rect x="334" y="565" width="96" height="14" rx="7" fill="#dbe8f4"/>
+  </g>
+
+  <!-- Shield with heart (center) -->
+  <g filter="url(#shadow)">
+    <path d="M800 150 L1000 225 Q1000 520 800 700 Q600 520 600 225 Z" fill="url(#shield)"/>
+  </g>
+  <path d="M800 186 L968 248 Q966 500 800 656 Q634 500 632 248 Z" fill="#ffffff" opacity="0.12"/>
+  <path d="M800 560 C700 490 676 420 700 378 C722 340 770 338 800 380 C830 338 878 340 900 378 C924 420 900 490 800 560 Z" fill="url(#heart)"/>
+  <path d="M672 440 H738 L760 400 L786 486 L810 420 L826 452 H928" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- small check badge on shield -->
+  <circle cx="960" cy="612" r="44" fill="#2fb47a" stroke="#ffffff" stroke-width="8"/>
+  <path d="M940 612l14 14 26-28" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Test tubes (right) -->
+  <g filter="url(#shadow)">
+    <rect x="1120" y="470" width="270" height="44" rx="14" fill="#ffffff"/>
+  </g>
+  <g>
+    <rect x="1150" y="300" width="44" height="200" rx="22" fill="#ffffff" stroke="#c7d9ea" stroke-width="4"/>
+    <rect x="1154" y="390" width="36" height="106" rx="18" fill="#e84a5f"/>
+    <rect x="1144" y="292" width="56" height="18" rx="8" fill="#005bb8"/>
+
+    <rect x="1233" y="270" width="44" height="230" rx="22" fill="#ffffff" stroke="#c7d9ea" stroke-width="4"/>
+    <rect x="1237" y="350" width="36" height="146" rx="18" fill="#3d9bff"/>
+    <rect x="1227" y="262" width="56" height="18" rx="8" fill="#d40000"/>
+
+    <rect x="1316" y="320" width="44" height="180" rx="22" fill="#ffffff" stroke="#c7d9ea" stroke-width="4"/>
+    <rect x="1320" y="410" width="36" height="86" rx="18" fill="#f5b942"/>
+    <rect x="1310" y="312" width="56" height="18" rx="8" fill="#005bb8"/>
+  </g>
+  <g fill="#ffffff" opacity="0.7">
+    <circle cx="1166" cy="420" r="5"/>
+    <circle cx="1250" cy="380" r="5"/>
+    <circle cx="1332" cy="440" r="5"/>
+  </g>
+
+  <!-- Calendar badge (top right) -->
+  <g filter="url(#shadow)">
+    <rect x="1080" y="120" width="170" height="130" rx="22" fill="#ffffff"/>
+  </g>
+  <rect x="1080" y="120" width="170" height="40" rx="22" fill="#006ad6"/>
+  <rect x="1080" y="140" width="170" height="20" fill="#006ad6"/>
+  <rect x="1108" y="108" width="10" height="26" rx="5" fill="#005bb8"/>
+  <rect x="1212" y="108" width="10" height="26" rx="5" fill="#005bb8"/>
+  <g fill="#e3eef8">
+    <rect x="1100" y="176" width="26" height="20" rx="5"/>
+    <rect x="1134" y="176" width="26" height="20" rx="5"/>
+    <rect x="1168" y="176" width="26" height="20" rx="5"/>
+    <rect x="1202" y="176" width="26" height="20" rx="5"/>
+    <rect x="1100" y="206" width="26" height="20" rx="5"/>
+    <rect x="1168" y="206" width="26" height="20" rx="5"/>
+    <rect x="1202" y="206" width="26" height="20" rx="5"/>
+  </g>
+  <rect x="1134" y="206" width="26" height="20" rx="5" fill="#d40000"/>
+
+  <!-- Blood drop badge (bottom left) -->
+  <g filter="url(#shadow)">
+    <circle cx="530" cy="700" r="62" fill="#ffffff"/>
+  </g>
+  <path d="M530 660 C548 686 562 704 562 722 C562 742 548 754 530 754 C512 754 498 742 498 722 C498 704 512 686 530 660 Z" fill="url(#heart)"/>
+  <path d="M516 724 a14 14 0 0 0 14 14" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- Stethoscope accent (bottom right) -->
+  <g transform="translate(1180 620)" filter="url(#shadow)">
+    <circle cx="60" cy="60" r="62" fill="#ffffff"/>
+  </g>
+  <g transform="translate(1180 620)" fill="none" stroke="#005bb8" stroke-width="7" stroke-linecap="round">
+    <path d="M36 28 V60 Q36 84 60 84 Q84 84 84 60 V28"/>
+    <path d="M60 84 V96 Q60 108 74 108 Q88 108 88 96"/>
+  </g>
+  <circle cx="1268" cy="712" r="11" fill="#d40000"/>
+  <circle cx="1216" cy="646" r="5" fill="#005bb8"/>
+  <circle cx="1264" cy="646" r="5" fill="#005bb8"/>
+</svg>

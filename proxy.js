@@ -35,6 +35,8 @@ const PUBLIC_PREFIXES = [
   "/booking",
   "/booking-confirmation",
   "/leave-a-review",
+  "/health-checkup",
+  "/doctors",
   // Member auth routes are self-protecting: app/member/(protected)/layout.js does its own
   // getMemberSession() redirect server-side, so this proxy doesn't need to gate them (member
   // sessions use a separate signed cookie, not the admin NextAuth token checked below).
@@ -98,6 +100,8 @@ const PROTECTED_PREFIXES = [
   "/admin/discount-codes",
   "/admin/testimonials",
   "/admin/booking-waitlist",
+  "/admin/health-packages",
+  "/admin/doctors",
 ];
 
 export async function proxy(request) {
