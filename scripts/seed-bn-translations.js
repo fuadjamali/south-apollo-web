@@ -85,6 +85,7 @@ const SITE_TEXT_FIELDS = [
 const SECTION_TITLE_TEXT = {
   "About Us": "আমাদের সম্পর্কে",
   "Vision & Mission": "ভিশন ও মিশন",
+  "Vision & Future Plans": "ভিশন ও ভবিষ্যৎ পরিকল্পনা",
   "Our History": "আমাদের ইতিহাস",
   "Contact Us": "যোগাযোগ করুন",
   "Get in touch with us directly.": "সরাসরি আমাদের সাথে যোগাযোগ করুন।",
