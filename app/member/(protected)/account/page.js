@@ -2,6 +2,8 @@ import { getMemberSession } from "@/lib/memberSession";
 import { getMember } from "@/lib/members";
 import MemberChangePasswordForm from "@/components/MemberChangePasswordForm";
 import AccountClosureForm from "@/components/AccountClosureForm";
+import { getT } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/i18n/translate";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +15,7 @@ const STATUS_STYLE = {
 };
 
 export default async function MemberAccountPage() {
-  const session = await getMemberSession();
+  const [session, { locale, t }] = await Promise.all([getMemberSession(), getT()]);
   const member = await getMember(session.id);
 
   return (
@@ -21,9 +23,9 @@ export default async function MemberAccountPage() {
       <div className="rounded-xl border border-border bg-surface p-8 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-xl font-bold text-foreground">My account</h1>
+            <h1 className="text-xl font-bold text-foreground">{t("member.myAccount")}</h1>
             <p className="mt-1 text-sm text-muted">
-              Signed in as {session?.name} ({session?.email})
+              {t("member.signedInAs", { name: session?.name, email: session?.email })}
             </p>
           </div>
           <div className="flex gap-2">
@@ -31,13 +33,13 @@ export default async function MemberAccountPage() {
               href="/member/orders"
               className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt"
             >
-              My orders
+              {t("member.myOrders")}
             </a>
             <a
               href="/member/bookings"
               className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt"
             >
-              My bookings
+              {t("member.myBookings")}
             </a>
           </div>
         </div>
@@ -45,10 +47,10 @@ export default async function MemberAccountPage() {
         {member && (
           <div className="mt-6 flex items-center justify-between rounded-lg border border-border bg-surface-alt px-4 py-3 text-sm">
             <span className="text-muted">
-              Membership <span className="font-medium text-foreground">{member.member_id}</span>
+              {t("member.membership")} <span className="font-medium text-foreground">{member.member_id}</span>
             </span>
             <span className={`font-semibold ${STATUS_STYLE[member.membership_status] || ""}`}>
-              {member.membership_status}
+              {t(`membership.status.${member.membership_status}`)}
             </span>
           </div>
         )}
@@ -56,18 +58,21 @@ export default async function MemberAccountPage() {
         <MemberChangePasswordForm />
 
         <div className="mt-8 border-t border-border pt-6">
-          <p className="text-sm font-semibold text-foreground">Close my account</p>
+          <p className="text-sm font-semibold text-foreground">{t("member.closeTitle")}</p>
           {member?.closure_requested_at ? (
             <p className="mt-2 text-sm text-muted">
-              You requested account closure on{" "}
-              {new Date(member.closure_requested_at).toLocaleDateString()}. An admin will be in
-              touch before anything is closed.
+              {t("member.closeRequested", {
+                date: formatDate(member.closure_requested_at, locale, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }),
+              })}
             </p>
           ) : (
             <>
               <p className="mt-1 text-sm text-muted">
-                This sends a request to an admin, who&apos;ll review it (and may reach out to
-                confirm) before closing anything — nothing is deleted immediately.
+                {t("member.closeExplain")}
               </p>
               <AccountClosureForm />
             </>

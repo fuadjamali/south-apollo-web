@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Logo from "@/components/Logo";
 import { useBusinessName } from "@/components/BusinessNameContext";
+import { useT } from "@/components/LocaleContext";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -16,6 +17,7 @@ const STATUS_STYLE = {
 
 export default function MembershipPage() {
   const businessName = useBusinessName();
+  const t = useT();
   const [lastName, setLastName] = useState("");
   const [postcode, setPostcode] = useState("");
   const [result, setResult] = useState(null);
@@ -37,13 +39,13 @@ export default function MembershipPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Something went wrong. Please try again.");
+        setError(res.status === 400 ? t("membership.fieldsRequired") : t("common.genericError"));
         return;
       }
 
       setResult(data);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(t("common.genericError"));
     } finally {
       setLoading(false);
     }
@@ -58,20 +60,20 @@ export default function MembershipPage() {
             {businessName}
           </a>
           <a href="/" className="text-sm font-medium hover:text-muted">
-            &larr; Back to home
+            &larr; {t("common.backToHome")}
           </a>
         </div>
       </header>
 
       <main className="mx-auto max-w-md px-6 py-16">
-        <h1 className="text-center text-3xl font-bold">Check your membership status</h1>
+        <h1 className="text-center text-3xl font-bold">{t("membership.title")}</h1>
         <p className="mt-2 text-center text-muted">
-          Enter your last name and postcode to verify your membership.
+          {t("membership.intro")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground">Last name</label>
+            <label className="block text-sm font-medium text-foreground">{t("membership.lastName")}</label>
             <input
               type="text"
               required
@@ -82,7 +84,7 @@ export default function MembershipPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground">Postcode</label>
+            <label className="block text-sm font-medium text-foreground">{t("membership.postcode")}</label>
             <input
               type="text"
               required
@@ -97,7 +99,7 @@ export default function MembershipPage() {
             disabled={loading}
             className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
           >
-            {loading ? "Checking..." : "Check status"}
+            {loading ? t("membership.checking") : t("membership.check")}
           </button>
         </form>
 
@@ -113,27 +115,27 @@ export default function MembershipPage() {
                   {result.firstName} {result.lastName} &middot; {result.memberId}
                 </p>
                 <p className={`mt-2 text-2xl font-bold ${STATUS_STYLE[result.status] || ""}`}>
-                  {result.status}
+                  {t(`membership.status.${result.status}`)}
                 </p>
               </>
             ) : (
               <p className="text-sm text-muted">
-                No matching membership found. Check your details and try again.
+                {t("membership.notFound")}
               </p>
             )}
           </div>
         )}
 
         <p className="mt-10 text-center text-sm text-muted">
-          Prefer to manage your account online?{" "}
+          {t("membership.manageOnline")}{" "}
           <a href="/member/login" className="font-medium text-accent hover:underline">
-            Log in
+            {t("membership.logIn")}
           </a>{" "}
-          or{" "}
+          {t("membership.or")}{" "}
           <a href="/member/signup" className="font-medium text-accent hover:underline">
-            create an account
+            {t("membership.createAccount")}
           </a>
-          .
+          {t("membership.sentenceEnd")}
         </p>
       </main>
     </div>

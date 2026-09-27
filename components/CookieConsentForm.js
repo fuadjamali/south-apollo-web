@@ -43,6 +43,43 @@ export default function CookieConsentForm({ values }) {
           />
         </div>
       </div>
+      <fieldset className="space-y-4 rounded-lg border border-border p-4">
+        <legend className="px-1 text-sm font-semibold text-foreground" lang="bn">
+          বাংলা <span className="font-normal text-muted">(optional — blank fields show the English text)</span>
+        </legend>
+        <div>
+          <label className="text-sm font-medium text-foreground">Banner message</label>
+          <textarea
+            name="messageBn"
+            lang="bn"
+            rows={3}
+            defaultValue={values.translations?.bn?.cookie_message || ""}
+            className={fieldClass}
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="text-sm font-medium text-foreground">Accept button label</label>
+            <input
+              type="text"
+              name="acceptLabelBn"
+              lang="bn"
+              defaultValue={values.translations?.bn?.cookie_accept_label || ""}
+              className={fieldClass}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground">Decline button label</label>
+            <input
+              type="text"
+              name="declineLabelBn"
+              lang="bn"
+              defaultValue={values.translations?.bn?.cookie_decline_label || ""}
+              className={fieldClass}
+            />
+          </div>
+        </div>
+      </fieldset>
       <div className="flex items-center gap-3">
         <button
           type="submit"

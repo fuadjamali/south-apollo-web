@@ -310,7 +310,9 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Arial has no Bengali glyphs, so Bengali characters fall through to Noto Sans Bengali
+     while Latin text and digits stay in Arial — works for mixed EN/BN strings too. */
+  font-family: Arial, Helvetica, var(--font-bengali), sans-serif;
 }
 
 /* Compensates for SiteHeader's sticky ~69px header: without this, every #anchor jump

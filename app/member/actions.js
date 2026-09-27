@@ -8,6 +8,7 @@ import {
   resetPasswordWithToken,
 } from "@/lib/members";
 import { createMemberSession, clearMemberSession } from "@/lib/memberSession";
+import { getT } from "@/lib/i18n/server";
 
 // Only allow same-site relative paths — "/checkout", not "https://evil.com" or a
 // protocol-relative "//evil.com" (both of which "/".startsWith would otherwise pass).
@@ -19,6 +20,7 @@ function safeRedirectTarget(target, fallback) {
 }
 
 export async function signupAction(prevState, formData) {
+  const { t } = await getT();
   const firstName = formData.get("firstName")?.toString().trim() || "";
   const lastName = formData.get("lastName")?.toString().trim() || "";
   const email = formData.get("email")?.toString().trim() || "";
@@ -26,20 +28,26 @@ export async function signupAction(prevState, formData) {
   const confirmPassword = formData.get("confirmPassword")?.toString() || "";
 
   if (!firstName || !lastName || !email || !password || !confirmPassword) {
-    return { error: "All fields are required." };
+    return { error: t("member.errorAllRequired") };
   }
   if (password.length < 8) {
-    return { error: "Password must be at least 8 characters." };
+    return { error: t("member.errorPasswordLength") };
   }
   if (password !== confirmPassword) {
-    return { error: "Password and confirmation don't match." };
+    return { error: t("member.errorPasswordMismatch") };
   }
 
   let member;
   try {
     member = await signUpOrClaimMember({ firstName, lastName, email, password });
   } catch (err) {
-    return { error: err.message || "Couldn't create account." };
+    return {
+      error: t(
+        err.message === "An account with this email already exists."
+          ? "member.errorEmailTaken"
+          : "member.errorSignup"
+      ),
+    };
   }
 
   await createMemberSession({
@@ -51,16 +59,17 @@ export async function signupAction(prevState, formData) {
 }
 
 export async function loginAction(prevState, formData) {
+  const { t } = await getT();
   const email = formData.get("email")?.toString().trim() || "";
   const password = formData.get("password")?.toString() || "";
 
   if (!email || !password) {
-    return { error: "Email and password are required." };
+    return { error: t("member.errorLoginRequired") };
   }
 
   const account = await verifyMemberPassword(email, password);
   if (!account) {
-    return { error: "Invalid email or password." };
+    return { error: t("member.errorInvalidLogin") };
   }
 
   await createMemberSession(account);
@@ -74,43 +83,42 @@ export async function logoutAction() {
 }
 
 export async function forgotPasswordAction(prevState, formData) {
+  const { t } = await getT();
   const email = formData.get("email")?.toString().trim() || "";
   if (!email) {
-    return { error: "Enter your email address." };
+    return { error: t("member.errorEmailRequired") };
   }
 
   await createPasswordResetToken(email);
 
   // Same message regardless of whether the account exists, so this form can't be used to
   // find out which emails are registered.
-  return {
-    success:
-      "If an account exists for that email, we've noted the request — an admin will be in touch with a reset link shortly.",
-  };
+  return { success: t("member.forgotSuccess") };
 }
 
 export async function resetPasswordAction(prevState, formData) {
+  const { t } = await getT();
   const token = formData.get("token")?.toString() || "";
   const password = formData.get("password")?.toString() || "";
   const confirmPassword = formData.get("confirmPassword")?.toString() || "";
 
   if (!token) {
-    return { error: "Missing or invalid reset link." };
+    return { error: t("member.errorResetLink") };
   }
   if (!password || !confirmPassword) {
-    return { error: "All fields are required." };
+    return { error: t("member.errorAllRequired") };
   }
   if (password.length < 8) {
-    return { error: "Password must be at least 8 characters." };
+    return { error: t("member.errorPasswordLength") };
   }
   if (password !== confirmPassword) {
-    return { error: "Password and confirmation don't match." };
+    return { error: t("member.errorPasswordMismatch") };
   }
 
   const ok = await resetPasswordWithToken(token, password);
   if (!ok) {
-    return { error: "This reset link is invalid or has expired. Ask an admin for a new one." };
+    return { error: t("member.errorResetExpired") };
   }
 
-  return { success: "Password reset. You can now log in with your new password." };
+  return { success: t("member.resetSuccess") };
 }

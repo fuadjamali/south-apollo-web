@@ -1,20 +1,24 @@
 import { getPosts } from "@/lib/blog";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
 import { buildPageMetadata } from "@/lib/seo";
+import { getT } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/i18n/translate";
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
-  const headings = await getSectionHeadings();
+  const { locale, t } = await getT();
+  const headings = await getSectionHeadings(locale);
   return buildPageMetadata({
-    title: "Blog",
+    title: t("pages.blog"),
     description: headings.blog.subheading,
     path: "/blog",
   });
 }
 
 export default async function BlogIndexPage() {
-  const [headings, posts] = await Promise.all([getSectionHeadings(), getPosts()]);
+  const { locale, t } = await getT();
+  const [headings, posts] = await Promise.all([getSectionHeadings(locale), getPosts()]);
   const { blog } = headings;
 
   return (
@@ -23,7 +27,7 @@ export default async function BlogIndexPage() {
       <p className="mt-2 text-muted">{blog.subheading}</p>
 
       {posts.length === 0 ? (
-        <p className="mt-10 text-muted">No posts yet.</p>
+        <p className="mt-10 text-muted">{t("blog.empty")}</p>
       ) : (
         <div className="mt-10 grid gap-8 sm:grid-cols-2">
           {posts.map((post) => (
@@ -46,7 +50,7 @@ export default async function BlogIndexPage() {
               </div>
               <div className="p-5">
                 <p className="text-xs text-muted">
-                  {new Date(post.published_date).toLocaleDateString(undefined, {
+                  {formatDate(post.published_date, locale, {
                     year: "numeric",
                     month: "long",
                     day: "numeric",

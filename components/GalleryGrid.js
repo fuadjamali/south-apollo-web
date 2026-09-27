@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import GalleryLightbox from "@/components/GalleryLightbox";
+import { useLocale, useT } from "@/components/LocaleContext";
+import { formatDate } from "@/lib/i18n/translate";
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+// Month name in the visitor's language (Bangla month names, English digits — see formatDate).
+function monthName(month, locale) {
+  return formatDate(new Date(2000, month - 1, 1), locale, { month: "long" });
+}
 
 const searchFieldClass =
   "w-full max-w-sm rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -41,6 +43,8 @@ async function fetchGalleryPage(params) {
 // perfectly normal single column on mobile for free. Infinite scroll watches a sentinel div with
 // IntersectionObserver and fetches the next page from /api/gallery-photos.
 export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags, allMonths }) {
+  const t = useT();
+  const locale = useLocale();
   const [photos, setPhotos] = useState(initialPhotos);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [tag, setTag] = useState("");
@@ -134,8 +138,8 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
           type="search"
           value={searchInput}
           onChange={(e) => handleSearchInputChange(e.target.value)}
-          placeholder="Search captions and tags…"
-          aria-label="Search photos"
+          placeholder={t("gallery.searchPlaceholder")}
+          aria-label={t("gallery.searchLabel")}
           className={searchFieldClass}
         />
       </div>
@@ -154,7 +158,7 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
                 }}
                 className={selectFieldClass}
               >
-                <option value="">Any year</option>
+                <option value="">{t("gallery.anyYear")}</option>
                 {years.map((y) => (
                   <option key={y} value={y}>
                     {y}
@@ -171,10 +175,10 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
                   }}
                   className={selectFieldClass}
                 >
-                  <option value="">Any month</option>
+                  <option value="">{t("gallery.anyMonth")}</option>
                   {monthsForYear.map((m) => (
                     <option key={m.month} value={m.month}>
-                      {MONTH_NAMES[m.month - 1]} ({m.count})
+                      {monthName(m.month, locale)} ({m.count})
                     </option>
                   ))}
                 </select>
@@ -192,19 +196,19 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
                 }}
                 className={pillClassName(tag === "")}
               >
-                All
+                {t("gallery.allTags")}
               </button>
-              {allTags.map(({ tag: t, count }) => (
+              {allTags.map(({ tag: tagName, count }) => (
                 <button
-                  key={t}
+                  key={tagName}
                   type="button"
                   onClick={() => {
-                    setTag(t);
-                    applyFilters({ tag: t });
+                    setTag(tagName);
+                    applyFilters({ tag: tagName });
                   }}
-                  className={pillClassName(tag === t)}
+                  className={pillClassName(tag === tagName)}
                 >
-                  {t} <span className="opacity-60">({count})</span>
+                  {tagName} <span className="opacity-60">({count})</span>
                 </button>
               ))}
             </div>
@@ -214,7 +218,7 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
 
       {photos.length === 0 ? (
         <p className={`mt-10 text-center text-muted ${isPending ? "opacity-60" : ""}`}>
-          No photos match these filters.
+          {t("gallery.noMatches")}
         </p>
       ) : (
         <div className={`mt-10 columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4 ${isPending ? "opacity-60" : ""}`}>
@@ -237,7 +241,7 @@ export default function GalleryGrid({ initialPhotos, initialNextCursor, allTags,
 
       <div ref={sentinelRef} className="h-1" />
       {isPending && nextCursor && (
-        <p className="mt-6 text-center text-sm text-muted">Loading more…</p>
+        <p className="mt-6 text-center text-sm text-muted">{t("gallery.loadingMore")}</p>
       )}
 
       {lightboxIndex !== null && (

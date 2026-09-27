@@ -13,11 +13,8 @@ import SiteHeader from "@/components/SiteHeader";
 import EnquiryForm from "@/components/EnquiryForm";
 import VisitTracker from "@/components/VisitTracker";
 import CookieConsent from "@/components/CookieConsent";
-import FloatingWhatsApp from "@/components/FloatingWhatsApp";
-import BackToTopButton from "@/components/BackToTopButton";
-import SocialLinks from "@/components/SocialLinks";
+import SiteFooter from "@/components/SiteFooter";
 import CategoryFilter from "@/components/CategoryFilter";
-import Logo from "@/components/Logo";
 import ImageTextSection from "@/components/ImageTextSection";
 import MemberCard from "@/components/MemberCard";
 import siteConfig from "@/config/site";
@@ -28,7 +25,6 @@ import { getSocialSettings, getWhatsappHref } from "@/lib/socialSettings";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { getActiveHeroSlides, getHeroSettings } from "@/lib/heroSlides";
 import HeroCarousel from "@/components/HeroCarousel";
-import { getAllLegalPages } from "@/lib/legalPages";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
 import { getNavTree } from "@/lib/navItems";
 import { getSiteText } from "@/lib/siteText";
@@ -47,10 +43,13 @@ import { getRecentPhotos } from "@/lib/gallery";
 import GalleryMarquee from "@/components/GalleryMarquee";
 import { getPortfolioItems } from "@/lib/portfolio";
 import { getCertifications } from "@/lib/certifications";
-import { getModuleStates, isEnabled, isPublicPathEnabled } from "@/lib/plan";
+import { getModuleStates, isEnabled } from "@/lib/plan";
 import { getHomeLayout } from "@/lib/homeLayout";
 import { TIERS } from "@/lib/planFeatures";
 import { buildPageMetadata } from "@/lib/seo";
+import { buildSiteNav } from "@/lib/siteHeader";
+import { getT } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/i18n/translate";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -76,6 +75,7 @@ export default async function Home({ searchParams }) {
   // because filteredNav needs its `enabled` flag — that section's on/off state lives on the
   // contact_info row itself (lib/contactInfo.js), not in module_settings like every other
   // Feature Config toggle, so it can't go through moduleStates/isPublicPathEnabled.
+  const { locale, t } = await getT();
   const [
     moduleStates,
     contactInfo,
@@ -83,25 +83,22 @@ export default async function Home({ searchParams }) {
     business,
     heroSlides,
     heroSettings,
-    legalPages,
     sectionHeadings,
     navTree,
     siteText,
     homeLayout,
   ] = await Promise.all([
     getModuleStates(),
-    getContactInfo(),
+    getContactInfo(locale),
     getSocialSettings(),
     getBusinessInfo(),
     getActiveHeroSlides(),
     getHeroSettings(),
-    getAllLegalPages(),
-    getSectionHeadings(),
-    getNavTree(),
-    getSiteText(),
+    getSectionHeadings(locale),
+    getNavTree(locale),
+    getSiteText(locale),
     getHomeLayout(),
   ]);
-  const publishedLegalPages = legalPages.filter((p) => p.enabled);
   const { plans } = siteConfig;
   const {
     howItWorks,
@@ -114,7 +111,6 @@ export default async function Home({ searchParams }) {
     newsEvents,
     enquiryForm,
     map,
-    footer,
     products,
     partners,
   } = sectionHeadings;
@@ -156,18 +152,7 @@ export default async function Home({ searchParams }) {
   // business spanning 1900px) and the text-only fallback inside ImageTextSection.js (About/
   // Vision/History with no image — a paragraph of body text, same reasoning).
   const sectionMaxW = isFillWidth ? "max-w-none" : "max-w-6xl";
-  // Drops any nav item (or child of a group) whose module isn't in this deployment's plan,
-  // and drops a group entirely if every one of its children got filtered out — same pattern
-  // as the admin nav's filterNav in app/admin/(protected)/layout.js.
-  const isNavHrefEnabled = (href) =>
-    href === "#contact-info" ? contactInfo.enabled : isPublicPathEnabled(href, moduleStates);
-  const filteredNav = navTree
-    .map((item) => {
-      if (!item.children) return item;
-      const children = item.children.filter((child) => isNavHrefEnabled(child.href));
-      return children.length > 0 ? { ...item, children } : null;
-    })
-    .filter((item) => item && (item.children || isNavHrefEnabled(item.href)));
+  const filteredNav = buildSiteNav(navTree, { moduleStates, contactInfo, onHomePage: true });
 
   const params = await searchParams;
   const selectedCategory = params?.category || "";
@@ -198,9 +183,9 @@ export default async function Home({ searchParams }) {
     isEnabled("reviews", moduleStates)
       ? getTestimonialStats()
       : Promise.resolve({ count: 0, average: 0 }),
-    getAboutInfo(),
-    isEnabled("visionMission", moduleStates) ? getVisionMissionInfo() : Promise.resolve(null),
-    isEnabled("history", moduleStates) ? getHistoryInfo() : Promise.resolve(null),
+    getAboutInfo(locale),
+    isEnabled("visionMission", moduleStates) ? getVisionMissionInfo(locale) : Promise.resolve(null),
+    isEnabled("history", moduleStates) ? getHistoryInfo(locale) : Promise.resolve(null),
     isEnabled("blog", moduleStates) ? getRecentPosts(3) : Promise.resolve([]),
     getActiveTeamsWithMembers(),
     getActivePartners(),
@@ -227,12 +212,12 @@ export default async function Home({ searchParams }) {
       heading: newsEvents.heading,
       enabled: isEnabled("newsEvents", moduleStates) && recentNewsEvents.length > 0,
       viewAllHref: "/news-events",
-      viewAllLabel: "View all news & events",
+      viewAllLabel: t("home.viewAllNewsEvents"),
       items: recentNewsEvents.map((item) => ({
         key: item.slug,
         href: `/news-events/${item.slug}`,
         date: item.published_date,
-        badge: item.type,
+        badge: t(`newsEvents.type.${item.type}`),
         icon: item.type === "Event" ? "event" : "news",
         title: item.title,
       })),
@@ -241,7 +226,7 @@ export default async function Home({ searchParams }) {
       heading: blog.heading,
       enabled: isEnabled("blog", moduleStates) && recentPosts.length > 0,
       viewAllHref: "/blog",
-      viewAllLabel: "View all posts",
+      viewAllLabel: t("home.viewAllPosts"),
       items: recentPosts.map((post) => ({
         key: post.slug,
         href: `/blog/${post.slug}`,
@@ -255,13 +240,13 @@ export default async function Home({ searchParams }) {
       heading: reviews.heading,
       enabled: isEnabled("reviews", moduleStates) && testimonials.length > 0,
       viewAllHref: "/leave-a-review",
-      viewAllLabel: "Leave us a review",
-      items: testimonials.map((t) => ({
-        key: t.id,
+      viewAllLabel: t("home.leaveReview"),
+      items: testimonials.map((testimonial) => ({
+        key: testimonial.id,
         href: null,
-        rating: t.rating,
-        quote: t.body,
-        author: t.author_name,
+        rating: testimonial.rating,
+        quote: testimonial.body,
+        author: testimonial.author_name,
         icon: "star",
       })),
     },
@@ -310,7 +295,7 @@ export default async function Home({ searchParams }) {
                     <div className="flex gap-3 px-5 py-4">
                       <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <span className="text-[10px] font-bold uppercase leading-none">
-                          {new Date(item.date).toLocaleDateString(undefined, { month: "short" })}
+                          {formatDate(item.date, locale, { month: "short" })}
                         </span>
                         <span className="text-base font-bold leading-none">
                           {new Date(item.date).getDate()}
@@ -363,7 +348,7 @@ export default async function Home({ searchParams }) {
             className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
           >
             <IconBrandWhatsapp size={16} />
-            Chat on WhatsApp
+            {t("common.chatOnWhatsapp")}
           </a>
         )}
       </div>
@@ -546,7 +531,7 @@ export default async function Home({ searchParams }) {
         )}
 
         {productItems.length === 0 ? (
-          <p className="mt-10 text-center text-sm text-muted">No products in this category.</p>
+          <p className="mt-10 text-center text-sm text-muted">{t("home.noProductsInCategory")}</p>
         ) : (
           <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {productItems.map((product) => (
@@ -730,7 +715,7 @@ export default async function Home({ searchParams }) {
               href="/gallery"
               className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
             >
-              View full gallery
+              {t("home.viewFullGallery")}
             </a>
           </div>
         </section>
@@ -788,29 +773,33 @@ export default async function Home({ searchParams }) {
               <span className="font-semibold text-foreground">
                 {testimonialStats.average.toFixed(1)} / 5
               </span>{" "}
-              average from {testimonialStats.count} customer review
-              {testimonialStats.count === 1 ? "" : "s"}
+              {t(testimonialStats.count === 1 ? "home.reviewAverageOne" : "home.reviewAverageMany", {
+                count: testimonialStats.count,
+              })}
             </p>
           )}
           {testimonials.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-3">
-              {testimonials.map((t) => (
-                <div key={t.id} className="rounded-xl border border-border p-6">
-                  <p className="text-yellow-500" aria-label={`${t.rating} out of 5 stars`}>
-                    {"★".repeat(t.rating)}
+              {testimonials.map((testimonial) => (
+                <div key={testimonial.id} className="rounded-xl border border-border p-6">
+                  <p
+                    className="text-yellow-500"
+                    aria-label={t("home.starsLabel", { rating: testimonial.rating })}
+                  >
+                    {"★".repeat(testimonial.rating)}
                     <span className="text-gray-300 dark:text-gray-600">
-                      {"★".repeat(5 - t.rating)}
+                      {"★".repeat(5 - testimonial.rating)}
                     </span>
                   </p>
-                  <p className="mt-3 text-sm text-foreground">&ldquo;{t.body}&rdquo;</p>
-                  <p className="mt-4 text-sm font-semibold text-muted">— {t.author_name}</p>
+                  <p className="mt-3 text-sm text-foreground">&ldquo;{testimonial.body}&rdquo;</p>
+                  <p className="mt-4 text-sm font-semibold text-muted">— {testimonial.author_name}</p>
                 </div>
               ))}
             </div>
           )}
           <p className="mt-8 text-center">
             <a href="/leave-a-review" className="text-sm font-medium text-accent hover:underline">
-              Leave us a review &rarr;
+              {t("home.leaveReview")} &rarr;
             </a>
           </p>
         </section>
@@ -849,7 +838,7 @@ export default async function Home({ searchParams }) {
                   </div>
                   <div className="p-5">
                     <p className="text-xs text-muted">
-                      {new Date(post.published_date).toLocaleDateString(undefined, {
+                      {formatDate(post.published_date, locale, {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
@@ -867,7 +856,7 @@ export default async function Home({ searchParams }) {
                 href="/blog"
                 className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
               >
-                View all posts
+                {t("home.viewAllPosts")}
               </a>
             </div>
           </div>
@@ -911,10 +900,10 @@ export default async function Home({ searchParams }) {
                             : "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400"
                         }`}
                       >
-                        {item.type}
+                        {t(`newsEvents.type.${item.type}`)}
                       </span>
                       <span>
-                        {new Date(item.published_date).toLocaleDateString(undefined, {
+                        {formatDate(item.published_date, locale, {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
@@ -933,7 +922,7 @@ export default async function Home({ searchParams }) {
                 href="/news-events"
                 className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
               >
-                View all news &amp; events
+                {t("home.viewAllNewsEvents")}
               </a>
             </div>
           </div>
@@ -1011,7 +1000,7 @@ export default async function Home({ searchParams }) {
                 href="/team"
                 className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-surface-alt"
               >
-                View full team
+                {t("home.viewFullTeam")}
               </a>
             </div>
           </div>
@@ -1064,7 +1053,7 @@ export default async function Home({ searchParams }) {
           <p className="mt-2 text-center text-muted">{contactInfo.address}</p>
           <div className="mt-10 aspect-16/6 w-full overflow-hidden rounded-xl border border-border">
             <iframe
-              title="Business location map"
+              title={t("home.mapTitle")}
               className="h-full w-full grayscale"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
@@ -1139,59 +1128,10 @@ export default async function Home({ searchParams }) {
       {homeLayout.asidePosition === "right" && asideNode}
       </div>
 
-      {/* COMPONENT: contact-footer (optional — toggled from Settings → Feature Config; carries
-          the closing WhatsApp CTA, social links, and copyright line, so switching it off removes
-          all three, not just this section's heading/subheading text). min-h + flex centering
-          ensures this last section has enough room below it to scroll fully under the sticky
-          header when jumped to via #contact — otherwise, being the final element on the page,
-          the browser can't scroll far enough and the Enquiry section above it stays in view. */}
-      {footerEnabled && (
-      <footer
-        id="contact"
-        className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center bg-gray-900 dark:bg-black py-16 text-center text-white"
-        style={{ order: 999 }}
-      >
-        <h2 className="text-2xl font-bold">{footer.heading}</h2>
-        <p className="mt-2 text-gray-300">{footer.subheading}</p>
-        {footerWhatsappHref && (
-          <a
-            href={footerWhatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-200"
-          >
-            Chat on WhatsApp
-          </a>
-        )}
-
-        {/* COMPONENT: social-links (optional) */}
-        <SocialLinks />
-
-        <p className="mt-10 flex items-center justify-center gap-2 text-xs text-gray-400">
-          <Logo className="h-4 w-4" variant="dark" />© {new Date().getFullYear()} {business.name}. All rights reserved.
-        </p>
-        {/* COMPONENT: legal-page-links (optional — only pages an admin has actually published
-            at /admin/legal show up here; an un-filled-in page never gets linked). */}
-        {publishedLegalPages.length > 0 && (
-          <p className="mt-2 flex items-center justify-center gap-3 text-xs text-gray-400">
-            {publishedLegalPages.map((page) => (
-              <a key={page.slug} href={`/${page.slug}`} className="hover:text-white">
-                {page.title}
-              </a>
-            ))}
-          </p>
-        )}
-      </footer>
-      )}
+      {/* COMPONENT: contact-footer (optional — toggled from Settings → Feature Config; see
+          components/SiteFooter.js, shared with the other public pages). */}
+      <SiteFooter onHomePage />
       </main>
-
-      {/* COMPONENT: floating-whatsapp-button (optional — tied to the same "footer" toggle as
-          the footer's own WhatsApp CTA, since Feature Config's "Footer" entry is labeled as
-          covering both WhatsApp CTAs, not just the footer's own button) */}
-      {footerEnabled && <FloatingWhatsApp />}
-
-      {/* Back-to-top button — stacked above the WhatsApp button, appears after scrolling down. */}
-      <BackToTopButton />
 
       {/* COMPONENT: cookie-consent (required if analytics tracking is enabled) */}
       <CookieConsent

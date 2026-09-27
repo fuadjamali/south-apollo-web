@@ -27,6 +27,7 @@ export async function updateHistoryInfoAction(prevState, formData) {
 
   await updateHistoryInfo({
     heading,
+    headingBn: formData.get("headingBn")?.toString().trim(),
     body: formData.get("body")?.toString().trim(),
     image,
     imagePosition: formData.get("imagePosition")?.toString(),

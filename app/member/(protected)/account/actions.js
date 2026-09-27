@@ -4,11 +4,12 @@ import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
 import { getMemberSession } from "@/lib/memberSession";
 import { getMember, updateMemberPassword, requestAccountClosure } from "@/lib/members";
+import { getT } from "@/lib/i18n/server";
 
 export async function changeMemberPasswordAction(prevState, formData) {
-  const session = await getMemberSession();
+  const [session, { t }] = await Promise.all([getMemberSession(), getT()]);
   if (!session) {
-    return { error: "Not signed in." };
+    return { error: t("member.errorNotSignedIn") };
   }
 
   const currentPassword = formData.get("currentPassword")?.toString() || "";
@@ -16,34 +17,34 @@ export async function changeMemberPasswordAction(prevState, formData) {
   const confirmPassword = formData.get("confirmPassword")?.toString() || "";
 
   if (!currentPassword || !newPassword || !confirmPassword) {
-    return { error: "All fields are required." };
+    return { error: t("member.errorAllRequired") };
   }
   if (newPassword.length < 8) {
-    return { error: "New password must be at least 8 characters." };
+    return { error: t("member.errorPasswordLength") };
   }
   if (newPassword !== confirmPassword) {
-    return { error: "New password and confirmation don't match." };
+    return { error: t("member.errorPasswordMismatch") };
   }
 
   const member = await getMember(session.id);
   if (!member) {
-    return { error: "Account not found." };
+    return { error: t("member.errorAccountNotFound") };
   }
 
   const isValid = await bcrypt.compare(currentPassword, member.password_hash);
   if (!isValid) {
-    return { error: "Current password is incorrect." };
+    return { error: t("member.errorCurrentPassword") };
   }
 
   await updateMemberPassword(session.id, newPassword);
 
-  return { success: "Password updated." };
+  return { success: t("member.passwordUpdated") };
 }
 
 export async function requestAccountClosureAction(prevState, formData) {
-  const session = await getMemberSession();
+  const [session, { t }] = await Promise.all([getMemberSession(), getT()]);
   if (!session) {
-    return { error: "Not signed in." };
+    return { error: t("member.errorNotSignedIn") };
   }
 
   const reason = formData.get("reason")?.toString().trim() || "";
@@ -51,8 +52,5 @@ export async function requestAccountClosureAction(prevState, formData) {
   await requestAccountClosure(session.id, reason);
   revalidatePath("/member/account");
 
-  return {
-    success:
-      "Your request has been sent. An admin will be in touch before anything is closed.",
-  };
+  return { success: t("member.closeSent") };
 }

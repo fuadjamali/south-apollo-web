@@ -44,6 +44,30 @@ export default function SectionHeadingForm({ def, values }) {
           {pending ? "Saving…" : "Save"}
         </button>
       </div>
+      <p className="pt-2 text-xs font-medium text-muted" lang="bn">
+        বাংলা <span className="font-normal">(optional)</span>
+      </p>
+      <input
+        type="text"
+        name="headingBn"
+        lang="bn"
+        defaultValue={values.translations?.bn?.heading || ""}
+        placeholder="বাংলা heading — blank shows English"
+        className={fieldClass}
+      />
+      {def.hasSubheading ? (
+        <input
+          type="text"
+          name="subheadingBn"
+          lang="bn"
+          defaultValue={values.translations?.bn?.subheading || ""}
+          placeholder="বাংলা subheading"
+          className={fieldClass}
+        />
+      ) : (
+        <div />
+      )}
+      <div />
       {state?.success && (
         <p className="sm:col-span-4 text-xs text-green-600 dark:text-green-400">{state.success}</p>
       )}

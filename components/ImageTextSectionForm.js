@@ -39,6 +39,20 @@ export default function ImageTextSectionForm({
       </div>
 
       <div>
+        <label className={labelClass}>
+          <span lang="bn">বাংলা</span> heading{" "}
+          <span className="font-normal text-muted">(optional — blank shows the English heading)</span>
+        </label>
+        <input
+          type="text"
+          name="headingBn"
+          lang="bn"
+          defaultValue={data.translations?.bn?.heading || ""}
+          className={fieldClass}
+        />
+      </div>
+
+      <div>
         <label className={labelClass}>Body</label>
         <textarea
           id={bodyFieldId}

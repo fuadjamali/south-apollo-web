@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getItemBySlug } from "@/lib/newsEvents";
 import { buildPageMetadata } from "@/lib/seo";
+import { getT } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/i18n/translate";
 
 export const revalidate = 3600;
 
@@ -23,6 +25,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function NewsEventDetailPage({ params }) {
+  const { locale, t } = await getT();
   const { slug } = await params;
   const item = await getItemBySlug(slug);
 
@@ -35,15 +38,15 @@ export default async function NewsEventDetailPage({ params }) {
   return (
     <article>
       <a href="/news-events" className="text-sm text-accent hover:underline">
-        &larr; Back to News &amp; Events
+        &larr; {t("newsEvents.back")}
       </a>
 
       <div className="mt-6 flex items-center gap-2 text-xs text-muted">
         <span className={`rounded-full px-2 py-0.5 font-medium ${TYPE_BADGE[item.type]}`}>
-          {item.type}
+          {t(`newsEvents.type.${item.type}`)}
         </span>
         <span>
-          {new Date(item.published_date).toLocaleDateString(undefined, {
+          {formatDate(item.published_date, locale, {
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -55,7 +58,7 @@ export default async function NewsEventDetailPage({ params }) {
       {item.type === "Event" && (item.event_date || item.event_location) && (
         <p className="mt-3 rounded-lg border border-border bg-surface-alt px-4 py-3 text-sm font-medium text-foreground">
           {item.event_date &&
-            new Date(item.event_date).toLocaleDateString(undefined, {
+            formatDate(item.event_date, locale, {
               year: "numeric",
               month: "long",
               day: "numeric",

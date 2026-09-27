@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/blog";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { buildPageMetadata } from "@/lib/seo";
+import { getT } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/i18n/translate";
 import { buildArticleJsonLd } from "@/lib/structuredData";
 import { isLegacyPlainTextBody, legacyPlainTextToHtml } from "@/lib/blogBodyFormat";
 
@@ -21,6 +23,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function BlogPostPage({ params }) {
+  const { locale, t } = await getT();
   const { slug } = await params;
   const [post, business] = await Promise.all([getPostBySlug(slug), getBusinessInfo()]);
 
@@ -43,11 +46,11 @@ export default async function BlogPostPage({ params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <a href="/blog" className="text-sm text-accent hover:underline">
-        &larr; Back to blog
+        &larr; {t("blog.back")}
       </a>
 
       <p className="mt-6 text-xs text-muted">
-        {new Date(post.published_date).toLocaleDateString(undefined, {
+        {formatDate(post.published_date, locale, {
           year: "numeric",
           month: "long",
           day: "numeric",

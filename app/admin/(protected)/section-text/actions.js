@@ -17,9 +17,11 @@ export async function updateSectionHeadingAction(prevState, formData) {
   await updateSectionHeading(key, {
     heading,
     subheading: formData.get("subheading")?.toString().trim(),
+    headingBn: formData.get("headingBn")?.toString().trim(),
+    subheadingBn: formData.get("subheadingBn")?.toString().trim(),
   });
 
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   revalidatePath("/admin/section-text");
 
   return { success: `${heading} saved.` };

@@ -1,17 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useT } from "@/components/LocaleContext";
 
-const COLOR_THEMES = [
-  { id: "ocean", label: "Ocean Blue" },
-  { id: "forest", label: "Forest Green" },
-  { id: "desert", label: "Desert Orange" },
-  { id: "royal", label: "Royal Purple" },
-  { id: "ferrari", label: "Ferrari Red" },
-  { id: "golden", label: "Golden" },
-  { id: "burgundy", label: "Burgundy" },
-  { id: "onyx-gold", label: "Onyx Gold" },
-];
+// Labels live in the i18n dictionaries as colorTheme.<id>.
+const COLOR_THEMES = ["ocean", "forest", "desert", "royal", "ferrari", "golden", "burgundy", "onyx-gold"];
 
 function applyColorTheme(id) {
   document.documentElement.setAttribute("data-theme", id);
@@ -19,6 +12,7 @@ function applyColorTheme(id) {
 }
 
 export default function ColorThemeSwitcher({ className = "" }) {
+  const t = useT();
   const selectRef = useRef(null);
 
   useEffect(() => {
@@ -31,12 +25,12 @@ export default function ColorThemeSwitcher({ className = "" }) {
       ref={selectRef}
       defaultValue="ocean"
       onChange={(e) => applyColorTheme(e.target.value)}
-      aria-label="Color theme"
+      aria-label={t("colorTheme.label")}
       className={`rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-alt focus:outline-none ${className}`}
     >
-      {COLOR_THEMES.map((theme) => (
-        <option key={theme.id} value={theme.id}>
-          {theme.label}
+      {COLOR_THEMES.map((id) => (
+        <option key={id} value={id}>
+          {t(`colorTheme.${id}`)}
         </option>
       ))}
     </select>

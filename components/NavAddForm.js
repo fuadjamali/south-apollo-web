@@ -33,6 +33,15 @@ export default function NavAddForm({ kind, parentId, submitLabel }) {
       <div className="min-w-[9rem] flex-1">
         <input type="text" name="label" required placeholder="Label" className={fieldClass} />
       </div>
+      <div className="min-w-[9rem] flex-1">
+        <input
+          type="text"
+          name="labelBn"
+          lang="bn"
+          placeholder="বাংলা label (optional)"
+          className={fieldClass}
+        />
+      </div>
 
       {kind !== "group" && <NavDestinationField key={fieldGeneration} />}
 

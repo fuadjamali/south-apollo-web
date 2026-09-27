@@ -22,6 +22,7 @@ export async function createNavItemAction(prevState, formData) {
   await createNavItem({
     parentId: kind === "child" ? Number(parentIdRaw) : null,
     label,
+    labelBn: formData.get("labelBn")?.toString().trim(),
     href: kind === "group" ? null : href,
     cta: kind === "link" && formData.get("cta") === "on",
     highlight: kind === "link" && formData.get("highlight") === "on",
@@ -43,6 +44,7 @@ export async function updateNavItemAction(prevState, formData) {
 
   await updateNavItem(id, {
     label,
+    labelBn: formData.get("labelBn")?.toString().trim(),
     href: isGroup ? null : href,
     cta: !isGroup && !isChild && formData.get("cta") === "on",
     highlight: !isGroup && !isChild && formData.get("highlight") === "on",

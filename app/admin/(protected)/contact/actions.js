@@ -11,7 +11,18 @@ export async function updateContactInfoAction(formData) {
   const email = formData.get("email")?.toString().trim() || "";
   const enabled = formData.get("enabled") === "on";
 
-  await updateContactInfo({ heading, subheading, address, phone, email, enabled });
+  await updateContactInfo({
+    heading,
+    subheading,
+    address,
+    phone,
+    email,
+    enabled,
+    bn: {
+      heading: formData.get("headingBn")?.toString().trim(),
+      subheading: formData.get("subheadingBn")?.toString().trim(),
+    },
+  });
 
   // Revalidate immediately rather than waiting for the home page's ISR window.
   revalidatePath("/");

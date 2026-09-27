@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { IconX, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { useT } from "@/components/LocaleContext";
 
 const MAX_ZOOM = 3;
 
@@ -17,6 +18,7 @@ function distance(touches) {
 // set. Index is controlled by the parent so "next" past the last loaded photo can trigger loading
 // more rather than just stopping (see GalleryGrid's infinite scroll).
 export default function GalleryLightbox({ photos, index, onIndexChange, onClose }) {
+  const t = useT();
   const [zoom, setZoom] = useState({ scale: 1, x: 0, y: 0 });
   const [zoomedIndex, setZoomedIndex] = useState(index);
   const dragState = useRef(null);
@@ -166,7 +168,7 @@ export default function GalleryLightbox({ photos, index, onIndexChange, onClose 
           ref={closeButtonRef}
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("common.close")}
           className="shrink-0 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
         >
           <IconX size={20} />
@@ -202,7 +204,7 @@ export default function GalleryLightbox({ photos, index, onIndexChange, onClose 
           <button
             type="button"
             onClick={() => goTo(index - 1)}
-            aria-label="Previous photo"
+            aria-label={t("gallery.previousPhoto")}
             className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
           >
             <IconChevronLeft size={24} />
@@ -212,7 +214,7 @@ export default function GalleryLightbox({ photos, index, onIndexChange, onClose 
           <button
             type="button"
             onClick={() => goTo(index + 1)}
-            aria-label="Next photo"
+            aria-label={t("gallery.nextPhoto")}
             className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
           >
             <IconChevronRight size={24} />
@@ -221,7 +223,7 @@ export default function GalleryLightbox({ photos, index, onIndexChange, onClose 
       </div>
 
       <p className="pb-3 text-center text-xs text-white/60">
-        Scroll or pinch to zoom · double-click to reset
+        {t("gallery.zoomHint")}
       </p>
     </div>
   );

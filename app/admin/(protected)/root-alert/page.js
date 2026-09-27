@@ -14,7 +14,11 @@ export default async function AdminRootAlertPage() {
           A banner shown at the very top of every page on the site, above the header. Use it for
           a site-wide notice — or turn it off entirely.
         </p>
-        <RootAlertForm enabled={rootAlert.enabled} message={rootAlert.message} />
+        <RootAlertForm
+          enabled={rootAlert.enabled}
+          message={rootAlert.message}
+          messageBn={rootAlert.translations?.bn?.message || ""}
+        />
       </div>
     </div>
   );

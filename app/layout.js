@@ -1,12 +1,15 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Bengali } from "next/font/google";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import ThemeScript from "@/components/ThemeScript";
 import { CartProvider } from "@/components/CartContext";
 import { BusinessNameProvider } from "@/components/BusinessNameContext";
 import { LogoProvider } from "@/components/LogoContext";
+import { LocaleProvider } from "@/components/LocaleContext";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { getBranding } from "@/lib/branding";
 import { getRootAlert } from "@/lib/rootAlert";
+import { getLocale } from "@/lib/i18n/server";
+import { getModuleStates, isEnabled } from "@/lib/plan";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +20,15 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Only the Bengali subset, not preloaded: its @font-face is limited to the Bengali Unicode
+// range, so English-only visitors never download it — the browser fetches it the first time
+// Bengali text actually renders (globals.css puts it after Arial in the body font stack).
+const notoBengali = Noto_Sans_Bengali({
+  variable: "--font-bengali",
+  subsets: ["bengali"],
+  preload: false,
 });
 
 // Dynamic (not a static `metadata` export) so the browser tab title / SEO title / favicon
@@ -42,20 +54,22 @@ export async function generateMetadata() {
 }
 
 export default async function RootLayout({ children }) {
-  const [business, branding, rootAlert] = await Promise.all([
+  const locale = await getLocale();
+  const [business, branding, rootAlert, moduleStates] = await Promise.all([
     getBusinessInfo(),
     getBranding(),
-    getRootAlert(),
+    getRootAlert(locale),
+    getModuleStates(),
   ]);
 
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang={locale}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoBengali.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
-        <ThemeScript />
+        <ThemeScript colorThemesEnabled={isEnabled("themes", moduleStates)} />
       </head>
       <body className="min-h-full flex flex-col">
         {rootAlert.enabled && rootAlert.message && (
@@ -63,13 +77,15 @@ export default async function RootLayout({ children }) {
             {rootAlert.message}
           </div>
         )}
-        <BusinessNameProvider name={business.name}>
-          <LogoProvider logoUrl={branding.logo_url} logoDarkUrl={branding.logo_dark_url}>
-            <SessionProviderWrapper>
-              <CartProvider>{children}</CartProvider>
-            </SessionProviderWrapper>
-          </LogoProvider>
-        </BusinessNameProvider>
+        <LocaleProvider locale={locale}>
+          <BusinessNameProvider name={business.name}>
+            <LogoProvider logoUrl={branding.logo_url} logoDarkUrl={branding.logo_dark_url}>
+              <SessionProviderWrapper>
+                <CartProvider>{children}</CartProvider>
+              </SessionProviderWrapper>
+            </LogoProvider>
+          </BusinessNameProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

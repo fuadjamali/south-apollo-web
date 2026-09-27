@@ -2,13 +2,18 @@ import { getPhotosPage, getAllTags, getAllPhotoMonths, getRecentPhotos } from "@
 import { getSectionHeadings } from "@/lib/sectionHeadings";
 import GalleryGrid from "@/components/GalleryGrid";
 import { buildPageMetadata } from "@/lib/seo";
+import { getT } from "@/lib/i18n/server";
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
-  const [headings, [recentPhoto]] = await Promise.all([getSectionHeadings(), getRecentPhotos(1)]);
+  const { locale, t } = await getT();
+  const [headings, [recentPhoto]] = await Promise.all([
+    getSectionHeadings(locale),
+    getRecentPhotos(1),
+  ]);
   return buildPageMetadata({
-    title: "Gallery",
+    title: t("pages.gallery"),
     description: headings.gallery.subheading,
     path: "/gallery",
     image: recentPhoto?.image,
@@ -16,8 +21,9 @@ export async function generateMetadata() {
 }
 
 export default async function GalleryPage() {
+  const { locale, t } = await getT();
   const [headings, firstPage, allTags, allMonths] = await Promise.all([
-    getSectionHeadings(),
+    getSectionHeadings(locale),
     getPhotosPage(),
     getAllTags(),
     getAllPhotoMonths(),
@@ -30,7 +36,7 @@ export default async function GalleryPage() {
       <p className="mt-2 text-center text-muted">{gallery.subheading}</p>
 
       {firstPage.photos.length === 0 ? (
-        <p className="mt-10 text-center text-muted">No photos yet.</p>
+        <p className="mt-10 text-center text-muted">{t("gallery.empty")}</p>
       ) : (
         <div className="mt-10">
           <GalleryGrid

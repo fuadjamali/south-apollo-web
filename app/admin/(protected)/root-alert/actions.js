@@ -10,7 +10,11 @@ export async function updateRootAlertAction(prevState, formData) {
     return { error: "Message can't be empty while the alert is on." };
   }
 
-  await updateRootAlert({ enabled, message: message || "" });
+  await updateRootAlert({
+    enabled,
+    message: message || "",
+    messageBn: formData.get("messageBn")?.toString().trim(),
+  });
 
   revalidatePath("/", "layout");
   revalidatePath("/admin/root-alert");

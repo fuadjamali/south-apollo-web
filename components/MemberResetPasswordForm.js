@@ -1,12 +1,14 @@
 "use client";
 
 import { useActionState } from "react";
+import { useT } from "@/components/LocaleContext";
 import { resetPasswordAction } from "@/app/member/actions";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
 export default function MemberResetPasswordForm({ token }) {
+  const t = useT();
   const [state, formAction, pending] = useActionState(resetPasswordAction, {});
 
   if (state?.success) {
@@ -19,7 +21,7 @@ export default function MemberResetPasswordForm({ token }) {
           href="/member/login"
           className="block w-full rounded-lg bg-primary py-2 text-center text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
         >
-          Go to login
+          {t("member.goToLogin")}
         </a>
       </div>
     );
@@ -30,12 +32,12 @@ export default function MemberResetPasswordForm({ token }) {
       <input type="hidden" name="token" value={token} />
 
       <div>
-        <label className="block text-sm font-medium text-foreground">New password</label>
+        <label className="block text-sm font-medium text-foreground">{t("member.newPassword")}</label>
         <input type="password" name="password" required minLength={8} className={fieldClass} />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-foreground">Confirm new password</label>
+        <label className="block text-sm font-medium text-foreground">{t("member.confirmNewPassword")}</label>
         <input
           type="password"
           name="confirmPassword"
@@ -52,7 +54,7 @@ export default function MemberResetPasswordForm({ token }) {
         disabled={pending || !token}
         className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
       >
-        {pending ? "Resetting..." : "Reset password"}
+        {pending ? t("member.resetting") : t("member.resetTitle")}
       </button>
     </form>
   );

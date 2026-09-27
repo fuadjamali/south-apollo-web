@@ -36,11 +36,7 @@ const siteConfig = {
   // meaningful for South Apollo's own marketing site. A deployed client site has no
   // reason to show its own Basic/Plus/Premium tiers to its visitors, so leave this `null` for
   // every client deployment.
-  plans: {
-    heading: "Plans that grow with you",
-    subheading:
-      "Founding client pricing for our first clients — locked in for as long as you stay with us. Start on Basic, upgrade to Plus or Premium whenever you're ready — no rebuild.",
-  },
+  plans: null,
 
   // Footer heading/subheading is admin-editable at /admin/section-text (lib/sectionHeadings.js).
   // WhatsApp number/messages and the social icon row are admin-editable at /admin/social

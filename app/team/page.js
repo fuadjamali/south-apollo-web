@@ -1,22 +1,25 @@
 import { getCurrentTeamsWithMembers, getFormerTeamsWithMembers } from "@/lib/teamMembers";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
 import { buildPageMetadata } from "@/lib/seo";
+import { getT } from "@/lib/i18n/server";
 import TeamRoster from "@/components/TeamRoster";
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
-  const headings = await getSectionHeadings();
+  const { locale, t } = await getT();
+  const headings = await getSectionHeadings(locale);
   return buildPageMetadata({
-    title: "Team",
+    title: t("pages.team"),
     description: headings.team.subheading,
     path: "/team",
   });
 }
 
 export default async function TeamPage() {
+  const { locale, t } = await getT();
   const [headings, currentTeams, formerTeams] = await Promise.all([
-    getSectionHeadings(),
+    getSectionHeadings(locale),
     getCurrentTeamsWithMembers(),
     getFormerTeamsWithMembers(),
   ]);
@@ -28,7 +31,7 @@ export default async function TeamPage() {
       <p className="mt-2 text-center text-muted">{team.subheading}</p>
 
       {currentTeams.length === 0 && formerTeams.length === 0 ? (
-        <p className="mt-10 text-center text-muted">No team members yet.</p>
+        <p className="mt-10 text-center text-muted">{t("team.empty")}</p>
       ) : (
         <div className="mt-10">
           <TeamRoster currentTeams={currentTeams} formerTeams={formerTeams} />

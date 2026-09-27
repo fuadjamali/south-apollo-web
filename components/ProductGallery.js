@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { IconX, IconZoomIn } from "@tabler/icons-react";
+import { useT } from "@/components/LocaleContext";
 import { ASPECT_RATIOS } from "@/lib/photoAspectRatios";
 
 const MAX_ZOOM = 3;
@@ -25,6 +26,7 @@ function distance(touches) {
 // (scroll/pinch to zoom, drag to pan) rather than an Amazon-style hover magnifier — hover-zoom
 // does nothing on a touch device, which is most of this traffic.
 export default function ProductGallery({ photos, productName }) {
+  const t = useT();
   // Opens on the cover photo, not just whichever photo happens to sort first — those can
   // differ once an admin sets a different photo as cover without reordering the gallery.
   const [index, setIndex] = useState(() => {
@@ -173,7 +175,7 @@ export default function ProductGallery({ photos, productName }) {
           <button
             type="button"
             onClick={closeLightbox}
-            aria-label="Close"
+            aria-label={t("common.close")}
             className="absolute right-4 top-4 z-20 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
           >
             <IconX size={20} />
@@ -190,7 +192,7 @@ export default function ProductGallery({ photos, productName }) {
                     setZoom({ scale: 1, x: 0, y: 0 });
                   }}
                   className={`h-2 w-2 rounded-full ${i === index ? "bg-white" : "bg-white/40"}`}
-                  aria-label={`Photo ${i + 1}`}
+                  aria-label={t("products.photoNumber", { number: i + 1 })}
                 />
               ))}
             </div>
@@ -223,7 +225,7 @@ export default function ProductGallery({ photos, productName }) {
           </div>
 
           <p className="absolute bottom-4 right-4 hidden text-xs text-white/60 sm:block">
-            Scroll or pinch to zoom · double-click to reset
+            {t("gallery.zoomHint")}
           </p>
         </div>
       )}

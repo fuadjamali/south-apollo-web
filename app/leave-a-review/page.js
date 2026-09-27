@@ -3,19 +3,25 @@ import TestimonialForm from "@/components/TestimonialForm";
 import { getActiveMemberSession } from "@/lib/memberSession";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { buildPageMetadata } from "@/lib/seo";
+import { getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata() {
+  const { t } = await getT();
   return buildPageMetadata({
-    title: "Leave a Review",
-    description: "Share your experience — leave us a review.",
+    title: t("review.pageTitle"),
+    description: t("review.metaDescription"),
     path: "/leave-a-review",
   });
 }
 
 export default async function LeaveAReviewPage() {
-  const [member, business] = await Promise.all([getActiveMemberSession(), getBusinessInfo()]);
+  const [member, business, { t }] = await Promise.all([
+    getActiveMemberSession(),
+    getBusinessInfo(),
+    getT(),
+  ]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -26,16 +32,15 @@ export default async function LeaveAReviewPage() {
             {business.name}
           </a>
           <a href="/#reviews" className="text-sm font-medium hover:text-muted">
-            &larr; Back to home
+            &larr; {t("common.backToHome")}
           </a>
         </div>
       </header>
 
       <main className="mx-auto max-w-lg px-6 py-16">
-        <h1 className="text-3xl font-bold">Leave us a review</h1>
+        <h1 className="text-3xl font-bold">{t("home.leaveReview")}</h1>
         <p className="mt-2 text-muted">
-          Tell us about your experience — we read every one, and approved reviews are shown
-          publicly on the site.
+          {t("review.intro")}
         </p>
 
         <TestimonialForm member={member} />

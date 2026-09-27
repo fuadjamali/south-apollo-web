@@ -34,6 +34,17 @@ export default function NavItemEditForm({ item, isGroup, isChild, confirmMessage
             className={fieldClass}
           />
         </div>
+        <div className="min-w-[9rem] flex-1">
+          <input
+            type="text"
+            name="labelBn"
+            lang="bn"
+            defaultValue={item.translations?.bn?.label || ""}
+            placeholder="বাংলা label (optional)"
+            title="Shown when a visitor picks বাংলা. Leave blank to show the English label."
+            className={fieldClass}
+          />
+        </div>
 
         {!isGroup && <NavDestinationField defaultValue={item.href || ""} />}
 

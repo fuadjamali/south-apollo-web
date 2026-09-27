@@ -1,13 +1,16 @@
 import { getItems } from "@/lib/newsEvents";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
 import { buildPageMetadata } from "@/lib/seo";
+import { getT } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/i18n/translate";
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
-  const headings = await getSectionHeadings();
+  const { locale, t } = await getT();
+  const headings = await getSectionHeadings(locale);
   return buildPageMetadata({
-    title: "News & Events",
+    title: t("pages.newsEvents"),
     description: headings.newsEvents.subheading,
     path: "/news-events",
   });
@@ -19,7 +22,8 @@ const TYPE_BADGE = {
 };
 
 export default async function NewsEventsIndexPage() {
-  const [headings, items] = await Promise.all([getSectionHeadings(), getItems()]);
+  const { locale, t } = await getT();
+  const [headings, items] = await Promise.all([getSectionHeadings(locale), getItems()]);
   const { newsEvents } = headings;
 
   return (
@@ -28,7 +32,7 @@ export default async function NewsEventsIndexPage() {
       <p className="mt-2 text-muted">{newsEvents.subheading}</p>
 
       {items.length === 0 ? (
-        <p className="mt-10 text-muted">Nothing here yet.</p>
+        <p className="mt-10 text-muted">{t("newsEvents.empty")}</p>
       ) : (
         <div className="mt-10 grid gap-8 sm:grid-cols-2">
           {items.map((item) => (
@@ -53,10 +57,10 @@ export default async function NewsEventsIndexPage() {
                   <span
                     className={`rounded-full px-2 py-0.5 font-medium ${TYPE_BADGE[item.type]}`}
                   >
-                    {item.type}
+                    {t(`newsEvents.type.${item.type}`)}
                   </span>
                   <span>
-                    {new Date(item.published_date).toLocaleDateString(undefined, {
+                    {formatDate(item.published_date, locale, {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
@@ -67,8 +71,8 @@ export default async function NewsEventsIndexPage() {
                 <p className="mt-1 text-sm text-muted">{item.summary}</p>
                 {item.type === "Event" && item.event_date && (
                   <p className="mt-2 text-xs font-medium text-foreground">
-                    Event date:{" "}
-                    {new Date(item.event_date).toLocaleDateString(undefined, {
+                    {t("newsEvents.eventDate")}{" "}
+                    {formatDate(item.event_date, locale, {
                       year: "numeric",
                       month: "long",
                       day: "numeric",

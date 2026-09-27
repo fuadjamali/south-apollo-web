@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { OVERLAY_OPACITY_CLASSES, TEXT_STYLE_CLASSES } from "@/lib/overlaySettings";
+import { useT } from "@/components/LocaleContext";
 
 const AUTOPLAY_MS = 7000;
 
@@ -98,6 +99,7 @@ function SlideMedia({ slide, active, reducedMotion }) {
 // exact height instead of letting it follow its content — null/undefined keeps today's default
 // (auto, content-driven) height.
 export default function HeroCarousel({ slides, sectionMaxW, heightPx }) {
+  const t = useT();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -250,7 +252,7 @@ export default function HeroCarousel({ slides, sectionMaxW, heightPx }) {
           <button
             type="button"
             onClick={() => goTo(index - 1)}
-            aria-label="Previous slide"
+            aria-label={t("hero.previousSlide")}
             className={`absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full border p-2 backdrop-blur transition hover:scale-105 ${
               heroStyle === TEXT_STYLE_CLASSES.light
                 ? "border-white/40 bg-white/10 text-white hover:bg-white/20"
@@ -262,7 +264,7 @@ export default function HeroCarousel({ slides, sectionMaxW, heightPx }) {
           <button
             type="button"
             onClick={() => goTo(index + 1)}
-            aria-label="Next slide"
+            aria-label={t("hero.nextSlide")}
             className={`absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full border p-2 backdrop-blur transition hover:scale-105 ${
               heroStyle === TEXT_STYLE_CLASSES.light
                 ? "border-white/40 bg-white/10 text-white hover:bg-white/20"
@@ -281,7 +283,7 @@ export default function HeroCarousel({ slides, sectionMaxW, heightPx }) {
                 key={s.id}
                 type="button"
                 onClick={() => goTo(i)}
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={t("hero.goToSlide", { number: i + 1 })}
                 aria-current={i === index}
                 className="h-1.5 w-8 overflow-hidden rounded-full bg-white/30"
               >
@@ -311,7 +313,9 @@ export default function HeroCarousel({ slides, sectionMaxW, heightPx }) {
       {/* Announces the change for screen reader / assistive-tech users, who don't get the
           visual crossfade as a signal that content moved. */}
       <div aria-live="polite" className="sr-only">
-        {multi ? `Slide ${index + 1} of ${slides.length}: ${slide.heading}` : ""}
+        {multi
+          ? t("hero.slideStatus", { number: index + 1, total: slides.length, heading: slide.heading })
+          : ""}
       </div>
     </section>
   );

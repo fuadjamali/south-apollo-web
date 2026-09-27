@@ -1,5 +1,7 @@
 import { getMemberSession } from "@/lib/memberSession";
 import { getBookingsForMember } from "@/lib/bookings";
+import { getT } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/i18n/translate";
 
 export const dynamic = "force-dynamic";
 
@@ -10,35 +12,30 @@ const STATUS_BADGE = {
   Cancelled: "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300",
 };
 
-function formatDate(date) {
-  return new Date(date).toLocaleDateString();
-}
-
 function formatTime(t) {
   return t?.slice(0, 5);
 }
 
 export default async function MemberBookingsPage() {
-  const session = await getMemberSession();
+  const [session, { locale, t }] = await Promise.all([getMemberSession(), getT()]);
   const bookings = await getBookingsForMember(session.id);
 
   return (
     <div className="w-full max-w-2xl px-6">
       <div className="rounded-xl border border-border bg-surface p-8 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-xl font-bold text-foreground">My bookings</h1>
+          <h1 className="text-xl font-bold text-foreground">{t("member.myBookings")}</h1>
           <a href="/member/account" className="text-sm font-medium text-muted hover:underline">
-            &larr; Back to account
+            &larr; {t("member.backToAccount")}
           </a>
         </div>
 
         {bookings.length === 0 ? (
           <p className="mt-6 text-sm text-muted">
-            No bookings yet.{" "}
+            {t("member.noBookings")}{" "}
             <a href="/booking" className="text-accent hover:underline">
-              Book an appointment
+              {t("booking.title")}
             </a>
-            .
           </p>
         ) : (
           <div className="mt-6 space-y-3">
@@ -49,11 +46,11 @@ export default async function MemberBookingsPage() {
                   <span
                     className={`ml-2 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[booking.status]}`}
                   >
-                    {booking.status}
+                    {t(`bookingStatus.${booking.status}`)}
                   </span>
                 </p>
                 <p className="text-sm text-muted">
-                  {booking.service_name} · {formatDate(booking.booking_date)} ·{" "}
+                  {booking.service_name} · {formatDate(booking.booking_date, locale, { year: "numeric", month: "short", day: "numeric" })} ·{" "}
                   {formatTime(booking.start_time)}–{formatTime(booking.end_time)}
                 </p>
               </div>

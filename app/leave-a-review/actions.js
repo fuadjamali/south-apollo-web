@@ -2,10 +2,11 @@
 
 import { submitTestimonial } from "@/lib/testimonials";
 import { getActiveMemberSession } from "@/lib/memberSession";
+import { getT } from "@/lib/i18n/server";
 
 export async function submitTestimonialAction(prevState, formData) {
   // Derived server-side, same reasoning as orders/bookings — never trusted from the form.
-  const session = await getActiveMemberSession();
+  const [session, { t }] = await Promise.all([getActiveMemberSession(), getT()]);
   const memberAccountId = session?.id || null;
 
   const authorName = formData.get("authorName")?.toString().trim() || "";
@@ -14,16 +15,16 @@ export async function submitTestimonialAction(prevState, formData) {
   const body = formData.get("body")?.toString().trim() || "";
 
   if (!authorName || !body) {
-    return { error: "Name and review are required." };
+    return { error: t("review.errorRequired") };
   }
   if (!rating || rating < 1 || rating > 5) {
-    return { error: "Please choose a star rating." };
+    return { error: t("review.errorRating") };
   }
 
   try {
     await submitTestimonial({ authorName, authorEmail, rating, body, memberAccountId });
     return { success: true };
-  } catch (err) {
-    return { error: err.message || "Couldn't submit your review. Please try again." };
+  } catch {
+    return { error: t("review.errorSubmit") };
   }
 }

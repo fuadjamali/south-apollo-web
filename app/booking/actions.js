@@ -3,6 +3,15 @@
 import { getAvailableSlots, createBooking } from "@/lib/bookings";
 import { joinWaitlist } from "@/lib/bookingWaitlist";
 import { getActiveMemberSession } from "@/lib/memberSession";
+import { getT } from "@/lib/i18n/server";
+
+// lib/bookings.js / lib/bookingWaitlist.js throw these for the visitor to see; anything else is
+// an unexpected failure and gets the generic message.
+const KNOWN_ERRORS = {
+  "That service is no longer available.": "booking.errorServiceGone",
+  "That service isn't available.": "booking.errorServiceGone",
+  "That time slot is no longer available. Please choose another.": "booking.errorSlotTaken",
+};
 
 export async function getAvailableSlotsAction(serviceId, dateStr) {
   if (!serviceId || !dateStr) return [];
@@ -16,7 +25,7 @@ export async function getAvailableSlotsAction(serviceId, dateStr) {
 export async function placeBookingAction(prevState, formData) {
   // Derived from the session cookie server-side, never from the submitted form — same
   // reasoning as checkout: a guest could otherwise attach a booking to any member account.
-  const session = await getActiveMemberSession();
+  const [session, { t }] = await Promise.all([getActiveMemberSession(), getT()]);
   const memberAccountId = session?.id || null;
 
   const serviceId = formData.get("serviceId")?.toString() || "";
@@ -28,10 +37,10 @@ export async function placeBookingAction(prevState, formData) {
   const notes = formData.get("notes")?.toString().trim() || "";
 
   if (!serviceId || !bookingDate || !startTime) {
-    return { error: "Please choose a service, date, and time." };
+    return { error: t("booking.errorPickSlot") };
   }
   if (!customerName || !customerEmail) {
-    return { error: "Name and email are required." };
+    return { error: t("booking.errorNameEmail") };
   }
 
   try {
@@ -47,12 +56,12 @@ export async function placeBookingAction(prevState, formData) {
     });
     return { success: true, bookingNumber: booking.bookingNumber };
   } catch (err) {
-    return { error: err.message || "Couldn't place your booking. Please try again." };
+    return { error: t(KNOWN_ERRORS[err.message] || "booking.errorBook") };
   }
 }
 
 export async function joinWaitlistAction(prevState, formData) {
-  const session = await getActiveMemberSession();
+  const [session, { t }] = await Promise.all([getActiveMemberSession(), getT()]);
   const memberAccountId = session?.id || null;
 
   const serviceId = formData.get("serviceId")?.toString() || "";
@@ -63,10 +72,10 @@ export async function joinWaitlistAction(prevState, formData) {
   const notes = formData.get("notes")?.toString().trim() || "";
 
   if (!serviceId || !preferredDate) {
-    return { error: "Please choose a service and date." };
+    return { error: t("booking.errorPickDate") };
   }
   if (!customerName || !customerEmail) {
-    return { error: "Name and email are required." };
+    return { error: t("booking.errorNameEmail") };
   }
 
   try {
@@ -81,6 +90,6 @@ export async function joinWaitlistAction(prevState, formData) {
     });
     return { success: true };
   } catch (err) {
-    return { error: err.message || "Couldn't join the waitlist. Please try again." };
+    return { error: t(KNOWN_ERRORS[err.message] || "booking.errorWaitlist") };
   }
 }

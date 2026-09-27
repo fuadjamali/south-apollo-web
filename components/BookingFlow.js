@@ -7,6 +7,7 @@ import {
   placeBookingAction,
   joinWaitlistAction,
 } from "@/app/booking/actions";
+import { useT } from "@/components/LocaleContext";
 
 const fieldClass =
   "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
@@ -25,10 +26,11 @@ function todayStr() {
 // than duplicated JSX, since the two forms are siblings (never nested) but want identical
 // customer-detail fields.
 function CustomerFields({ member }) {
+  const t = useT();
   return (
     <>
       <div>
-        <label className="block text-sm font-medium text-foreground">Full name</label>
+        <label className="block text-sm font-medium text-foreground">{t("booking.fullName")}</label>
         <input
           type="text"
           name="customerName"
@@ -38,7 +40,7 @@ function CustomerFields({ member }) {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-foreground">Email</label>
+        <label className="block text-sm font-medium text-foreground">{t("enquiry.email")}</label>
         <input
           type="email"
           name="customerEmail"
@@ -48,11 +50,11 @@ function CustomerFields({ member }) {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-foreground">Phone (optional)</label>
+        <label className="block text-sm font-medium text-foreground">{t("booking.phoneOptional")}</label>
         <input type="tel" name="customerPhone" className={fieldClass} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-foreground">Notes (optional)</label>
+        <label className="block text-sm font-medium text-foreground">{t("booking.notesOptional")}</label>
         <textarea name="notes" rows={2} className={fieldClass} />
       </div>
     </>
@@ -60,6 +62,7 @@ function CustomerFields({ member }) {
 }
 
 export default function BookingFlow({ services, member }) {
+  const t = useT();
   const router = useRouter();
   const [serviceId, setServiceId] = useState(services[0]?.id ? String(services[0].id) : "");
   const [bookingDate, setBookingDate] = useState(todayStr());
@@ -106,7 +109,7 @@ export default function BookingFlow({ services, member }) {
   if (services.length === 0) {
     return (
       <p className="mt-10 text-center text-muted">
-        No bookable services are available right now. Please check back later.
+        {t("booking.noServices")}
       </p>
     );
   }
@@ -118,23 +121,23 @@ export default function BookingFlow({ services, member }) {
     <>
       {member ? (
         <p className="mt-6 rounded-lg border border-border bg-surface-alt px-4 py-3 text-sm text-foreground">
-          Booking as <span className="font-semibold">{member.name}</span> ({member.email}). This
-          booking will be saved to{" "}
+          {t("booking.asMember")} <span className="font-semibold">{member.name}</span> ({member.email}).{" "}
+          {t("booking.savedTo")}{" "}
           <a href="/member/bookings" className="underline">
-            your account
+            {t("booking.yourAccount")}
           </a>
-          .
+          {t("booking.savedToEnd")}
         </p>
       ) : (
         <p className="mt-6 rounded-lg border border-border bg-surface-alt px-4 py-3 text-sm text-muted">
-          Booking as a guest.{" "}
+          {t("booking.asGuest")}{" "}
           <a
             href="/member/login?redirect=/booking"
             className="font-medium text-accent hover:underline"
           >
-            Log in
+            {t("membership.logIn")}
           </a>{" "}
-          to save this booking to your account, or continue below.
+          {t("booking.guestHint")}
         </p>
       )}
 
@@ -143,7 +146,7 @@ export default function BookingFlow({ services, member }) {
           waitlist" never means nesting one form inside the other. */}
       <div className="mt-8 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-foreground">Service</label>
+          <label className="block text-sm font-medium text-foreground">{t("booking.service")}</label>
           <select
             value={serviceId}
             onChange={(e) => setServiceId(e.target.value)}
@@ -151,7 +154,7 @@ export default function BookingFlow({ services, member }) {
           >
             {services.map((service) => (
               <option key={service.id} value={service.id}>
-                {service.name} · {service.duration_minutes} min
+                {service.name} · {t("booking.minutes", { count: service.duration_minutes })}
                 {service.price ? ` · ${service.price}` : ""}
               </option>
             ))}
@@ -159,7 +162,7 @@ export default function BookingFlow({ services, member }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground">Date</label>
+          <label className="block text-sm font-medium text-foreground">{t("booking.date")}</label>
           <input
             type="date"
             min={todayStr()}
@@ -170,12 +173,12 @@ export default function BookingFlow({ services, member }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-foreground">Available times</label>
+          <label className="block text-sm font-medium text-foreground">{t("booking.availableTimes")}</label>
           {loadingSlots ? (
-            <p className="mt-2 text-sm text-muted">Checking availability...</p>
+            <p className="mt-2 text-sm text-muted">{t("booking.checking")}</p>
           ) : noSlots ? (
             <p className="mt-2 text-sm text-muted">
-              No open times on this date. Try another date, or join the waitlist below.
+              {t("booking.noSlots")}
             </p>
           ) : (
             <div className="mt-2 flex flex-wrap gap-2">
@@ -215,7 +218,11 @@ export default function BookingFlow({ services, member }) {
             disabled={pending || !startTime}
             className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
           >
-            {pending ? "Booking..." : startTime ? `Book ${startTime}` : "Choose a time"}
+            {pending
+              ? t("booking.booking")
+              : startTime
+                ? t("booking.bookTime", { time: startTime })
+                : t("booking.chooseTime")}
           </button>
         </form>
       )}
@@ -223,7 +230,7 @@ export default function BookingFlow({ services, member }) {
       {noSlots &&
         (waitlistState?.success ? (
           <p className="mt-6 rounded-lg border border-border bg-surface-alt px-4 py-3 text-sm text-foreground">
-            You&apos;re on the waitlist for this date — we&apos;ll be in touch if a slot opens up.
+            {t("booking.waitlistJoined")}
           </p>
         ) : (
           <form action={waitlistFormAction} className="mt-6 space-y-4">
@@ -241,7 +248,7 @@ export default function BookingFlow({ services, member }) {
               disabled={waitlistPending}
               className="w-full rounded-full border border-border py-3 text-sm font-semibold text-foreground hover:bg-surface-alt disabled:opacity-50"
             >
-              {waitlistPending ? "Joining..." : "Join the waitlist"}
+              {waitlistPending ? t("booking.joining") : t("booking.joinWaitlist")}
             </button>
           </form>
         ))}

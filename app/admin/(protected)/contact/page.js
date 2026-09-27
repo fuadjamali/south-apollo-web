@@ -49,6 +49,33 @@ export default async function AdminContactPage() {
             />
           </div>
 
+          <fieldset className="space-y-3 rounded-lg border border-border p-4">
+            <legend className="px-1 text-sm font-semibold text-foreground">
+              <span lang="bn">বাংলা</span>{" "}
+              <span className="font-normal text-muted">(optional — blank shows the English text)</span>
+            </legend>
+            <div>
+              <label className="block text-sm font-medium text-foreground">Heading</label>
+              <input
+                type="text"
+                name="headingBn"
+                lang="bn"
+                defaultValue={contact.translations?.bn?.heading || ""}
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground">Subheading</label>
+              <input
+                type="text"
+                name="subheadingBn"
+                lang="bn"
+                defaultValue={contact.translations?.bn?.subheading || ""}
+                className={fieldClass}
+              />
+            </div>
+          </fieldset>
+
           <div>
             <label className="block text-sm font-medium text-foreground">Address</label>
             <textarea

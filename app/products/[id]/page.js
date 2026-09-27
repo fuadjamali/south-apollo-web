@@ -1,11 +1,16 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { getProduct } from "@/lib/products";
 import { getProductPhotos } from "@/lib/productPhotos";
 import AddToCartButton from "@/components/AddToCartButton";
 import ProductGallery from "@/components/ProductGallery";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import { isModuleEnabled } from "@/lib/plan";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { buildPageMetadata } from "@/lib/seo";
+import { getT } from "@/lib/i18n/server";
+import { getSiteHeaderProps } from "@/lib/siteHeader";
 import { buildProductJsonLd } from "@/lib/structuredData";
 
 export const revalidate = 3600;
@@ -24,11 +29,13 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductDetailPage({ params }) {
   const { id } = await params;
-  const [product, cartEnabled, business, photos] = await Promise.all([
+  const { locale, t } = await getT();
+  const [product, cartEnabled, business, photos, headerProps] = await Promise.all([
     getProduct(id),
     isModuleEnabled("cart"),
     getBusinessInfo(),
     getProductPhotos(id),
+    getSiteHeaderProps(locale),
   ]);
 
   if (!product) {
@@ -46,27 +53,24 @@ export default async function ProductDetailPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <a href="/" className="text-sm font-medium hover:text-muted">
-            &larr; Back to {business.name}
-          </a>
-          {product.category && (
-            <span className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted">
-              {product.category}
-            </span>
-          )}
-        </div>
-      </header>
+      <SiteHeader {...headerProps} />
 
       <main className="mx-auto max-w-4xl px-6 py-16">
-        <div className="grid gap-10 sm:grid-cols-2">
+        <Link href="/" className="text-sm font-medium text-accent hover:underline">
+          &larr; {t("products.backTo", { name: business.name })}
+        </Link>
+        <div className="mt-6 grid gap-10 sm:grid-cols-2">
           <div>
             <ProductGallery key={product.id} photos={galleryPhotos} productName={product.name} />
           </div>
 
           <div>
-            <h1 className="text-3xl font-bold">{product.name}</h1>
+            {product.category && (
+              <span className="inline-block rounded-full border border-border px-3 py-1 text-xs font-medium text-muted">
+                {product.category}
+              </span>
+            )}
+            <h1 className={`text-3xl font-bold ${product.category ? "mt-3" : ""}`}>{product.name}</h1>
             {product.price && (
               <p className="mt-3 text-2xl font-bold text-primary">{product.price}</p>
             )}
@@ -81,12 +85,14 @@ export default async function ProductDetailPage({ params }) {
                 href="/#enquiry"
                 className="mt-8 inline-block rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
               >
-                Enquire about this
+                {t("products.enquire")}
               </a>
             )}
           </div>
         </div>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

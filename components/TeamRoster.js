@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { IconUsers, IconHistory, IconMenu2, IconChevronRight } from "@tabler/icons-react";
 import MemberCard from "@/components/MemberCard";
+import { useT } from "@/components/LocaleContext";
 
 // Public /team roster — current/former switcher. Client component fed pre-grouped data from
 // the server (getCurrentTeamsWithMembers() / getFormerTeamsWithMembers(), both already shaped
@@ -12,6 +13,7 @@ import MemberCard from "@/components/MemberCard";
 // switch between, same "don't show UI with nothing to switch to" instinct as Hero's
 // single-slide carousel.
 export default function TeamRoster({ currentTeams, formerTeams }) {
+  const t = useT();
   const hasFormerTeams = formerTeams.length > 0;
   const showCurrentSubList = currentTeams.length > 1;
   const showNav = hasFormerTeams || showCurrentSubList;
@@ -41,7 +43,7 @@ export default function TeamRoster({ currentTeams, formerTeams }) {
             className="mb-3 flex w-full items-center justify-between rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground md:hidden"
           >
             <span className="flex items-center gap-2">
-              <IconMenu2 size={16} /> Jump to a team
+              <IconMenu2 size={16} /> {t("team.jumpTo")}
             </span>
             <IconChevronRight size={16} className={navOpen ? "rotate-90 transition" : "transition"} />
           </button>
@@ -54,19 +56,19 @@ export default function TeamRoster({ currentTeams, formerTeams }) {
                 isActive("current", null) ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-surface-alt"
               }`}
             >
-              <IconUsers size={16} /> Current teams
+              <IconUsers size={16} /> {t("team.current")}
             </button>
             {showCurrentSubList &&
-              currentTeams.map((t) => (
+              currentTeams.map((team) => (
                 <button
-                  key={t.id}
+                  key={team.id}
                   type="button"
-                  onClick={() => selectView({ kind: "current", teamId: t.id })}
+                  onClick={() => selectView({ kind: "current", teamId: team.id })}
                   className={`ml-6 flex w-full items-center rounded-lg px-3 py-1.5 text-left text-sm ${
-                    isActive("current", t.id) ? "bg-primary/10 font-medium text-primary" : "text-muted hover:bg-surface-alt"
+                    isActive("current", team.id) ? "bg-primary/10 font-medium text-primary" : "text-muted hover:bg-surface-alt"
                   }`}
                 >
-                  {t.name}
+                  {team.name}
                 </button>
               ))}
 
@@ -79,18 +81,18 @@ export default function TeamRoster({ currentTeams, formerTeams }) {
                     isActive("former", null) ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-surface-alt"
                   }`}
                 >
-                  <IconHistory size={16} /> Former teams
+                  <IconHistory size={16} /> {t("team.former")}
                 </button>
-                {formerTeams.map((t) => (
+                {formerTeams.map((team) => (
                   <button
-                    key={t.id}
+                    key={team.id}
                     type="button"
-                    onClick={() => selectView({ kind: "former", teamId: t.id })}
+                    onClick={() => selectView({ kind: "former", teamId: team.id })}
                     className={`ml-6 flex w-full items-center rounded-lg px-3 py-1.5 text-left text-sm ${
-                      isActive("former", t.id) ? "bg-primary/10 font-medium text-primary" : "text-muted hover:bg-surface-alt"
+                      isActive("former", team.id) ? "bg-primary/10 font-medium text-primary" : "text-muted hover:bg-surface-alt"
                     }`}
                   >
-                    {t.name}
+                    {team.name}
                   </button>
                 ))}
               </>
@@ -101,7 +103,7 @@ export default function TeamRoster({ currentTeams, formerTeams }) {
 
       <div className="space-y-12">
         {visibleGroups.length === 0 ? (
-          <p className="text-muted">No members in this group.</p>
+          <p className="text-muted">{t("team.emptyGroup")}</p>
         ) : (
           visibleGroups.map((group) => (
             <div key={group.id}>

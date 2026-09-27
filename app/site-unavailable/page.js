@@ -1,7 +1,8 @@
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
-import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { getSiteText } from "@/lib/siteText";
+import { getT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,8 @@ export const dynamic = "force-dynamic";
 export const metadata = { robots: { index: false, follow: false } };
 
 export default async function SiteUnavailablePage() {
-  const siteText = await getSiteText();
+  const { locale, t } = await getT();
+  const siteText = await getSiteText(locale);
   const errorCodeLabel = siteText.unavailable_error_code_label;
   const heading = siteText.unavailable_heading;
   const message = siteText.unavailable_message;
@@ -19,7 +21,7 @@ export default async function SiteUnavailablePage() {
   return (
     <div className="min-h-screen bg-surface-alt">
       <div className="fixed right-6 top-6 flex items-center gap-2">
-        <ColorThemeSwitcher />
+        <LanguageSwitcher />
         <ThemeToggle />
       </div>
 
@@ -37,7 +39,7 @@ export default async function SiteUnavailablePage() {
             href="/"
             className="mt-6 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
           >
-            Back to home
+            {t("common.backToHome")}
           </a>
         </div>
       </main>

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "@/components/LocaleContext";
 
 export default function EnquiryForm() {
+  const t = useT();
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
 
   async function handleSubmit(e) {
@@ -36,14 +38,14 @@ export default function EnquiryForm() {
   if (status === "success") {
     return (
       <div className="mt-10 rounded-lg border border-border bg-surface p-6 text-center">
-        <p className="font-semibold text-foreground">Thanks — your enquiry has been sent.</p>
-        <p className="mt-1 text-sm text-muted">We&apos;ll get back to you soon.</p>
+        <p className="font-semibold text-foreground">{t("enquiry.sentTitle")}</p>
+        <p className="mt-1 text-sm text-muted">{t("enquiry.sentBody")}</p>
         <button
           type="button"
           onClick={() => setStatus("idle")}
           className="mt-4 text-sm font-medium text-accent underline"
         >
-          Send another
+          {t("enquiry.sendAnother")}
         </button>
       </div>
     );
@@ -53,28 +55,28 @@ export default function EnquiryForm() {
     <form onSubmit={handleSubmit} className="mt-10 space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-foreground">Name</label>
+          <label className="block text-sm font-medium text-foreground">{t("enquiry.name")}</label>
           <input
             type="text"
             name="name"
             required
-            placeholder="Your name"
+            placeholder={t("enquiry.namePlaceholder")}
             className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground">Phone</label>
+          <label className="block text-sm font-medium text-foreground">{t("enquiry.phone")}</label>
           <input
             type="tel"
             name="phone"
-            placeholder="Optional"
+            placeholder={t("common.optional")}
             className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-foreground">Email</label>
+        <label className="block text-sm font-medium text-foreground">{t("enquiry.email")}</label>
         <input
           type="email"
           name="email"
@@ -85,19 +87,19 @@ export default function EnquiryForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-foreground">Message</label>
+        <label className="block text-sm font-medium text-foreground">{t("enquiry.message")}</label>
         <textarea
           name="message"
           rows={4}
           required
-          placeholder="Tell us what you're looking for"
+          placeholder={t("enquiry.messagePlaceholder")}
           className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
         />
       </div>
 
       {status === "error" && (
         <p className="text-sm text-red-600 dark:text-red-400">
-          Something went wrong — please try again.
+          {t("common.genericError")}
         </p>
       )}
 
@@ -106,7 +108,7 @@ export default function EnquiryForm() {
         disabled={status === "loading"}
         className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
       >
-        {status === "loading" ? "Sending..." : "Send enquiry"}
+        {status === "loading" ? t("enquiry.sending") : t("enquiry.submit")}
       </button>
     </form>
   );
