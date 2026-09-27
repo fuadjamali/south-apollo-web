@@ -22,17 +22,20 @@ export default function SiteHeader({
   const navItems = nav || [];
   const { light: logoUrl, dark: logoDarkUrl } = useLogoUrls();
   const hasUploadedLogo = Boolean(logoUrl || logoDarkUrl);
+  // Below lg the desktop link row is hidden behind the hamburger; the nav's CTA item (e.g. "Book
+  // Now") is surfaced next to it so the primary action stays one tap away on phones.
+  const ctaItem = navItems.find((item) => item.cta && item.href);
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-4 sm:gap-6 sm:px-6">
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap text-xl font-bold"
         >
           <Logo
-            className="h-16 w-auto text-foreground sm:h-[96px]"
+            className="h-16 w-auto text-foreground max-[359px]:h-12 sm:h-[96px]"
             variant="theme"
             alt={businessName}
           />
@@ -67,7 +70,7 @@ export default function SiteHeader({
           )}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {cartEnabled && <CartIcon />}
           {themesEnabled && <ColorThemeSwitcher className="hidden sm:inline-block" />}
           <ThemeToggle className="hidden sm:inline-block" />
@@ -86,6 +89,14 @@ export default function SiteHeader({
               className="hidden whitespace-nowrap rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-hover lg:inline-block"
             >
               Get in touch
+            </a>
+          )}
+          {ctaItem && (
+            <a
+              href={ctaItem.href}
+              className="whitespace-nowrap rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary-hover sm:px-4 sm:text-sm lg:hidden"
+            >
+              {ctaItem.label}
             </a>
           )}
           <button
