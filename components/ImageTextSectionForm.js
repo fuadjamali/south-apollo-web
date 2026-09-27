@@ -70,6 +70,24 @@ export default function ImageTextSectionForm({
         )}
       </div>
 
+      <div>
+        <label className={labelClass}>
+          <span lang="bn">বাংলা</span> body{" "}
+          <span className="font-normal text-muted">(optional — blank shows the English body)</span>
+        </label>
+        <textarea
+          name="bodyBn"
+          rows={6}
+          lang="bn"
+          defaultValue={data.translations?.bn?.body || ""}
+          className={fieldClass}
+        />
+        <p className="mt-1 text-xs text-muted">
+          Write it in the same shape as the English body (paragraphs, and any timeline or list lines)
+          so it lays out the same way.
+        </p>
+      </div>
+
       <ImageFileInput
         name="imageFile"
         label="Image (optional)"

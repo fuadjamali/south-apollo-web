@@ -22,6 +22,7 @@ export default function HeroSlideForm({ slide, action, submitLabel = "Save" }) {
   // anti-collision measure), so there's nothing meaningfully different to preview for mobile.
   const previewSrc = mediaType === "video" ? slide?.background_video : slide?.background_image;
   const previewIsVideo = mediaType === "video";
+  const bn = slide?.translations?.bn || {};
 
   return (
     <form action={action} className="mt-6 space-y-4">
@@ -40,11 +41,39 @@ export default function HeroSlideForm({ slide, action, submitLabel = "Save" }) {
       </div>
 
       <div>
+        <label className={labelClass}>
+          Heading <span className="font-normal text-muted" lang="bn">(বাংলা, optional)</span>
+        </label>
+        <textarea
+          name="headingBn"
+          rows={2}
+          lang="bn"
+          defaultValue={bn.heading || ""}
+          placeholder="Blank shows the English heading on the Bangla site"
+          className={fieldClass}
+        />
+        <p className="mt-1 text-xs text-muted">Two statements separated by &quot;। &quot; also split into two lines.</p>
+      </div>
+
+      <div>
         <label className={labelClass}>Subheading</label>
         <textarea
           name="subheading"
           rows={2}
           defaultValue={slide?.subheading || ""}
+          className={fieldClass}
+        />
+      </div>
+
+      <div>
+        <label className={labelClass}>
+          Subheading <span className="font-normal text-muted" lang="bn">(বাংলা, optional)</span>
+        </label>
+        <textarea
+          name="subheadingBn"
+          rows={2}
+          lang="bn"
+          defaultValue={bn.subheading || ""}
           className={fieldClass}
         />
       </div>
@@ -230,6 +259,15 @@ export default function HeroSlideForm({ slide, action, submitLabel = "Save" }) {
                 defaultValue={slide?.primary_cta_label || ""}
                 className={fieldClass}
               />
+              <input
+                type="text"
+                name="primaryCtaLabelBn"
+                lang="bn"
+                aria-label="Primary button label (বাংলা)"
+                defaultValue={bn.primary_cta_label || ""}
+                placeholder="বাংলা label"
+                className={`${fieldClass} mt-2`}
+              />
             </div>
             <div>
               <label className={labelClass}>Primary button link</label>
@@ -248,6 +286,15 @@ export default function HeroSlideForm({ slide, action, submitLabel = "Save" }) {
                 name="secondaryCtaLabel"
                 defaultValue={slide?.secondary_cta_label || ""}
                 className={fieldClass}
+              />
+              <input
+                type="text"
+                name="secondaryCtaLabelBn"
+                lang="bn"
+                aria-label="Secondary button label (বাংলা)"
+                defaultValue={bn.secondary_cta_label || ""}
+                placeholder="বাংলা label"
+                className={`${fieldClass} mt-2`}
               />
             </div>
             <div>

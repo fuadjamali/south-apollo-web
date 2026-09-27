@@ -20,6 +20,14 @@ const AUTOPLAY_MS = 7000;
 // object-contain/object-bottom fallback below `sm:` — that's a fixed, deliberate anti-collision
 // measure (a long heading previously overlapped a cropped-arbitrarily photo on phones), not a
 // framing choice, so it stays untouched by the focal-position control.
+// "First statement. Second statement." renders as two lines — at the first ". " in English or
+// "। " (the Bangla full stop) — keeping the stop on the first line.
+function splitHeading(heading) {
+  const match = /[.।] /.exec(heading || "");
+  if (!match) return [heading];
+  return [heading.slice(0, match.index + 1), heading.slice(match.index + 2)];
+}
+
 function SlideMedia({ slide, active, reducedMotion }) {
   const videoRef = useRef(null);
   const focalStyle = { objectPosition: `center ${slide.focal_position ?? 50}%` };
@@ -214,15 +222,12 @@ export default function HeroCarousel({ slides, sectionMaxW, heightPx }) {
         <h1
           className={`text-4xl font-extrabold tracking-tight sm:text-6xl ${heroStyle.heading} ${textAnimClass}`}
         >
-          {slide.heading.includes(". ") ? (
-            <>
-              {slide.heading.slice(0, slide.heading.indexOf(". ") + 1)}
-              <br />
-              {slide.heading.slice(slide.heading.indexOf(". ") + 2)}
-            </>
-          ) : (
-            slide.heading
-          )}
+          {splitHeading(slide.heading).map((line, i) => (
+            <span key={i}>
+              {i > 0 && <br />}
+              {line}
+            </span>
+          ))}
         </h1>
         <div className={textAnimClass}>
           <p className={`mx-auto mt-6 max-w-2xl text-lg ${heroStyle.subheading}`}>{slide.subheading}</p>

@@ -92,7 +92,7 @@ export default async function Home({ searchParams }) {
     getContactInfo(locale),
     getSocialSettings(),
     getBusinessInfo(),
-    getActiveHeroSlides(),
+    getActiveHeroSlides(locale),
     getHeroSettings(),
     getSectionHeadings(locale),
     getNavTree(locale),

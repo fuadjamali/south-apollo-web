@@ -29,6 +29,7 @@ export async function updateVisionMissionInfoAction(prevState, formData) {
     heading,
     headingBn: formData.get("headingBn")?.toString().trim(),
     body: formData.get("body")?.toString().trim(),
+    bodyBn: formData.get("bodyBn")?.toString().trim(),
     image,
     imagePosition: formData.get("imagePosition")?.toString(),
     overlayStrength: formData.get("overlayStrength")?.toString(),

@@ -33,14 +33,23 @@ function splitBlocks(body) {
 // "Our Mission ... Our Vision ..." (or reversed — real content on this site has Vision first) —
 // exactly two blocks, one starting "Our vision", the other "Our mission", case-insensitive.
 // Anything else (wrong block count, missing either prefix) falls through to the next parser.
+// The Bangla body (translations.bn.body) gets the same treatment: "আমাদের ভিশন" / "আমাদের মিশন"
+// (or রূপকল্প / লক্ষ্য), with the Bangla words as the card labels.
+const VISION_PREFIX = /^(our vision\b|আমাদের (ভিশন|রূপকল্প))/i;
+const MISSION_PREFIX = /^(our mission\b|আমাদের (মিশন|লক্ষ্য))/i;
+
 function splitMissionVision(body) {
   const blocks = splitBlocks(body);
   if (blocks.length !== 2) return null;
-  const visionIndex = blocks.findIndex((b) => /^our vision\b/i.test(b));
-  const missionIndex = blocks.findIndex((b) => /^our mission\b/i.test(b));
+  const visionIndex = blocks.findIndex((b) => VISION_PREFIX.test(b));
+  const missionIndex = blocks.findIndex((b) => MISSION_PREFIX.test(b));
   if (visionIndex === -1 || missionIndex === -1) return null;
+  const label = (text, prefixRe, english) => {
+    const matched = text.match(prefixRe)[1];
+    return /^our /i.test(matched) ? english : matched;
+  };
   return blocks.map((text, i) => ({
-    label: i === visionIndex ? "Our Vision" : "Our Mission",
+    label: i === visionIndex ? label(text, VISION_PREFIX, "Our Vision") : label(text, MISSION_PREFIX, "Our Mission"),
     text,
   }));
 }
