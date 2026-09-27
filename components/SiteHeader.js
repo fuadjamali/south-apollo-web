@@ -28,7 +28,7 @@ export default function SiteHeader({
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap text-xl font-bold"
         >
-          <Logo className="h-7 w-7 text-foreground" variant="theme" />
+          <Logo className="h-[58px] w-auto text-foreground" variant="theme" />
           {businessName}
         </button>
 
