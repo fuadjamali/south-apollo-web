@@ -373,14 +373,16 @@ async function ensureNavLink(client) {
   );
   if (cta.rowCount) console.log("Nav: header button changed to Find Doctor → /doctors");
 
-  // Same for the "Find the Right Doctor…" hero slide's button, while it still points at the
-  // generic booking page.
+  // Same for the find-a-doctor hero slide's button (recognised by its heading or its
+  // illustration, since the client retitles slides), while it has no link of its own or still
+  // points at the generic booking page.
   const hasHero = await client.query("SELECT to_regclass('hero_slides') AS t");
   if (hasHero.rows[0].t) {
     const hero = await client.query(
       `UPDATE hero_slides SET primary_cta_label = 'Find Doctor', primary_cta_href = '/doctors', updated_at = now()
-       WHERE heading ILIKE 'Find the Right Doctor%' AND primary_cta_label = 'Book Appointment'
-         AND primary_cta_href IN ('/booking', '/doctors')`
+       WHERE (heading ILIKE 'Find the Right Doctor%' OR heading ILIKE 'Find Your Perfect Doctor%'
+              OR background_image ILIKE '%find-doctor%')
+         AND COALESCE(primary_cta_href, '') IN ('', '/booking', '/doctors')`
     );
     if (hero.rowCount) console.log("Hero: Find the Right Doctor slide button → Find Doctor, /doctors");
   }
