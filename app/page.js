@@ -50,6 +50,10 @@ import { buildPageMetadata } from "@/lib/seo";
 import { buildSiteNav } from "@/lib/siteHeader";
 import { getT } from "@/lib/i18n/server";
 import { formatDate } from "@/lib/i18n/translate";
+import { getActiveDoctors, getSpecialties } from "@/lib/doctors";
+import { getActivePackages } from "@/lib/healthPackages";
+import HomeDoctorsSection from "@/components/HomeDoctorsSection";
+import HomeHealthPackagesSection from "@/components/HomeHealthPackagesSection";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -113,6 +117,8 @@ export default async function Home({ searchParams }) {
     map,
     products,
     partners,
+    doctors: doctorsHeading,
+    healthPackages: healthPackagesHeading,
   } = sectionHeadings;
 
   const cartEnabled = isEnabled("cart", moduleStates);
@@ -175,6 +181,9 @@ export default async function Home({ searchParams }) {
     recentPhotos,
     portfolioItems,
     certificationItems,
+    homeDoctors,
+    doctorSpecialties,
+    healthPackageItems,
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
@@ -195,6 +204,9 @@ export default async function Home({ searchParams }) {
     isEnabled("gallery", moduleStates) ? getRecentPhotos(6) : Promise.resolve([]),
     isEnabled("portfolio", moduleStates) ? getPortfolioItems() : Promise.resolve([]),
     isEnabled("certifications", moduleStates) ? getCertifications() : Promise.resolve([]),
+    isEnabled("doctors", moduleStates) ? getActiveDoctors() : Promise.resolve([]),
+    isEnabled("doctors", moduleStates) ? getSpecialties() : Promise.resolve([]),
+    isEnabled("healthPackages", moduleStates) ? getActivePackages() : Promise.resolve([]),
   ]);
 
   const footerWhatsappHref = getWhatsappHref(
@@ -424,6 +436,33 @@ export default async function Home({ searchParams }) {
             ))}
           </div>
         </section>
+      )}
+
+      {/* COMPONENT: doctors (optional — a teaser for the Find a Doctor page: search box, common
+          problems and a few doctors; the directory itself lives at /doctors) */}
+      {isEnabled("doctors", moduleStates) && homeDoctors.length > 0 && (
+        <HomeDoctorsSection
+          heading={doctorsHeading?.heading}
+          subheading={doctorsHeading?.subheading}
+          doctors={homeDoctors}
+          departmentCount={doctorSpecialties.filter((s) => s.doctor_count > 0).length}
+          locale={locale}
+          t={t}
+          sectionMaxW={sectionMaxW}
+          style={{ order: sectionOrder.doctors }}
+        />
+      )}
+
+      {/* COMPONENT: health-packages (optional — package cards linking to /health-checkup) */}
+      {isEnabled("healthPackages", moduleStates) && healthPackageItems.length > 0 && (
+        <HomeHealthPackagesSection
+          heading={healthPackagesHeading?.heading}
+          subheading={healthPackagesHeading?.subheading}
+          packages={healthPackageItems}
+          t={t}
+          sectionMaxW={sectionMaxW}
+          style={{ order: sectionOrder.healthPackages }}
+        />
       )}
 
       {/* COMPONENT: trusted-by (optional — live from Postgres, editable at /admin/partners;
@@ -940,6 +979,12 @@ export default async function Home({ searchParams }) {
           data={aboutInfo}
           sectionStyle={{ order: sectionOrder.about }}
           maxW={sectionMaxW}
+          eyebrow={t("home.aboutEyebrow")}
+          badge={
+            homeDoctors.length > 0
+              ? t("home.aboutBadge", { doctors: homeDoctors.length })
+              : t("home.visionBadge")
+          }
         />
       )}
 
@@ -953,6 +998,9 @@ export default async function Home({ searchParams }) {
           data={visionMissionInfo}
           sectionStyle={{ order: sectionOrder.visionMission }}
           maxW={sectionMaxW}
+          eyebrow={t("home.visionEyebrow")}
+          badge={t("home.visionBadge")}
+          tinted
         />
       )}
 
@@ -965,6 +1013,7 @@ export default async function Home({ searchParams }) {
       {isEnabled("history", moduleStates) && historyInfo?.body && (
         <ImageTextSection
           id="history"
+          eyebrow={t("home.historyEyebrow")}
           data={historyInfo}
           sectionStyle={{ order: sectionOrder.history }}
           maxW={sectionMaxW}

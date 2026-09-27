@@ -45,6 +45,7 @@ function validatePackage(data) {
 function refresh() {
   revalidatePath("/health-checkup");
   revalidatePath("/admin/health-packages");
+  revalidatePath("/"); // the home page's packages preview
 }
 
 export async function createPackageAction(prevState, formData) {

@@ -52,6 +52,7 @@ function validateDoctor(data) {
 function refresh() {
   revalidatePath("/doctors");
   revalidatePath("/admin/doctors");
+  revalidatePath("/"); // the home page's Find a Doctor preview
 }
 
 export async function createDoctorAction(prevState, formData) {

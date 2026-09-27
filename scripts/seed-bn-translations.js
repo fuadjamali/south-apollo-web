@@ -38,6 +38,12 @@ const NAV = {
 // English heading/subheading text → Bangla. Keyed by text, not section, so a heading an admin
 // has already rewritten in English is left alone until they add its Bangla themselves.
 const SECTION_TEXT = {
+  "Find the right doctor": "সঠিক ডাক্তার খুঁজুন",
+  "Search our specialists by name, disease or symptom — in English or Bangla — and book your serial.":
+    "নাম, রোগ বা উপসর্গ লিখে আমাদের বিশেষজ্ঞ ডাক্তার খুঁজুন — বাংলা বা ইংরেজিতে — এবং সিরিয়াল নিন।",
+  "Health Check-up Packages": "হেলথ চেকআপ প্যাকেজ",
+  "Comprehensive screenings at discounted prices. Early detection is the cornerstone of a healthy life.":
+    "সাশ্রয়ী মূল্যে পূর্ণাঙ্গ স্বাস্থ্য পরীক্ষা। সময়মতো রোগনির্ণয়ই সুস্থ জীবনের মূল ভিত্তি।",
   "From the blog": "ব্লগ থেকে",
   "News, updates, and stories from the team.": "আমাদের টিমের সংবাদ, আপডেট ও গল্প।",
   Certifications: "সনদ ও স্বীকৃতি",

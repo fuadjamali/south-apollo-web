@@ -5,6 +5,16 @@ import {
   IconHeart,
   IconShieldCheck,
   IconTarget,
+  IconHeartbeat,
+  IconDroplet,
+  IconRibbonHealth,
+  IconAmbulance,
+  IconMicroscope,
+  IconDeviceLaptop,
+  IconBriefcase,
+  IconHeartHandshake,
+  IconStethoscope,
+  IconQuote,
 } from "@tabler/icons-react";
 import { OVERLAY_OPACITY_CLASSES, TEXT_STYLE_CLASSES } from "@/lib/overlaySettings";
 
@@ -117,7 +127,143 @@ function resolveContent(body) {
   if (timeline) return { kind: "timeline", data: timeline };
   const featureList = parseFeatureList(body);
   if (featureList) return { kind: "featureList", data: featureList };
-  return { kind: "plain", data: body };
+  return { kind: "structured", data: parseStructured(body) };
+}
+
+// Everything that isn't one of the shapes above: ordinary prose, read for the light structure
+// admins write without thinking of it as markup — the same in English and Bangla:
+//   a short first line of a block with more lines under it ("Apollo Vision 2050") -> sub-title
+//   "Area — what it covers" lines                                                -> icon cards
+//   a line wrapped in quotes (“…”)                                              -> feature quote
+//   anything else                                                                -> paragraph
+// The first paragraph becomes a larger lead when there's more than one.
+const DASH_ITEM = /^(.{2,70}?)\s+[—–]\s+(.+)$/;
+const QUOTE_LINE = /^[“"](.+)[”"]$/;
+const ENDS_LIKE_SENTENCE = /[.!?।:;,]$/;
+
+function parseStructured(body) {
+  const nodes = [];
+  const push = (node) => {
+    const last = nodes[nodes.length - 1];
+    if (node.type === "features" && last?.type === "features") last.items.push(...node.items);
+    else nodes.push(node);
+  };
+  for (const block of splitBlocks(body)) {
+    const lines = block.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    let paragraph = [];
+    const flush = () => {
+      if (paragraph.length) push({ type: "para", text: paragraph.join("\n") });
+      paragraph = [];
+    };
+    lines.forEach((line, i) => {
+      const dash = line.match(DASH_ITEM);
+      const quote = line.match(QUOTE_LINE);
+      if (quote) {
+        flush();
+        push({ type: "quote", text: quote[1].trim() });
+      } else if (dash) {
+        flush();
+        push({ type: "features", items: [{ label: dash[1].trim(), text: dash[2].trim() }] });
+      } else if (i === 0 && lines.length > 1 && line.length <= 70 && !ENDS_LIKE_SENTENCE.test(line)) {
+        push({ type: "title", text: line });
+      } else {
+        paragraph.push(line);
+      }
+    });
+    flush();
+  }
+  const paragraphs = nodes.filter((n) => n.type === "para");
+  if (paragraphs.length > 1 && nodes[0]?.type === "para") nodes[0] = { ...nodes[0], type: "lead" };
+  return nodes;
+}
+
+// A medical icon per feature card, picked from its label (English or Bangla) — the list of
+// future-plan areas is free text, so this matches on the words rather than a fixed position.
+const MEDICAL_ICONS = [
+  [/cardi|heart|হৃদ|কার্ডি|হার্ট/i, IconHeartbeat],
+  [/kidney|dialysis|কিডনি|ডায়ালাইসিস/i, IconDroplet],
+  [/cancer|onco|ক্যান্সার/i, IconRibbonHealth],
+  [/emergency|trauma|ইমার্জেন্সি|জরুরি|ট্রমা/i, IconAmbulance],
+  [/diagnos|lab|রোগনির্ণয়|ডায়াগনস্টিক|ল্যাব/i, IconMicroscope],
+  [/digital|online|ডিজিটাল|অনলাইন/i, IconDeviceLaptop],
+  [/corporate|কর্পোরেট/i, IconBriefcase],
+  [/integrated|care|সমন্বিত|সেবা/i, IconHeartHandshake],
+];
+const featureIcon = (label) => (MEDICAL_ICONS.find(([re]) => re.test(label)) || [null, IconStethoscope])[1];
+
+function StructuredBody({ nodes, onImage = false, wide = true }) {
+  const muted = onImage ? "text-white/85" : "text-muted";
+  return (
+    <div className="text-left">
+      {nodes.map((node, i) => {
+        if (node.type === "lead") {
+          return (
+            <p key={i} className={`mt-5 max-w-4xl whitespace-pre-line text-lg leading-relaxed ${onImage ? "text-white" : "text-foreground/85"}`}>
+              {node.text}
+            </p>
+          );
+        }
+        if (node.type === "para") {
+          return (
+            <p key={i} className={`mt-4 max-w-4xl whitespace-pre-line leading-relaxed ${muted}`}>
+              {node.text}
+            </p>
+          );
+        }
+        if (node.type === "title") {
+          return (
+            <h3 key={i} className={`mt-12 flex items-center gap-3 text-xl font-bold sm:text-2xl ${onImage ? "text-white" : ""}`}>
+              <span className="h-7 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+              {node.text}
+            </h3>
+          );
+        }
+        if (node.type === "quote") {
+          return (
+            <blockquote
+              key={i}
+              className="relative mx-auto mt-10 max-w-4xl overflow-hidden rounded-3xl bg-primary px-8 py-10 text-center text-lg font-medium leading-relaxed text-primary-foreground shadow-lg sm:px-14 sm:text-xl"
+            >
+              <IconQuote size={64} className="absolute -left-2 -top-2 opacity-15" aria-hidden="true" />
+              {node.text}
+            </blockquote>
+          );
+        }
+        // features
+        return (
+          <div key={i} className={`mt-6 grid gap-4 ${wide ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2"}`}>
+            {node.items.map((item) => {
+              const Icon = featureIcon(item.label);
+              return (
+                <div
+                  key={item.label}
+                  className={
+                    onImage
+                      ? "rounded-2xl border border-white/25 bg-white/15 p-5 backdrop-blur-md"
+                      : "rounded-2xl border border-border bg-surface p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  }
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Icon size={24} stroke={1.75} aria-hidden="true" />
+                  </div>
+                  <h4 className={`mt-4 font-semibold leading-snug ${onImage ? "text-white" : ""}`}>{item.label}</h4>
+                  <p className={`mt-1 text-sm leading-relaxed ${muted}`}>{item.text}</p>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Splits structured content for the image layout: the opening prose sits beside the image, and
+// everything from the first sub-title, card grid or quote onward runs full width underneath,
+// where cards and a long read have room. Bodies with no such break keep it all beside the image.
+function splitIntro(nodes) {
+  const cut = nodes.findIndex((n, i) => i > 0 && n.type !== "para");
+  return cut === -1 ? [nodes, []] : [nodes.slice(0, cut), nodes.slice(cut)];
 }
 
 // `onImage` swaps the normal theme-tinted card surface for a translucent white-on-blur
@@ -232,12 +378,8 @@ function FeatureList({ before, after, features, onImage, compact }) {
 }
 
 function renderContent(content, { onImage = false, compact = false } = {}) {
-  if (content.kind === "plain") {
-    return (
-      <p className={`mt-4 whitespace-pre-line ${onImage ? "text-white/85" : "text-muted"}`}>
-        {content.data}
-      </p>
-    );
+  if (content.kind === "structured") {
+    return <StructuredBody nodes={content.data} onImage={onImage} wide={!compact} />;
   }
   return (
     <div className="mt-8">
@@ -252,33 +394,50 @@ function renderContent(content, { onImage = false, compact = false } = {}) {
   );
 }
 
-// Three layouts depending on data.image_position: no image is the original centered
-// text-only treatment; "left"/"right" is an in-flow image+text grid (image always first/on top
-// below md:, so there's no collision risk to design around regardless of body length); "behind"
-// reuses the hero section's exact full-bleed-background pattern — object-contain/object-bottom
-// below sm:, object-cover/center from sm: up, plus the overlay/text-style scrim — since it
-// carries the identical risk hero's own single-image fallback was built to avoid (a long body
-// pushing text into an image cropped by an arbitrary uploaded aspect ratio). A first version of
-// the hero mobile image used object-cover for this and it visibly overlapped real content once
-// the heading grew — object-contain avoids that regardless of section height. The image itself
-// renders at a fixed 45% opacity on top of the overlay scrim — full-strength behind a long
-// timeline or card grid reads as visual noise, not a backdrop.
-// `sectionStyle` is a passthrough for app/page.js's Home Page Layout `order` value (see that
-// file's sectionOrder comment) — applied to whichever root <section> below actually renders,
-// same as every other reorderable section on the page. `maxW` is the same file's Fill-toggle
-// width class (see its sectionMaxW comment) — only used by the image+text grid layout below; the
-// text-only layouts (no image, and the "behind" full-bleed one) keep their own max-w regardless
-// of Fill, widened from the plain-paragraph max-w-4xl once a parser matches and the content needs
-// more room than a single paragraph column (max-w-5xl for cards/feature-list, max-w-3xl for the
-// narrower vertical timeline).
-export default function ImageTextSection({ id, data, sectionStyle, maxW = "max-w-6xl" }) {
+// Small label + heading + accent rule, shared by every layout below.
+function SectionHeading({ heading, eyebrow, onImage = false, center = false }) {
+  return (
+    <div className={center ? "text-center" : ""}>
+      {eyebrow && (
+        <p
+          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+            onImage ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+          }`}
+        >
+          <IconHeartbeat size={16} aria-hidden="true" />
+          {eyebrow}
+        </p>
+      )}
+      <h2 className={`mt-3 text-3xl font-bold tracking-tight sm:text-4xl ${onImage ? "" : "text-foreground"}`}>
+        {heading}
+      </h2>
+      <span className={`mt-4 block h-1 w-16 rounded-full bg-accent ${center ? "mx-auto" : ""}`} aria-hidden="true" />
+    </div>
+  );
+}
+
+// Three layouts depending on data.image_position: no image is a centered heading over the
+// content; "left"/"right" is an image+text grid — the opening prose beside the photo, and any
+// sub-titled sections, card grid or quote running full width underneath (see splitIntro);
+// "behind" reuses the hero section's full-bleed-background pattern — object-contain/object-bottom
+// below sm:, object-cover/center from sm: up, plus the overlay/text-style scrim, with the image
+// at a fixed 45% opacity so a long body doesn't read as visual noise over it.
+// `eyebrow` is the small label above the heading and `badge` the floating card on the photo (both
+// optional, passed by app/page.js); `tinted` gives the section a soft surface band so two of
+// these in a row read as separate sections. `sectionStyle` carries the Home Page Layout `order`
+// value; `maxW` is the Fill-toggle width class used by the image+text grid.
+export default function ImageTextSection({
+  id,
+  data,
+  sectionStyle,
+  maxW = "max-w-6xl",
+  eyebrow,
+  badge,
+  tinted = false,
+}) {
   const content = resolveContent(data.body);
-  const textMaxW =
-    content.kind === "plain"
-      ? "max-w-4xl"
-      : content.kind === "timeline"
-        ? "max-w-3xl"
-        : "max-w-5xl";
+  const textMaxW = content.kind === "timeline" ? "max-w-3xl" : "max-w-5xl";
+  const band = tinted ? "bg-gradient-to-b from-surface-alt to-background" : "";
 
   if (data.image && data.image_position === "behind") {
     const overlayClass = OVERLAY_OPACITY_CLASSES[data.overlay_strength] || OVERLAY_OPACITY_CLASSES.medium;
@@ -294,8 +453,8 @@ export default function ImageTextSection({ id, data, sectionStyle, maxW = "max-w
           />
           <div className={`absolute inset-0 ${overlayClass}`} />
         </div>
-        <div className={`relative mx-auto ${textMaxW} px-6 py-20 text-center`}>
-          <h2 className={`text-3xl font-bold ${textStyle.heading}`}>{data.heading}</h2>
+        <div className={`relative mx-auto ${textMaxW} px-6 py-20 ${textStyle.heading}`}>
+          <SectionHeading heading={data.heading} eyebrow={eyebrow} onImage center />
           {renderContent(content, { onImage: true })}
         </div>
       </section>
@@ -303,26 +462,54 @@ export default function ImageTextSection({ id, data, sectionStyle, maxW = "max-w
   }
 
   if (data.image) {
+    const imageRight = data.image_position === "right";
+    const [intro, rest] = content.kind === "structured" ? splitIntro(content.data) : [null, null];
     return (
-      <section id={id} className={`mx-auto ${maxW} px-6 py-20`} style={sectionStyle}>
-        <div className="grid items-center gap-10 md:grid-cols-2">
-          <div className={data.image_position === "right" ? "md:order-2" : ""}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={data.image} alt="" className="w-full rounded-2xl object-cover" />
+      <section id={id} className={band} style={sectionStyle}>
+        <div className={`mx-auto ${maxW} px-6 py-20`}>
+          <div className="grid items-center gap-12 md:grid-cols-2 lg:gap-16">
+            <div className={`relative ${imageRight ? "md:order-2" : ""}`}>
+              {/* Offset tinted frame behind the photo — a soft clinical accent, not a border. */}
+              <div
+                className={`absolute -bottom-4 h-full w-full rounded-3xl bg-primary/10 ${imageRight ? "-left-4" : "-right-4"}`}
+                aria-hidden="true"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={data.image} alt={data.heading} className="relative w-full rounded-3xl object-cover shadow-xl" />
+              {badge && (
+                <div
+                  className={`absolute -bottom-6 flex items-center gap-3 rounded-2xl bg-surface px-5 py-3 shadow-lg ring-1 ring-border ${
+                    imageRight ? "right-6" : "left-6"
+                  }`}
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                    <IconStethoscope size={22} aria-hidden="true" />
+                  </span>
+                  <span className="text-sm font-semibold leading-tight">{badge}</span>
+                </div>
+              )}
+            </div>
+            <div className={imageRight ? "md:order-1" : ""}>
+              <SectionHeading heading={data.heading} eyebrow={eyebrow} />
+              {intro ? <StructuredBody nodes={intro} wide={false} /> : renderContent(content, { compact: true })}
+            </div>
           </div>
-          <div className={data.image_position === "right" ? "md:order-1" : ""}>
-            <h2 className="text-3xl font-bold">{data.heading}</h2>
-            {renderContent(content, { compact: true })}
-          </div>
+          {rest && rest.length > 0 && (
+            <div className="mt-8">
+              <StructuredBody nodes={rest} />
+            </div>
+          )}
         </div>
       </section>
     );
   }
 
   return (
-    <section id={id} className={`mx-auto ${textMaxW} px-6 py-20 text-center`} style={sectionStyle}>
-      <h2 className="text-3xl font-bold">{data.heading}</h2>
-      {renderContent(content)}
+    <section id={id} className={band} style={sectionStyle}>
+      <div className={`mx-auto ${textMaxW} px-6 py-20`}>
+        <SectionHeading heading={data.heading} eyebrow={eyebrow} center />
+        {renderContent(content)}
+      </div>
     </section>
   );
 }
