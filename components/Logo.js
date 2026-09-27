@@ -23,14 +23,14 @@ function DefaultMark({ className }) {
 // hydration flash. Falls back to variant "auto" behavior if no dark logo has been uploaded.
 // variant "dark": always the dark-background logo (footer, whose background is dark regardless
 // of site theme — bg-gray-900/black either way), falling back to the light logo if none is set.
-export default function Logo({ className = "h-7 w-7", variant = "auto" }) {
+export default function Logo({ className = "h-7 w-7", variant = "auto", alt = "" }) {
   const { light: logoUrl, dark: logoDarkUrl } = useLogoUrls();
 
   if (variant === "dark") {
     const src = logoDarkUrl || logoUrl;
     return src ? (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={src} alt="" className={`${className} object-contain`} />
+      <img src={src} alt={alt} className={`${className} object-contain`} />
     ) : (
       <DefaultMark className={className} />
     );
@@ -41,14 +41,14 @@ export default function Logo({ className = "h-7 w-7", variant = "auto" }) {
       <>
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoUrl} alt="" className={`${className} object-contain dark:hidden`} />
+          <img src={logoUrl} alt={alt} className={`${className} object-contain dark:hidden`} />
         ) : (
           <DefaultMark className={`${className} dark:hidden`} />
         )}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={logoDarkUrl}
-          alt=""
+          alt={alt}
           className={`${className} hidden object-contain dark:block`}
         />
       </>
@@ -57,7 +57,7 @@ export default function Logo({ className = "h-7 w-7", variant = "auto" }) {
 
   if (logoUrl) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={logoUrl} alt="" className={`${className} object-contain`} />;
+    return <img src={logoUrl} alt={alt} className={`${className} object-contain`} />;
   }
 
   return <DefaultMark className={className} />;

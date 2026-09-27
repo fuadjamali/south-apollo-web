@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { IconChevronDown, IconMenu2, IconUserCircle } from "@tabler/icons-react";
 import Logo from "@/components/Logo";
+import { useLogoUrls } from "@/components/LogoContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import ColorThemeSwitcher from "@/components/ColorThemeSwitcher";
 import CartIcon from "@/components/CartIcon";
@@ -19,6 +20,8 @@ export default function SiteHeader({
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileGroupOpen, setMobileGroupOpen] = useState(null);
   const navItems = nav || [];
+  const { light: logoUrl, dark: logoDarkUrl } = useLogoUrls();
+  const hasUploadedLogo = Boolean(logoUrl || logoDarkUrl);
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
@@ -28,8 +31,12 @@ export default function SiteHeader({
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap text-xl font-bold"
         >
-          <Logo className="h-[58px] w-auto text-foreground" variant="theme" />
-          {businessName}
+          <Logo
+            className="h-16 w-auto text-foreground sm:h-[96px]"
+            variant="theme"
+            alt={businessName}
+          />
+          {!hasUploadedLogo && businessName}
         </button>
 
         <div className="hidden items-center gap-6 text-sm font-medium lg:flex">
