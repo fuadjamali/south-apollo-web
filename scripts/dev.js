@@ -2,7 +2,7 @@ const { spawn, spawnSync } = require("child_process");
 
 // Starts everything a local dev session needs, in order: confirm Docker is reachable, bring up
 // the Postgres container (docker-compose.yml's `postgres` service, container name
-// falcon-web-db), wait until it's actually accepting connections, then run `next dev`. Replaces
+// south-apollo-web-db), wait until it's actually accepting connections, then run `next dev`. Replaces
 // the usual manual routine — "is Docker running? -> docker compose up -d -> wait a few seconds
 // -> npm run dev" — with one command.
 //
@@ -12,8 +12,8 @@ const { spawn, spawnSync } = require("child_process");
 // separate, platform-specific app outside this project, not something a repo script should be
 // reaching out to start. It just checks, and tells you to start it yourself.
 
-const DB_CONTAINER = "falcon-web-db";
-const DB_USER = "falcon";
+const DB_CONTAINER = "south-apollo-web-db";
+const DB_USER = "south_apollo";
 const MAX_WAIT_MS = 30000;
 const POLL_INTERVAL_MS = 1000;
 

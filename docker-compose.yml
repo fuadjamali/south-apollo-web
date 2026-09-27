@@ -1,16 +1,16 @@
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: falcon-web-db
+    container_name: south-apollo-web-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: falcon
-      POSTGRES_PASSWORD: falcon
-      POSTGRES_DB: falcon_web
+      POSTGRES_USER: south_apollo
+      POSTGRES_PASSWORD: south_apollo
+      POSTGRES_DB: south_apollo_web
     ports:
       - "5436:5432"
     volumes:
-      - falcon-web-db-data:/var/lib/postgresql/data
+      - south-apollo-web-db-data:/var/lib/postgresql/data
 
 volumes:
-  falcon-web-db-data:
+  south-apollo-web-db-data:

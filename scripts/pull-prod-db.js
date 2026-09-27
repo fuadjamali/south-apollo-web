@@ -42,7 +42,7 @@ if (!["localhost", "127.0.0.1"].includes(localHost)) {
   );
 }
 
-const dumpPath = path.join(os.tmpdir(), `falcon-web-prod-pull-${Date.now()}.dump`);
+const dumpPath = path.join(os.tmpdir(), `south-apollo-web-prod-pull-${Date.now()}.dump`);
 
 try {
   console.log("Dumping production...");

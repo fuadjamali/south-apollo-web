@@ -1,4 +1,4 @@
-# Falcon Web
+# South Apollo Web
 
 A minimal MVP template: a public marketing home page, an admin login, and a protected admin
 dashboard — built as a starting point, not a full production app.

@@ -582,8 +582,8 @@ export default async function Home({ searchParams }) {
       </section>
       )}
 
-      {/* COMPONENT: plans (optional — static, not admin-editable. Only meaningful for Falcon
-          Web Suite's own marketing site; a deployed client site has no reason to show its own
+      {/* COMPONENT: plans (optional — static, not admin-editable. Only meaningful for South
+          Apollo's own marketing site; a deployed client site has no reason to show its own
           Basic/Plus/Premium tiers to its visitors, so this should be `null` in config/site.js
           for every client deployment — see lib/planFeatures.js for the shared tier data. */}
       {plans && (

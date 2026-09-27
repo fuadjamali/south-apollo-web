@@ -15,7 +15,7 @@ const COLOR_THEMES = [
 
 function applyColorTheme(id) {
   document.documentElement.setAttribute("data-theme", id);
-  localStorage.setItem("falcon-color-theme", id);
+  localStorage.setItem("south-apollo-color-theme", id);
 }
 
 export default function ColorThemeSwitcher({ className = "" }) {

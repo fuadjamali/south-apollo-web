@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 const CartContext = createContext(null);
-const STORAGE_KEY = "falcon_cart";
+const STORAGE_KEY = "south_apollo_cart";
 
 function readStoredCart() {
   if (typeof window === "undefined") return [];

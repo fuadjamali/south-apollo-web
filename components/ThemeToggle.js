@@ -2,7 +2,7 @@
 
 function toggleTheme() {
   const isDark = document.documentElement.classList.toggle("dark");
-  localStorage.setItem("falcon-theme", isDark ? "dark" : "light");
+  localStorage.setItem("south-apollo-theme", isDark ? "dark" : "light");
 }
 
 export default function ThemeToggle({ className = "" }) {

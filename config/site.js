@@ -1,7 +1,7 @@
 const siteConfig = {
   // The banner shown at the very top of every page ("Root Alert") is admin-editable at
-  // /admin/root-alert (lib/rootAlert.js) — no config here. Defaults on with Falcon Web
-  // Suite's own demo disclaimer text; turn it off or reword it for a real client deployment.
+  // /admin/root-alert (lib/rootAlert.js) — no config here. Defaults on with South Apollo's
+  // own demo disclaimer text; turn it off or reword it for a real client deployment.
 
   // Business name/tagline/description/domain are admin-editable at /admin/business
   // (lib/businessInfo.js) — no config here. Address is contact_info.address
@@ -33,7 +33,7 @@ const siteConfig = {
 
   // Optional — set to null to remove the section from the home page. Static (not admin-
   // editable) since it's the site's own pricing tiers, defined in lib/planFeatures.js — only
-  // meaningful for Falcon Web Suite's own marketing site. A deployed client site has no
+  // meaningful for South Apollo's own marketing site. A deployed client site has no
   // reason to show its own Basic/Plus/Premium tiers to its visitors, so leave this `null` for
   // every client deployment.
   plans: {
