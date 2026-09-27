@@ -50,7 +50,7 @@ export default function SiteHeader({
               <a
                 key={item.href}
                 href={item.href}
-                className="whitespace-nowrap rounded-full bg-primary px-4 py-1.5 text-primary-foreground hover:bg-primary-hover"
+                className="whitespace-nowrap rounded-full bg-accent px-4 py-1.5 text-accent-foreground hover:brightness-90"
               >
                 {item.label}
               </a>
@@ -94,7 +94,7 @@ export default function SiteHeader({
           {ctaItem && (
             <a
               href={ctaItem.href}
-              className="whitespace-nowrap rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary-hover sm:px-4 sm:text-sm lg:hidden"
+              className="whitespace-nowrap rounded-full bg-accent px-3 py-2 text-xs font-semibold text-accent-foreground hover:brightness-90 sm:px-4 sm:text-sm lg:hidden"
             >
               {ctaItem.label}
             </a>
@@ -152,7 +152,7 @@ export default function SiteHeader({
                   onClick={() => setMenuOpen(false)}
                   className={
                     item.cta
-                      ? "mt-2 rounded-lg bg-primary px-3 py-2 text-center font-semibold text-primary-foreground hover:bg-primary-hover"
+                      ? "mt-2 rounded-lg bg-accent px-3 py-2 text-center font-semibold text-accent-foreground hover:brightness-90"
                       : item.highlight
                         ? "rounded-lg border border-accent px-3 py-2 font-semibold text-accent hover:bg-accent hover:text-white"
                         : "rounded-lg px-3 py-2 hover:bg-surface-alt"

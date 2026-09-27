@@ -28,38 +28,40 @@
  * and .dark selector), so they don't shift when the light/dark toggle is used.
  */
 
-/* Ocean Blue — crystal glossy finishing (default) */
+/* Ocean Blue (default) — derived from the South Apollo logo: blue #0080ff, red #ea0000,
+   near-black #101010. Primary/accent are nudged darker than the raw logo hues so white
+   button text and red link text on the light background both clear 4.5:1 contrast. */
 :root {
-  --background: #f0f9ff;
-  --foreground: #0c2d48;
+  --background: #f2f8ff;
+  --foreground: #101828;
 
-  --primary: #0284c7;
-  --primary-hover: #0369a1;
+  --primary: #006ad6;
+  --primary-hover: #0056b0;
   --primary-foreground: #ffffff;
 
-  --accent: #06b6d4;
+  --accent: #d40000;
   --accent-foreground: #ffffff;
 
   --surface: #ffffff;
-  --surface-alt: #e0f2fe;
-  --border-color: #bae6fd;
-  --text-muted: #475569;
+  --surface-alt: #e5f1ff;
+  --border-color: #c5e0ff;
+  --text-muted: #4b5563;
 }
 
 .dark {
-  --background: #01121f;
-  --foreground: #e0f2fe;
+  --background: #07111f;
+  --foreground: #e6f0ff;
 
-  --primary: #38bdf8;
-  --primary-hover: #7dd3fc;
-  --primary-foreground: #01121f;
+  --primary: #3d9bff;
+  --primary-hover: #6db3ff;
+  --primary-foreground: #07111f;
 
-  --accent: #22d3ee;
-  --accent-foreground: #01121f;
+  --accent: #ff4d4d;
+  --accent-foreground: #07111f;
 
-  --surface: #0c2d48;
-  --surface-alt: #123a5c;
-  --border-color: #1e4a70;
+  --surface: #0e1c30;
+  --surface-alt: #13263f;
+  --border-color: #1f3a5c;
   --text-muted: #94a3b8;
 }
 
