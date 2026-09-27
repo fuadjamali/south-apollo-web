@@ -64,7 +64,7 @@ export default async function RootLayout({ children }) {
           </div>
         )}
         <BusinessNameProvider name={business.name}>
-          <LogoProvider logoUrl={branding.logo_url}>
+          <LogoProvider logoUrl={branding.logo_url} logoDarkUrl={branding.logo_dark_url}>
             <SessionProviderWrapper>
               <CartProvider>{children}</CartProvider>
             </SessionProviderWrapper>

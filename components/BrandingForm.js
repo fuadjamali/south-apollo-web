@@ -14,12 +14,26 @@ export default function BrandingForm({ branding }) {
         label="Logo"
         currentImage={branding.logo_url}
         previewClassName="mt-2 h-14 w-14 rounded-lg border border-border object-contain bg-surface-alt p-1"
-        helpText="Shown in the header and footer across the whole site. Falls back to the default mark if none is uploaded."
+        helpText="Shown in the header (light mode/backgrounds). Falls back to the default mark if none is uploaded."
       />
       {branding.logo_url && (
         <label className="-mt-3 flex items-center gap-2 text-sm text-muted">
           <input type="checkbox" name="removeLogo" className="h-4 w-4 rounded border-border" />
           Remove the logo (falls back to the default mark)
+        </label>
+      )}
+
+      <ImageFileInput
+        name="logoDarkFile"
+        label="Logo (dark backgrounds)"
+        currentImage={branding.logo_dark_url}
+        previewClassName="mt-2 h-14 w-14 rounded-lg border border-border object-contain bg-gray-900 p-1"
+        helpText="A light/white version for the footer (always dark) and the header in dark mode. Falls back to the logo above if none is uploaded."
+      />
+      {branding.logo_dark_url && (
+        <label className="-mt-3 flex items-center gap-2 text-sm text-muted">
+          <input type="checkbox" name="removeLogoDark" className="h-4 w-4 rounded border-border" />
+          Remove the dark-background logo (falls back to the logo above)
         </label>
       )}
 

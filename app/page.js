@@ -1168,7 +1168,7 @@ export default async function Home({ searchParams }) {
         <SocialLinks />
 
         <p className="mt-10 flex items-center justify-center gap-2 text-xs text-gray-400">
-          <Logo className="h-4 w-4" />© {new Date().getFullYear()} {business.name}. All rights reserved.
+          <Logo className="h-4 w-4" variant="dark" />© {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
         {/* COMPONENT: legal-page-links (optional — only pages an admin has actually published
             at /admin/legal show up here; an un-filled-in page never gets linked). */}

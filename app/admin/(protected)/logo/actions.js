@@ -24,13 +24,14 @@ async function resolveImage(formData, fileField, removeField, existingUrl) {
 export async function updateBrandingAction(prevState, formData) {
   const existing = await getBranding();
 
-  const [logoUrl, faviconUrl, appleIconUrl] = await Promise.all([
+  const [logoUrl, logoDarkUrl, faviconUrl, appleIconUrl] = await Promise.all([
     resolveImage(formData, "logoFile", "removeLogo", existing?.logo_url),
+    resolveImage(formData, "logoDarkFile", "removeLogoDark", existing?.logo_dark_url),
     resolveImage(formData, "faviconFile", "removeFavicon", existing?.favicon_url),
     resolveImage(formData, "appleIconFile", "removeAppleIcon", existing?.apple_icon_url),
   ]);
 
-  await updateBranding({ logoUrl, faviconUrl, appleIconUrl });
+  await updateBranding({ logoUrl, logoDarkUrl, faviconUrl, appleIconUrl });
 
   // The logo shows up on every page (via LogoContext, populated in the root layout) and the
   // favicon/apple-icon are read in generateMetadata — revalidate broadly.
