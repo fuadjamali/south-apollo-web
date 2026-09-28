@@ -102,6 +102,7 @@ const PROTECTED_PREFIXES = [
   "/admin/booking-waitlist",
   "/admin/health-packages",
   "/admin/doctors",
+  "/admin/branches",
 ];
 
 export async function proxy(request) {

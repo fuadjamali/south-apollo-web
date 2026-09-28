@@ -21,6 +21,7 @@ export async function updateContactInfoAction(formData) {
     bn: {
       heading: formData.get("headingBn")?.toString().trim(),
       subheading: formData.get("subheadingBn")?.toString().trim(),
+      address: formData.get("addressBn")?.toString().trim(),
     },
   });
 

@@ -20,7 +20,7 @@ import MemberCard from "@/components/MemberCard";
 import siteConfig from "@/config/site";
 import { buildLocalBusinessJsonLd } from "@/lib/structuredData";
 import { getProducts, getProductCategories } from "@/lib/products";
-import { getContactInfo } from "@/lib/contactInfo";
+import { getContactInfo, parsePhoneLines, phoneLabel } from "@/lib/contactInfo";
 import { getSocialSettings, getWhatsappHref } from "@/lib/socialSettings";
 import { getBusinessInfo } from "@/lib/businessInfo";
 import { getActiveHeroSlides, getHeroSettings } from "@/lib/heroSlides";
@@ -54,6 +54,8 @@ import { getActiveDoctors, getSpecialties } from "@/lib/doctors";
 import { getActivePackages } from "@/lib/healthPackages";
 import HomeDoctorsSection from "@/components/HomeDoctorsSection";
 import HomeHealthPackagesSection from "@/components/HomeHealthPackagesSection";
+import HomeBranchesSection from "@/components/HomeBranchesSection";
+import { getActiveBranches } from "@/lib/branches";
 
 // ISR: cached for up to an hour, but /admin/products' Server Actions call revalidatePath("/")
 // on every create/update/delete, so admin edits actually show up immediately — this window is
@@ -119,6 +121,7 @@ export default async function Home({ searchParams }) {
     partners,
     doctors: doctorsHeading,
     healthPackages: healthPackagesHeading,
+    branches: branchesHeading,
   } = sectionHeadings;
 
   const cartEnabled = isEnabled("cart", moduleStates);
@@ -184,6 +187,7 @@ export default async function Home({ searchParams }) {
     homeDoctors,
     doctorSpecialties,
     healthPackageItems,
+    branchItems,
   ] = await Promise.all([
     getProducts({ category: selectedCategory || undefined }),
     getProductCategories(),
@@ -207,6 +211,7 @@ export default async function Home({ searchParams }) {
     isEnabled("doctors", moduleStates) ? getActiveDoctors() : Promise.resolve([]),
     isEnabled("doctors", moduleStates) ? getSpecialties() : Promise.resolve([]),
     isEnabled("healthPackages", moduleStates) ? getActivePackages() : Promise.resolve([]),
+    isEnabled("branches", moduleStates) ? getActiveBranches() : Promise.resolve([]),
   ]);
 
   const footerWhatsappHref = getWhatsappHref(
@@ -366,7 +371,12 @@ export default async function Home({ searchParams }) {
       </div>
     </aside>
   );
-  const jsonLd = buildLocalBusinessJsonLd({ business, address: contactInfo.address, siteConfig });
+  const jsonLd = buildLocalBusinessJsonLd({
+    business,
+    address: contactInfo.address_en,
+    telephone: parsePhoneLines(contactInfo.phone)[0]?.numbers[0],
+    siteConfig,
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -1090,6 +1100,20 @@ export default async function Home({ searchParams }) {
         </section>
       )}
 
+      {/* COMPONENT: branches (optional — one card per branch, main first; editable at
+          /admin/branches) */}
+      {isEnabled("branches", moduleStates) && branchItems.length > 0 && (
+        <HomeBranchesSection
+          heading={branchesHeading?.heading}
+          subheading={branchesHeading?.subheading}
+          branches={branchItems}
+          locale={locale}
+          t={t}
+          sectionMaxW={sectionMaxW}
+          style={{ order: sectionOrder.branches }}
+        />
+      )}
+
       {/* COMPONENT: map (optional — live-queries Google Maps with contactInfo.address, the
           same admin-editable value shown in the Contact Us section below, rather than a
           second independent address that could drift out of sync with it) */}
@@ -1106,7 +1130,7 @@ export default async function Home({ searchParams }) {
               className="h-full w-full grayscale"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(contactInfo.address)}&output=embed`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(contactInfo.address_en || contactInfo.address)}&output=embed`}
             />
           </div>
         </section>
@@ -1132,14 +1156,23 @@ export default async function Home({ searchParams }) {
                   <span className="text-foreground">{contactInfo.address}</span>
                 </div>
               )}
-              {contactInfo.phone && (
-                <div className="flex items-center justify-center gap-3 text-sm">
+              {parsePhoneLines(contactInfo.phone).map((line, i) => (
+                <div key={i} className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm">
                   <IconPhone size={20} className="shrink-0 text-muted" />
-                  <a href={`tel:${contactInfo.phone}`} className="text-foreground hover:underline">
-                    {contactInfo.phone}
-                  </a>
+                  {line.label && (
+                    <span className="font-semibold text-foreground">{phoneLabel(line.label, t)}:</span>
+                  )}
+                  {line.numbers.map((number) => (
+                    <a
+                      key={number}
+                      href={`tel:${number.replace(/[^\d+]/g, "")}`}
+                      className="text-foreground hover:underline"
+                    >
+                      {number}
+                    </a>
+                  ))}
                 </div>
-              )}
+              ))}
               {contactInfo.email && (
                 <div className="flex items-center justify-center gap-3 text-sm">
                   <IconMail size={20} className="shrink-0 text-muted" />

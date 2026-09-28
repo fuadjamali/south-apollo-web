@@ -74,6 +74,16 @@ export default async function AdminContactPage() {
                 className={fieldClass}
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground">Address</label>
+              <textarea
+                name="addressBn"
+                rows={2}
+                lang="bn"
+                defaultValue={contact.translations?.bn?.address || ""}
+                className={fieldClass}
+              />
+            </div>
           </fieldset>
 
           <div>
@@ -88,14 +98,19 @@ export default async function AdminContactPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground">Phone</label>
-            <input
-              type="text"
+            <label className="block text-sm font-medium text-foreground">Phone numbers</label>
+            <textarea
               name="phone"
+              rows={3}
               defaultValue={contact.phone}
-              placeholder="Leave blank to hide this row"
+              placeholder={"Hotline: 09617-888892\nMobile: 01711-457444, 01706-354974"}
               className={fieldClass}
             />
+            <p className="mt-1 text-xs text-muted">
+              One line per kind of number, as <span className="font-mono">Label: number, number</span>{" "}
+              (Hotline, Tel and Mobile show in Bangla on the Bangla site). Each number becomes a
+              tap-to-call link. Leave blank to hide this row.
+            </p>
           </div>
 
           <div>
