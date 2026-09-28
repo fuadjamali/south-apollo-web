@@ -749,7 +749,7 @@ export default async function Home({ searchParams }) {
       {isEnabled("gallery", moduleStates) && recentPhotos.length > 0 && (
         <section
           id="gallery"
-          className={`mx-auto ${sectionMaxW} px-6 py-20`}
+          className={`mx-auto w-full min-w-0 ${sectionMaxW} px-6 py-20`}
           style={{ order: sectionOrder.gallery }}
         >
           <h2 className="text-3xl font-bold">{gallery.heading}</h2>

@@ -8,7 +8,7 @@ async function getEnquiries() {
       CREATE TABLE IF NOT EXISTS enquiries (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
         phone VARCHAR(50),
         message TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -47,8 +47,7 @@ export default async function EnquiriesPage() {
                   </p>
                 </div>
                 <p className="mt-1 text-sm text-muted">
-                  {enquiry.email}
-                  {enquiry.phone ? ` · ${enquiry.phone}` : ""}
+                  {[enquiry.phone, enquiry.email].filter(Boolean).join(" · ")}
                 </p>
                 <p className="mt-3 text-sm text-foreground">{enquiry.message}</p>
               </div>

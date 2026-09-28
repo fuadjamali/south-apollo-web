@@ -69,7 +69,9 @@ export default function EnquiryForm() {
           <input
             type="tel"
             name="phone"
-            placeholder={t("common.optional")}
+            required
+            inputMode="tel"
+            placeholder="01XXXXXXXXX"
             className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
           />
         </div>
@@ -80,8 +82,7 @@ export default function EnquiryForm() {
         <input
           type="email"
           name="email"
-          required
-          placeholder="you@example.com"
+          placeholder={t("common.optional")}
           className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none"
         />
       </div>

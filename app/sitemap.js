@@ -16,14 +16,6 @@ export default async function sitemap() {
       changeFrequency: "monthly",
       priority: 1,
     },
-    // Always public regardless of plan/module (proxy.js's PUBLIC_ROUTES) — the pricing
-    // comparison page every visitor can reach.
-    {
-      url: `${baseUrl}/compare-plans`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
   ];
 
   if (isEnabled("booking", moduleStates)) {
@@ -56,7 +48,7 @@ export default async function sitemap() {
     });
   }
 
-  const products = await getProducts();
+  const products = isEnabled("products", moduleStates) ? await getProducts() : [];
   for (const product of products) {
     entries.push({
       url: `${baseUrl}/products/${product.id}`,

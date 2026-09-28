@@ -4,6 +4,11 @@ import MemberLoginForm from "@/components/MemberLoginForm";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { getT } from "@/lib/i18n/server";
 
+export async function generateMetadata() {
+  const { t } = await getT();
+  return { title: t("member.loginTitle") };
+}
+
 export default async function MemberLoginPage({ searchParams }) {
   const [params, { t }] = await Promise.all([searchParams, getT()]);
   const redirectTo = params?.redirect?.toString() || "";
