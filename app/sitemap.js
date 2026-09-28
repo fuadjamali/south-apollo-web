@@ -26,17 +26,6 @@ export default async function sitemap() {
     },
   ];
 
-  // Was previously unconditional — membership lookup is a Premium-only feature
-  // (lib/plan.js's PREMIUM_MODULES), so a Basic/Plus deployment was listing a page that 401s.
-  if (isEnabled("members", moduleStates)) {
-    entries.push({
-      url: `${baseUrl}/membership`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.4,
-    });
-  }
-
   if (isEnabled("booking", moduleStates)) {
     entries.push({
       url: `${baseUrl}/booking`,

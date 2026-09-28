@@ -21,11 +21,7 @@ export default async function AdminMembersPage() {
           <div>
             <h1 className="text-xl font-bold text-foreground">Members</h1>
             <p className="mt-1 text-sm text-muted">
-              Members can check their status at{" "}
-              <a href="/membership" className="underline">
-                /membership
-              </a>
-              , or sign in at{" "}
+              Patient accounts. Patients sign in at{" "}
               <a href="/member/login" className="underline">
                 /member/login
               </a>{" "}
