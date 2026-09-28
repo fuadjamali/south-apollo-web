@@ -7,6 +7,7 @@ import {
   updateDoctor,
   deleteDoctor,
   getDoctor,
+  setDoctorOrder,
   createSpecialty,
   updateSpecialty,
   deleteSpecialty,
@@ -107,6 +108,14 @@ export async function deleteDoctorAction(formData) {
   await deleteImage(existing?.photo);
   refresh();
   redirect("/admin/doctors");
+}
+
+// Called directly from NavReorderableList (a client component), same reuse as Site
+// Navigation's and Hero's own reorder actions — `_parentId` is unused here (doctors aren't
+// nested), kept only so the component's (parentId, orderedIds) signature stays uniform.
+export async function reorderDoctorsAction(_parentId, orderedIds) {
+  await setDoctorOrder(orderedIds);
+  refresh();
 }
 
 // ---------- Specialties ----------
