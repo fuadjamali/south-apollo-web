@@ -25,8 +25,10 @@ export default function AdminHeader({ nav, businessName, themesEnabled = true, p
     <header className="border-b border-border bg-surface">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <span className="flex shrink-0 items-center gap-2 whitespace-nowrap text-lg font-bold text-foreground">
-          <Logo className="h-6 w-6" />
-          {businessName} <span className="font-normal text-muted">Admin</span>
+          <Logo className="h-10 w-auto max-w-[180px] sm:h-12" />
+          {/* The logo already carries the name, so the text name only shows where there's room. */}
+          <span className="hidden sm:inline">{businessName}</span>{" "}
+          <span className="font-normal text-muted">Admin</span>
           <a
             href="/admin/subscription"
             className={`rounded-full px-2.5 py-0.5 text-xs font-semibold hover:opacity-80 ${PLAN_BADGE[plan] || PLAN_BADGE.premium}`}

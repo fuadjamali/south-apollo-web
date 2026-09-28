@@ -43,15 +43,15 @@ export default function AdminLoginForm({ businessName, heading, subheading }) {
       </div>
 
       <main className="flex min-h-screen items-center justify-center px-6">
-        <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-8 shadow-sm">
-          <Logo className="mx-auto h-10 w-10 text-foreground" />
+        <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 shadow-md sm:p-10">
+          <Logo className="mx-auto h-20 w-auto max-w-[260px] text-foreground" />
           {businessName && (
             <p className="mt-2 text-center text-sm font-semibold text-foreground">
               {businessName}
             </p>
           )}
-          <h1 className="mt-3 text-center text-xl font-bold text-foreground">{heading}</h1>
-          <p className="mt-1 text-center text-sm text-muted">{subheading}</p>
+          <h1 className="mt-5 text-center text-2xl font-bold text-foreground">{heading}</h1>
+          <p className="mt-1 text-center text-base text-muted">{subheading}</p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
@@ -63,7 +63,7 @@ export default function AdminLoginForm({ businessName, heading, subheading }) {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-border bg-surface px-4 py-3 text-base text-foreground focus:border-accent focus:outline-none"
               />
             </div>
 
@@ -76,7 +76,7 @@ export default function AdminLoginForm({ businessName, heading, subheading }) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-border bg-surface px-4 py-3 text-base text-foreground focus:border-accent focus:outline-none"
               />
             </div>
 
@@ -85,7 +85,7 @@ export default function AdminLoginForm({ businessName, heading, subheading }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
+              className="w-full rounded-lg bg-primary py-3 text-base font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>

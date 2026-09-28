@@ -21,14 +21,14 @@ export default async function MemberLoginPage({ searchParams }) {
       </div>
 
       <main className="flex min-h-screen items-center justify-center px-6">
-        <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-8 shadow-sm">
-          <Logo className="mx-auto h-10 w-10 text-foreground" />
-          <h1 className="mt-3 text-center text-xl font-bold text-foreground">{t("member.loginTitle")}</h1>
-          <p className="mt-1 text-center text-sm text-muted">{t("member.loginIntro")}</p>
+        <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 shadow-md sm:p-10">
+          <Logo className="mx-auto h-20 w-auto max-w-[260px] text-foreground" />
+          <h1 className="mt-5 text-center text-2xl font-bold text-foreground">{t("member.loginTitle")}</h1>
+          <p className="mt-1 text-center text-base text-muted">{t("member.loginIntro")}</p>
 
           <MemberLoginForm redirectTo={redirectTo} />
 
-          <div className="mt-4 flex items-center justify-between text-sm">
+          <div className="mt-5 flex items-center justify-between text-sm">
             <a href="/member/signup" className="font-medium text-accent hover:underline">
               {t("member.createAccount")}
             </a>

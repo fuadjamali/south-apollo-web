@@ -5,7 +5,7 @@ import { useT } from "@/components/LocaleContext";
 import { loginAction } from "@/app/member/actions";
 
 const fieldClass =
-  "mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder-muted focus:border-accent focus:outline-none";
+  "mt-1 w-full rounded-lg border border-border bg-surface px-4 py-3 text-base text-foreground placeholder-muted focus:border-accent focus:outline-none";
 
 export default function MemberLoginForm({ redirectTo = "" }) {
   const t = useT();
@@ -30,7 +30,7 @@ export default function MemberLoginForm({ redirectTo = "" }) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
+        className="w-full rounded-lg bg-primary py-3 text-base font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
       >
         {pending ? t("member.signingIn") : t("member.signIn")}
       </button>
