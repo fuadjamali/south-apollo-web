@@ -33,6 +33,19 @@ export default function GalleryPhotoForm({ action, photo, submitLabel }) {
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-foreground">
+          Caption <span className="font-normal text-muted">(বাংলা, optional — blank shows the English caption)</span>
+        </label>
+        <input
+          type="text"
+          name="captionBn"
+          lang="bn"
+          defaultValue={photo?.translations?.bn?.caption || ""}
+          className={fieldClass}
+        />
+      </div>
+
+      <div>
         <label className="block text-sm font-medium text-foreground">Tags</label>
         <input
           type="text"

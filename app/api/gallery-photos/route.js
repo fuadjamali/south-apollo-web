@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPhotosPage } from "@/lib/gallery";
+import { getLocale } from "@/lib/i18n/server";
 
 const MAX_LIMIT = 60;
 
@@ -18,6 +19,7 @@ export async function GET(request) {
   const requestedLimit = searchParams.get("limit") ? Number(searchParams.get("limit")) : undefined;
   const limit = Math.min(MAX_LIMIT, requestedLimit && requestedLimit > 0 ? requestedLimit : 24);
 
-  const { photos, nextCursor } = await getPhotosPage({ cursor, tag, year, month, search, limit });
+  const locale = await getLocale();
+  const { photos, nextCursor } = await getPhotosPage({ cursor, tag, year, month, search, limit, locale });
   return NextResponse.json({ photos, nextCursor });
 }

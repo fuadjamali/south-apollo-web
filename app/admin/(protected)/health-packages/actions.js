@@ -22,7 +22,9 @@ function parseAmount(value) {
 function readPackageForm(formData) {
   return {
     name: formData.get("name")?.toString().trim() || "",
+    nameBn: formData.get("nameBn")?.toString().trim() || "",
     description: formData.get("description")?.toString().trim() || "",
+    descriptionBn: formData.get("descriptionBn")?.toString().trim() || "",
     previousPrice: parseAmount(formData.get("previousPrice")),
     price: parseAmount(formData.get("price")),
     tests: formData.get("tests")?.toString().trim() || "",
@@ -120,6 +122,18 @@ export async function updateHealthCheckupPageAction(prevState, formData) {
     contactIntro: field("contactIntro"),
     hotline: field("hotline"),
     mobiles: field("mobiles"),
+    bn: {
+      eyebrow: field("eyebrowBn"),
+      heading: field("headingBn"),
+      intro: field("introBn"),
+      awarenessHeading: field("awarenessHeadingBn"),
+      awarenessBody: field("awarenessBodyBn"),
+      quote: field("quoteBn"),
+      whyHeading: field("whyHeadingBn"),
+      whyItems: field("whyItemsBn"),
+      contactHeading: field("contactHeadingBn"),
+      contactIntro: field("contactIntroBn"),
+    },
   });
   refresh();
   return { success: "Page text saved." };

@@ -21,7 +21,8 @@ import {
 } from "@/lib/healthPackages";
 
 export async function generateMetadata() {
-  const [{ t }, page] = await Promise.all([getT(), getHealthCheckupPage()]);
+  const { locale, t } = await getT();
+  const page = await getHealthCheckupPage(locale);
   return buildPageMetadata({
     title: t("packages.pageTitle"),
     description: page.intro || page.heading,
@@ -49,8 +50,8 @@ export default async function HealthCheckupPage() {
   const { locale, t } = await getT();
   const [headerProps, packages, page, bookingEnabled] = await Promise.all([
     getSiteHeaderProps(locale),
-    getActivePackages(),
-    getHealthCheckupPage(),
+    getActivePackages(locale),
+    getHealthCheckupPage(locale),
     isModuleEnabled("booking"),
   ]);
 

@@ -11,6 +11,7 @@ const labelClass = "block text-sm font-medium text-foreground";
 // on the page, so any of them can be dropped by clearing its fields.
 export default function HealthCheckupPageForm({ page }) {
   const [state, formAction, pending] = useActionState(updateHealthCheckupPageAction, {});
+  const bn = page.translations?.bn || {};
 
   return (
     <form action={formAction} className="mt-6 space-y-6">
@@ -139,6 +140,53 @@ export default function HealthCheckupPageForm({ page }) {
             />
             <p className="mt-1 text-xs text-muted">Separate numbers with commas.</p>
           </div>
+        </div>
+      </fieldset>
+
+      <fieldset className="space-y-4 border-t border-border pt-6">
+        <legend className="text-sm font-semibold text-foreground">
+          <span lang="bn">বাংলা</span>{" "}
+          <span className="font-normal text-muted">(optional — any field left blank shows the English)</span>
+        </legend>
+        <div>
+          <label className={labelClass}>Small line above heading</label>
+          <input type="text" name="eyebrowBn" lang="bn" defaultValue={bn.eyebrow || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Heading</label>
+          <input type="text" name="headingBn" lang="bn" defaultValue={bn.heading || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Introduction</label>
+          <textarea name="introBn" rows={3} lang="bn" defaultValue={bn.intro || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Health awareness heading</label>
+          <input type="text" name="awarenessHeadingBn" lang="bn" defaultValue={bn.awareness_heading || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Health awareness text</label>
+          <textarea name="awarenessBodyBn" rows={4} lang="bn" defaultValue={bn.awareness_body || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Highlighted quote</label>
+          <textarea name="quoteBn" rows={2} lang="bn" defaultValue={bn.quote || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Why choose us — heading</label>
+          <input type="text" name="whyHeadingBn" lang="bn" defaultValue={bn.why_heading || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Why choose us — points (Title: description, one per line)</label>
+          <textarea name="whyItemsBn" rows={5} lang="bn" defaultValue={bn.why_items || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Appointment contacts — heading</label>
+          <input type="text" name="contactHeadingBn" lang="bn" defaultValue={bn.contact_heading || ""} className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Appointment contacts — text</label>
+          <input type="text" name="contactIntroBn" lang="bn" defaultValue={bn.contact_intro || ""} className={fieldClass} />
         </div>
       </fieldset>
 

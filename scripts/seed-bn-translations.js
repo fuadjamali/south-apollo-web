@@ -8,6 +8,7 @@
 // (for another database: DATABASE_URL=... node scripts/seed-bn-translations.js)
 const { Pool } = require("pg");
 const SECTION_BODIES = require("./lib/section-bodies-bn");
+const { HEALTH_PAGE, PACKAGES, GALLERY_CAPTIONS } = require("./lib/health-gallery-bn");
 
 const NAV = {
   About: "পরিচিতি",
@@ -168,7 +169,7 @@ async function ensureColumn(client, table) {
 async function main() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const client = await pool.connect();
-  const counts = { nav: 0, sections: 0, siteText: 0, titles: 0, hero: 0, bodies: 0 };
+  const counts = { nav: 0, sections: 0, siteText: 0, titles: 0, hero: 0, bodies: 0, health: 0, gallery: 0 };
   try {
     // Neon's pooled endpoint doesn't apply a default search_path (see lib/db.js).
     await client.query("SET search_path TO public");
@@ -250,6 +251,51 @@ async function main() {
       counts.bodies++;
     }
 
+    // Health Check-up page text, package names/descriptions and gallery captions — only on tables
+    // that exist (a site without those features skips them) and only where the Bangla is blank.
+    const tableExists = async (t) => (await client.query("SELECT to_regclass($1) AS t", [t])).rows[0].t !== null;
+    if (await tableExists("health_checkup_page")) {
+      await ensureColumn(client, "health_checkup_page");
+      const { rows } = await client.query("SELECT * FROM health_checkup_page WHERE id = 1");
+      const row = rows[0];
+      const patch = {};
+      for (const [field, [en, bn]] of Object.entries(HEALTH_PAGE)) {
+        if (row && (row[field] || "").replace(/\r\n/g, "\n").trim() === en && isBlank(row.translations?.bn?.[field])) {
+          patch[field] = bn;
+        }
+      }
+      if (Object.keys(patch).length) {
+        await client.query(`UPDATE health_checkup_page SET ${MERGE_BN} WHERE id = 1`, [JSON.stringify(patch)]);
+        counts.health += Object.keys(patch).length;
+      }
+    }
+    if (await tableExists("health_packages")) {
+      await ensureColumn(client, "health_packages");
+      const { rows } = await client.query("SELECT id, name, description, translations FROM health_packages");
+      for (const row of rows) {
+        const entry = PACKAGES[row.name];
+        if (!entry) continue;
+        const patch = {};
+        if (isBlank(row.translations?.bn?.name)) patch.name = entry.name;
+        if ((row.description || "").trim() === entry.descriptionEn && isBlank(row.translations?.bn?.description)) {
+          patch.description = entry.description;
+        }
+        if (!Object.keys(patch).length) continue;
+        await client.query(`UPDATE health_packages SET ${MERGE_BN} WHERE id = $2`, [JSON.stringify(patch), row.id]);
+        counts.health += Object.keys(patch).length;
+      }
+    }
+    if (await tableExists("gallery_photos")) {
+      await ensureColumn(client, "gallery_photos");
+      const { rows } = await client.query("SELECT id, caption, translations FROM gallery_photos WHERE caption IS NOT NULL");
+      for (const row of rows) {
+        const bn = GALLERY_CAPTIONS[row.caption.trim()];
+        if (!bn || !isBlank(row.translations?.bn?.caption)) continue;
+        await client.query(`UPDATE gallery_photos SET ${MERGE_BN} WHERE id = $2`, [JSON.stringify({ caption: bn }), row.id]);
+        counts.gallery++;
+      }
+    }
+
     const slides = await client.query("SELECT * FROM hero_slides");
     for (const row of slides.rows) {
       const patch = {};
@@ -264,7 +310,7 @@ async function main() {
 
     console.log(
       `Seeded Bangla: ${counts.nav} nav items, ${counts.sections} section headings, ` +
-        `${counts.siteText} site-text fields, ${counts.titles} section titles, ${counts.hero} hero slide fields, ${counts.bodies} section bodies.`
+        `${counts.siteText} site-text fields, ${counts.titles} section titles, ${counts.hero} hero slide fields, ${counts.bodies} section bodies, ${counts.health} health check-up fields, ${counts.gallery} gallery captions.`
     );
   } finally {
     client.release();

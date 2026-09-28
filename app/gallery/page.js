@@ -24,7 +24,7 @@ export default async function GalleryPage() {
   const { locale, t } = await getT();
   const [headings, firstPage, allTags, allMonths] = await Promise.all([
     getSectionHeadings(locale),
-    getPhotosPage(),
+    getPhotosPage({ locale }),
     getAllTags(),
     getAllPhotoMonths(),
   ]);

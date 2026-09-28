@@ -205,12 +205,12 @@ export default async function Home({ searchParams }) {
     isEnabled("newsEvents", moduleStates) ? getRecentItems(3) : Promise.resolve([]),
     statsEnabled ? getStats() : Promise.resolve([]),
     isEnabled("howItWorks", moduleStates) ? getSteps() : Promise.resolve([]),
-    isEnabled("gallery", moduleStates) ? getRecentPhotos(6) : Promise.resolve([]),
+    isEnabled("gallery", moduleStates) ? getRecentPhotos(6, locale) : Promise.resolve([]),
     isEnabled("portfolio", moduleStates) ? getPortfolioItems() : Promise.resolve([]),
     isEnabled("certifications", moduleStates) ? getCertifications() : Promise.resolve([]),
     isEnabled("doctors", moduleStates) ? getActiveDoctors() : Promise.resolve([]),
     isEnabled("doctors", moduleStates) ? getSpecialties() : Promise.resolve([]),
-    isEnabled("healthPackages", moduleStates) ? getActivePackages() : Promise.resolve([]),
+    isEnabled("healthPackages", moduleStates) ? getActivePackages(locale) : Promise.resolve([]),
     isEnabled("branches", moduleStates) ? getActiveBranches() : Promise.resolve([]),
   ]);
 

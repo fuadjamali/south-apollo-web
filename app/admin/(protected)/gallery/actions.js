@@ -8,6 +8,7 @@ import { uploadImageCompressed, deleteImage } from "@/lib/blob";
 function readForm(formData) {
   return {
     caption: formData.get("caption")?.toString().trim() || "",
+    captionBn: formData.get("captionBn")?.toString().trim() || "",
     tags: formData
       .get("tags")
       ?.toString()

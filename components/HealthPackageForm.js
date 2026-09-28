@@ -34,6 +34,37 @@ export default function HealthPackageForm({ action, pkg, submitLabel }) {
         />
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className={labelClass}>
+            Package name <span className="font-normal text-muted">(বাংলা)</span>
+          </label>
+          <input
+            type="text"
+            name="nameBn"
+            lang="bn"
+            defaultValue={pkg?.translations?.bn?.name || ""}
+            placeholder="জেনারেল হেলথ চেকআপ"
+            className={fieldClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>
+            Short description <span className="font-normal text-muted">(বাংলা)</span>
+          </label>
+          <textarea
+            name="descriptionBn"
+            rows={2}
+            lang="bn"
+            defaultValue={pkg?.translations?.bn?.description || ""}
+            className={fieldClass}
+          />
+        </div>
+      </div>
+      <p className="-mt-2 text-xs text-muted">
+        Optional — blank shows the English on the Bangla site. Test names stay as entered below.
+      </p>
+
       <div>
         <ImageFileInput
           name="imageFile"
