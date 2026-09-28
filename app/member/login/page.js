@@ -3,10 +3,19 @@ import ThemeToggle from "@/components/ThemeToggle";
 import MemberLoginForm from "@/components/MemberLoginForm";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { getT } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
+
 
 export async function generateMetadata() {
   const { t } = await getT();
-  return { title: t("member.loginTitle") };
+  // Private account page — titled and described for the browser tab and link previews, but
+  // kept out of search results (robots.txt also disallows /member).
+  return buildPageMetadata({
+    title: t("member.loginTitle"),
+    description: t("member.loginIntro"),
+    path: "/member/login",
+    noIndex: true,
+  });
 }
 
 export default async function MemberLoginPage({ searchParams }) {

@@ -3,6 +3,19 @@ import ThemeToggle from "@/components/ThemeToggle";
 import MemberResetPasswordForm from "@/components/MemberResetPasswordForm";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { getT } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata() {
+  const { t } = await getT();
+  // Private account page — titled and described for the browser tab and link previews, but
+  // kept out of search results (robots.txt also disallows /member).
+  return buildPageMetadata({
+    title: t("member.resetTitle"),
+    description: t("member.resetIntro"),
+    path: "/member/reset-password",
+    noIndex: true,
+  });
+}
 
 export default async function MemberResetPasswordPage({ searchParams }) {
   const [params, { t }] = await Promise.all([searchParams, getT()]);

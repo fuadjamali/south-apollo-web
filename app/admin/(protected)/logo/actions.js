@@ -2,13 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { getBranding, updateBranding } from "@/lib/branding";
-import { uploadImage, deleteImage } from "@/lib/blob";
+import { uploadImage, uploadLogoImage, deleteImage } from "@/lib/blob";
 
-// Shared by all three image fields: upload wins if a file was chosen, otherwise the "remove"
-// checkbox clears it, otherwise the existing value is kept untouched.
-async function resolveImage(formData, fileField, removeField, existingUrl) {
+// Shared by all the image fields: upload wins if a file was chosen, otherwise the "remove"
+// checkbox clears it, otherwise the existing value is kept untouched. `upload` lets the two logo
+// fields resize and compress (uploadLogoImage) while the icons keep their exact uploaded size.
+async function resolveImage(formData, fileField, removeField, existingUrl, upload = uploadImage) {
   const removeImage = formData.get(removeField) === "on";
-  const uploaded = await uploadImage(formData.get(fileField), "branding");
+  const uploaded = await upload(formData.get(fileField), "branding");
 
   if (uploaded) {
     await deleteImage(existingUrl);
@@ -25,8 +26,8 @@ export async function updateBrandingAction(prevState, formData) {
   const existing = await getBranding();
 
   const [logoUrl, logoDarkUrl, faviconUrl, appleIconUrl] = await Promise.all([
-    resolveImage(formData, "logoFile", "removeLogo", existing?.logo_url),
-    resolveImage(formData, "logoDarkFile", "removeLogoDark", existing?.logo_dark_url),
+    resolveImage(formData, "logoFile", "removeLogo", existing?.logo_url, uploadLogoImage),
+    resolveImage(formData, "logoDarkFile", "removeLogoDark", existing?.logo_dark_url, uploadLogoImage),
     resolveImage(formData, "faviconFile", "removeFavicon", existing?.favicon_url),
     resolveImage(formData, "appleIconFile", "removeAppleIcon", existing?.apple_icon_url),
   ]);
