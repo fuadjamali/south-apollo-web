@@ -51,7 +51,6 @@ function SlideMedia({ slide, active, reducedMotion }) {
       <video
         ref={videoRef}
         src={slide.background_video}
-        muted
         loop
         playsInline
         preload={active ? "auto" : "none"}
