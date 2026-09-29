@@ -1,6 +1,8 @@
 import Logo from "@/components/Logo";
 import SocialLinks from "@/components/SocialLinks";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import FloatingCallButton from "@/components/FloatingCallButton";
+import DoctorChatWidget from "@/components/DoctorChatWidget";
 import BackToTopButton from "@/components/BackToTopButton";
 import { getT } from "@/lib/i18n/server";
 import { getSectionHeadings } from "@/lib/sectionHeadings";
@@ -77,6 +79,11 @@ export default async function SiteFooter({ onHomePage = false }) {
       </footer>
 
       <FloatingWhatsApp />
+      {/* Stacked left of WhatsApp, same corner, same row: the red call icon (any site with a
+          phone number, hidden if none is set), then the Doctor Finder bubble further left
+          (gated on the Doctors module rather than a toggle of its own). */}
+      <FloatingCallButton />
+      {isEnabled("doctors", moduleStates) && <DoctorChatWidget />}
       <BackToTopButton />
     </>
   );

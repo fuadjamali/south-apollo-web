@@ -4,7 +4,7 @@ import DoctorFinder from "@/components/DoctorFinder";
 import { getT } from "@/lib/i18n/server";
 import { getSiteHeaderProps } from "@/lib/siteHeader";
 import { buildPageMetadata } from "@/lib/seo";
-import { getActiveDoctors, getSpecialties } from "@/lib/doctors";
+import { getActiveDoctors, getSpecialties, toPublicDoctor, toPublicSpecialty } from "@/lib/doctors";
 import { getHealthCheckupPage } from "@/lib/healthPackages";
 
 export const dynamic = "force-dynamic";
@@ -18,14 +18,6 @@ export async function generateMetadata() {
   });
 }
 
-// Only the columns the finder actually shows or searches go to the browser.
-const PUBLIC_FIELDS = [
-  "id", "name_en", "name_bn", "degrees_en", "degrees_bn", "designation_en", "designation_bn",
-  "expertise_en", "expertise_bn", "schedule_en", "schedule_bn", "specialty_id", "specialty_en",
-  "specialty_bn", "specialty_keywords_en", "specialty_keywords_bn", "room", "fee", "serial_phone",
-  "photo", "display_order", "keywords_en", "keywords_bn", "telehealth",
-];
-
 export default async function DoctorsPage({ searchParams }) {
   const { locale, t } = await getT();
   const [{ q }, headerProps, doctors, specialties, checkupPage] = await Promise.all([
@@ -36,14 +28,8 @@ export default async function DoctorsPage({ searchParams }) {
     getHealthCheckupPage(),
   ]);
 
-  const publicDoctors = doctors.map((d) => Object.fromEntries(PUBLIC_FIELDS.map((f) => [f, d[f] ?? null])));
-  const publicSpecialties = specialties.map(({ id, name_en, name_bn, keywords_en, keywords_bn }) => ({
-    id,
-    name_en,
-    name_bn,
-    keywords_en,
-    keywords_bn,
-  }));
+  const publicDoctors = doctors.map(toPublicDoctor);
+  const publicSpecialties = specialties.map(toPublicSpecialty);
 
   return (
     <div className="min-h-screen bg-background text-foreground">

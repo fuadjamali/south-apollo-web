@@ -1,30 +1,11 @@
 import { IconSearch, IconArrowRight, IconStethoscope } from "@tabler/icons-react";
 import { buildIndex, searchDoctors, FINDER_PROBLEMS } from "@/lib/doctorSearch";
+import HomeFeaturedDoctors from "@/components/HomeFeaturedDoctors";
 
 function pick(row, field, locale) {
   const en = row[`${field}_en`];
   const bn = row[`${field}_bn`];
   return locale === "bn" ? bn || en : en || bn;
-}
-
-// Up to `count` doctors with photos, one per department first so the strip shows the breadth of
-// the directory rather than four cardiologists; topped up from the rest if there are fewer
-// departments than slots.
-function featuredDoctors(doctors, count) {
-  const withPhoto = doctors.filter((d) => d.photo);
-  const seen = new Set();
-  const picked = [];
-  for (const d of withPhoto) {
-    if (picked.length === count) break;
-    if (seen.has(d.specialty_id)) continue;
-    seen.add(d.specialty_id);
-    picked.push(d);
-  }
-  for (const d of withPhoto) {
-    if (picked.length === count) break;
-    if (!picked.includes(d)) picked.push(d);
-  }
-  return picked;
 }
 
 // Home-page teaser for the Find a Doctor page (/doctors): a search box that goes straight to
@@ -39,7 +20,19 @@ export default function HomeDoctorsSection({ heading, subheading, doctors, depar
       return results.length > 0 && !loose;
     })
     .slice(0, 6);
-  const featured = featuredDoctors(doctors, 4);
+  // Lean payload for the client component — it only needs enough to render a photo card, not
+  // the full doctor record (schedule, room, fee, keywords, ...).
+  const photoCandidates = doctors
+    .filter((d) => d.photo)
+    .map((d) => ({
+      id: d.id,
+      name_en: d.name_en,
+      name_bn: d.name_bn,
+      specialty_id: d.specialty_id,
+      specialty_en: d.specialty_en,
+      specialty_bn: d.specialty_bn,
+      photo: d.photo,
+    }));
 
   return (
     <section id="find-doctor" className="py-20" style={style}>
@@ -100,30 +93,8 @@ export default function HomeDoctorsSection({ heading, subheading, doctors, depar
             </a>
           </div>
 
-          {featured.length > 0 && (
-            <div className="mx-auto grid w-full max-w-md grid-cols-2 gap-4 lg:mr-0">
-              {featured.map((d, i) => (
-                <a
-                  key={d.id}
-                  href={`/doctors?q=${encodeURIComponent(pick(d, "name", locale) || "")}`}
-                  className={`group overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition hover:shadow-md ${i >= 2 ? "hidden sm:block" : ""}`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={d.photo}
-                    alt={pick(d, "name", locale)}
-                    loading="lazy"
-                    className="aspect-square w-full object-cover object-top transition group-hover:scale-[1.02]"
-                  />
-                  <div className="p-3">
-                    <p className="text-sm font-semibold leading-snug">{pick(d, "name", locale)}</p>
-                    {pick(d, "specialty", locale) && (
-                      <p className="mt-0.5 text-xs text-primary">{pick(d, "specialty", locale)}</p>
-                    )}
-                  </div>
-                </a>
-              ))}
-            </div>
+          {photoCandidates.length > 0 && (
+            <HomeFeaturedDoctors candidates={photoCandidates} locale={locale} />
           )}
         </div>
       </div>
